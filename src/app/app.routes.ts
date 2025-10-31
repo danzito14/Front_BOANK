@@ -10,7 +10,7 @@ import { Temporal } from './pages/temporal/temporal';
 import { Result } from './pages/result/result';
 import { DireccionPago } from './pages/direccion-pago/direccion-pago';
 import { General } from './pages/general/general';
-// import { ResumenPedido } from './pages/resumen-pedido/resumen-pedido';
+import { ResumenPedido } from './pages/resumen-pedido/resumen-pedido';
 
 export const routes: Routes = [
     { path: '', component: Home },
@@ -23,7 +23,7 @@ export const routes: Routes = [
     { path: 'result', component: Result },
     { path: 'direccion-pago', component: DireccionPago },
     { path: 'general', component: General },
-    // { path: 'resumen-pedido', component: ResumenPedido },
+    { path: 'resumen-pedido', component: ResumenPedido },
 
 
     { path: 'temporal', component: Temporal }
