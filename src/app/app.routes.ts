@@ -9,7 +9,7 @@ import { AuthError } from './pages/auth-error/auth-error';
 import { Temporal } from './pages/temporal/temporal';
 import { Result } from './pages/result/result';
 import { DireccionPago } from './pages/direccion-pago/direccion-pago';
-// import { General } from './pages/general/general';
+import { General } from './pages/general/general';
 // import { ResumenPedido } from './pages/resumen-pedido/resumen-pedido';
 
 export const routes: Routes = [
@@ -22,7 +22,7 @@ export const routes: Routes = [
     { path: 'auth-error', component: AuthError },
     { path: 'result', component: Result },
     { path: 'direccion-pago', component: DireccionPago },
-    // { path: 'general', component: General },
+    { path: 'general', component: General },
     // { path: 'resumen-pedido', component: ResumenPedido },
 
 
