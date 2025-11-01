@@ -14,6 +14,8 @@ export class TarjetaCarrito {
   @Input() cargar: String = "";
   @Input() boton_eliminar = true;
   @Input() checkbox: boolean = true;
+
+  @Input() ids: any[] = [];
   @Output() eliminar = new EventEmitter<string>();
 
 
@@ -31,7 +33,7 @@ export class TarjetaCarrito {
     if (this.cargar === "carrito") {
       this.cargarPlatillos();
     } else if (this.cargar === "pedido") {
-
+      this.cargarplatillosPedido(this.ids);
     }
   }
 
@@ -74,8 +76,14 @@ export class TarjetaCarrito {
   }
 
 
-  cargarplatillosPedido() {
+  cargarplatillosPedido(ids: string[]) {
+    this.carritoService.get_carrito_id(ids).subscribe(platillos => {
+      this.zone.run(() => {
 
+        this.platillosCarrito = platillos;
+        this.cd.detectChanges();  // 🔹 Forzar actualización
+      });
+    });
   }
 
 

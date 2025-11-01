@@ -28,6 +28,8 @@ export interface TemporalInterface {
   id_tarjeta?: string;
   direccion?: string;
   id_mesa?: string;
+  id_direccion?: string;
+
 }
 
 
@@ -60,9 +62,10 @@ export class CarritoService {
   private apiUrlCarrito = 'http://127.0.0.1:8000/carrito';
   private apiUrltemproal = 'http://127.0.0.1:8000/carrito_temporal';
 
-  private apiCP = 'http://127.0.0.1:8000/utils/buscar_cp?codigo='
-  private apiUrlDireccion = 'http://127.0.0.1:8000/direcciones'
-  private apiUrlTarjeta = 'http://127.0.0.1:8000/tarjetas'
+  private apiCP = 'http://127.0.0.1:8000/utils/buscar_cp?codigo=';
+  private apiUrlDireccion = 'http://127.0.0.1:8000/direcciones';
+  private apiUrlTarjeta = 'http://127.0.0.1:8000/tarjetas';
+  private apiRegistrar = 'http://127.0.0.1:8000/registrar_pedido';
 
   constructor(private http: HttpClient, private authStore: AuthStoreService) { }
 
@@ -255,4 +258,29 @@ export class CarritoService {
       })
     );
   }
+
+  get_carrito_id(ids: string[]): Observable<CarritoInterface[]> {
+    const headers = this.getHeaders();
+    if (!headers) return of([]);
+
+    return this.http.post<CarritoInterface[]>(
+      `${this.apiUrlCarrito}/get_by_ids`,
+      ids,   // <- aquí va el body con los IDs
+      { headers }
+    ).pipe(
+      catchError(err => {
+        console.error('Error al obtener el resumen:', err);
+        return of([]);
+      })
+    );
+  }
+
+
+  enviarCorreoResumen(data: any): Observable<any> {
+    const headers = this.getHeaders();
+    if (!headers) return of([]);
+    return this.http.post(`${this.apiRegistrar}/enviar_recibo`, data, { headers });
+  }
+
+
 }

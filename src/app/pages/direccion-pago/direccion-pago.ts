@@ -63,7 +63,8 @@ export class DireccionPago implements OnInit {
     // 🔹 Declara el body fuera del if/else
     let body: TemporalInterface = {
       metodo_pago: metodopago,
-      direccion: direccion_elegida
+      direccion: direccion_elegida,
+      id_direccion: this.direccionSeleccionada
     };
 
     // 🔹 Si el método de pago es tarjeta, añade el id_tarjeta

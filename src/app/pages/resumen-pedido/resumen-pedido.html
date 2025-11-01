@@ -2,40 +2,43 @@
     <!-- 🔙 Botón para regresar -->
     <button class="btn-regresar" type="button" (click)="regresar()">← Volver</button>
 
-    <section>
+    <section *ngIf="resumen.length > 0 && !enviandocorreo">
+        <div class="tarjetas-carrito">
+            <app-tarjeta-carrito [cargar]="'pedido'" [ids]="idscarrito" [boton_eliminar]="false" [checkbox]="false">
+            </app-tarjeta-carrito>
+
+        </div>
         <div class="resumenpedido">
-            <div class="tarjetas-carrito">
-                <app-tarjeta-carrito [cargar]="'carrito'" [boton_eliminar]="false" [checkbox]="false">
-                </app-tarjeta-carrito>
-            </div>
             <div class="direccion-tipo-monto">
                 <div class="texto-pedido">
                     <h2 id="resumen_pedido">Resumen del pedido</h2>
                     <h2>Direccion:</h2>
-                    <h3>Casa, 81121, Andres Perez de Riva, 410, frente al poste f21, Adolfo Ruiz
-                        Cortines, Guasave, Sinaloa</h3>
+                    <h3>{{resumen[0].direccion}}</h3>
                     <h2>Tipo de pago: </h2>
-                    <h3>Tarjeta: Danzito de fontaine, ****1234</h3>
+                    <h3>{{resumen[0].metodo_pago}}</h3>
                     <h2>Platillos</h2>
                     <div class="resumen_pedido">
-                        <div>
+                        <div *ngFor="let producto of ticket">
                             <div class="lista">
-                                <div id="Producto">Furina de fontaine</div>
-                                <div id="cantidad">x 1</div>
-                            </div>
-                            <div class="lista">
-                                <div id="Producto">El chocomilk que vendio el mundo</div>
-                                <div id="cantidad">x 2</div>
+                                <div id="Producto">{{producto.nombre}}</div>
+                                <div id="cantidad">x {{producto.cant}}</div>
+                                <div id="subtotal">= {{producto.subtotal}} MXN</div>
                             </div>
                         </div>
                     </div>
                     <h2> Total:</h2>
-                    <h3> $500MXN </h3>
+                    <h3> {{resumen[0].precio}} MXN </h3>
                 </div>
                 <div class="boton-pagar">
-                    <button type="button" class="button-style" title="pagar">Pagar: 500MXN</button>
+                    <button type="button" class="button-style" title="pagar" (click)="pagar()">Pagar:
+                        {{resumen[0].precio}}MXN</button>
                 </div>
             </div>
+
         </div>
     </section>
+    <div class="cargando" *ngIf="resumen.length === 0 || enviandocorreo">
+        <p>Cargando resumen del pedido...</p>
+        <img src="/sistema/portada.png" alt="">
+    </div>
 </main>

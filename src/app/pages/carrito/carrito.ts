@@ -19,7 +19,9 @@ export class Carrito implements OnInit {
   cargar: string = "carrito";
 
   // Lista con cantidad por id_platillo
-  resumenSeleccion: { platillo: CarritoInterface, cantidad: number }[] = [];
+  resumenSeleccion: {
+    subtotal: number; platillo: CarritoInterface, cantidad: number
+  }[] = [];
 
   // Array con los IDs de detalle de carrito seleccionados
   public idscarrito: string[] = [];
@@ -45,14 +47,20 @@ export class Carrito implements OnInit {
 
     this.idscarrito = this.productosSeleccionados.map(p => p.id_detalle_carrito);
 
-    // 🔹 Agrupar por id_platillo y contar cantidad
-    const resumenMap = new Map<string, { platillo: CarritoInterface, cantidad: number }>();
+    // 🔹 Agrupar por id_platillo y contar cantidad, calculando subtotal
+    const resumenMap = new Map<string, { platillo: CarritoInterface, cantidad: number, subtotal: number }>();
 
     seleccion.forEach(p => {
       if (resumenMap.has(p.id_platillo)) {
-        resumenMap.get(p.id_platillo)!.cantidad += 1;
+        const item = resumenMap.get(p.id_platillo)!;
+        item.cantidad += 1;
+        item.subtotal = item.platillo.precio_unitario * item.cantidad;
       } else {
-        resumenMap.set(p.id_platillo, { platillo: p, cantidad: 1 });
+        resumenMap.set(p.id_platillo, {
+          platillo: p,
+          cantidad: 1,
+          subtotal: p.precio_unitario
+        });
       }
     });
 
@@ -60,12 +68,14 @@ export class Carrito implements OnInit {
 
     // 🔹 Calcular total
     this.total = this.resumenSeleccion.reduce(
-      (acc, item) => acc + item.platillo.precio_unitario * item.cantidad,
+      (acc, item) => acc + item.subtotal,
       0
     );
 
+    console.log("Resumen con subtotal:", this.resumenSeleccion);
     console.log("Total:", this.total);
   }
+
 
   // 🔹 Enviar carrito temporal con todos los datos necesarios
   encargarPedido() {
@@ -77,7 +87,8 @@ export class Carrito implements OnInit {
     // 🔹 Crear lista_producto según el formato esperado
     const lista_producto = this.resumenSeleccion.map(item => ({
       nombre: item.platillo.Nombre_platillo, // asegúrate que tu modelo CarritoInterface tenga esta propiedad
-      cant: item.cantidad
+      cant: item.cantidad,
+      subtotal: item.subtotal
     }));
 
     const data = {
