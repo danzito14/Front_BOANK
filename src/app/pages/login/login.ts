@@ -28,6 +28,7 @@ export class Login {
 
         // ✅ Guardar token en el AuthStoreService
         this.authStore.setToken(response.access_token);
+        this.authStore.setToken2(response.nvl_usuario);
 
         this.router.navigate(['']);
       },

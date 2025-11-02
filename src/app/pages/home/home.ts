@@ -3,10 +3,11 @@ import { TarjetaProduct } from "../../components/tarjeta-product/tarjeta-product
 import { TarjetaOferta } from "../../components/tarjeta-oferta/tarjeta-oferta";
 import { ProductosService, Producto, CombosInterface } from '../../services/home/productos-service';
 import { TarjetaCombos } from '../../components/tarjeta-combos/tarjeta-combos';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home',
-  imports: [TarjetaProduct, TarjetaOferta, TarjetaCombos],
+  imports: [TarjetaProduct, TarjetaOferta, TarjetaCombos, CommonModule],
   templateUrl: './home.html',
   styleUrls: ['./home.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

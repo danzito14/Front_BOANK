@@ -11,19 +11,21 @@ import { Result } from './pages/result/result';
 import { DireccionPago } from './pages/direccion-pago/direccion-pago';
 import { General } from './pages/general/general';
 import { ResumenPedido } from './pages/resumen-pedido/resumen-pedido';
+import { AuthGuard } from './guards/auth-guard';
+import { RoleGuard } from './guards/role-guard';
 
 export const routes: Routes = [
-    { path: '', component: Home },
-    { path: 'carrito', component: Carrito },
-    { path: 'usuario', component: User },
+    { path: '', component: Home, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1'] } },
+    { path: 'carrito', component: Carrito, canActivate: [AuthGuard] },
+    { path: 'usuario', component: User, canActivate: [AuthGuard] },
     { path: 'login', component: Login },
     { path: 'register', component: Register },
     { path: 'auth-code', component: AuthCode },
     { path: 'auth-error', component: AuthError },
-    { path: 'result', component: Result },
-    { path: 'direccion-pago', component: DireccionPago },
-    { path: 'general', component: General },
-    { path: 'resumen-pedido', component: ResumenPedido },
+    { path: 'result', component: Result, canActivate: [AuthGuard] },
+    { path: 'direccion-pago', component: DireccionPago, canActivate: [AuthGuard] },
+    { path: 'general', component: General, canActivate: [AuthGuard] },
+    { path: 'resumen-pedido', component: ResumenPedido, canActivate: [AuthGuard] },
 
 
     { path: 'temporal', component: Temporal }

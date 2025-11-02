@@ -19,6 +19,7 @@ export interface CarritoInterface {
 }
 
 export interface TemporalInterface {
+  id_temporal?: string
   datos_pedido?: any[];
   fecha_creacion?: Date;
   pagado?: boolean;
@@ -235,6 +236,7 @@ export class CarritoService {
       ...(data.id_tarjeta ? { id_tarjeta: data.id_tarjeta } : {}),
       direccion: data.direccion,
       ...(data.id_mesa ? { id_mesa: data.id_mesa } : {}),
+      ...(data.id_direccion ? { id_direccion: data.id_direccion } : {}),
     };
 
     return this.http.put<any>(

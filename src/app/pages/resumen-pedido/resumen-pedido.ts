@@ -76,6 +76,7 @@ export class ResumenPedido implements OnInit {
 
     const pedido = this.resumen[0];
     const payload = {
+      id_temporal: pedido.id_temporal,
       direccion: pedido.direccion,
       metodo_pago: pedido.metodo_pago,
       precio: pedido.precio,
@@ -95,6 +96,8 @@ export class ResumenPedido implements OnInit {
           icon: "success",
           iconColor: "#d6b45a",
           confirmButtonColor: "#d6b45a"
+        }).then(() => {
+          this.router.navigate(['']);
         });
       },
       error: (err) => {

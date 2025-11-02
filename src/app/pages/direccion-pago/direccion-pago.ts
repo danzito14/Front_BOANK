@@ -66,7 +66,7 @@ export class DireccionPago implements OnInit {
       direccion: direccion_elegida,
       id_direccion: this.direccionSeleccionada
     };
-
+    console.log(body);
     // 🔹 Si el método de pago es tarjeta, añade el id_tarjeta
     if (this.metodoPagoSeleccionado !== 'Efectivo') {
       body.id_tarjeta = this.metodoPagoSeleccionado!;

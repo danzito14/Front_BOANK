@@ -1,16 +1,21 @@
 <main>
-    <div class="ofertas_home">
-        <h1>Platillos de la Semana</h1>
-        <app-tarjeta-oferta></app-tarjeta-oferta>
-    </div>
+    <div>
+        <div class="ofertas_home">
+            <h1>Platillos de la Semana</h1>
+            <app-tarjeta-oferta></app-tarjeta-oferta>
+        </div>
 
-    <div class="combos_home">
-        <h1>Nuestros combos</h1>
-        <app-tarjeta-combo [combosExternos]="combos" [autoCargar]="false"></app-tarjeta-combo>
+        <div class="combos_home">
+            <h1>Nuestros combos</h1>
+            <app-tarjeta-combo [combosExternos]="combos" [autoCargar]="false"></app-tarjeta-combo>
+        </div>
+        <div class="platillos_home">
+            <h1>Nuestros platillos</h1>
+            <app-tarjeta-product tipo="productos" [autoCargar]="false" [favoritospage]="false"
+                [productosExternos]="productos"></app-tarjeta-product>
+        </div>
     </div>
-    <div class="platillos_home">
-        <h1>Nuestros platillos</h1>
-        <app-tarjeta-product tipo="productos" [autoCargar]="false" [favoritospage]="false"
-            [productosExternos]="productos"></app-tarjeta-product>
+    <div *ngIf="productos.length === 0">
+        Cargando Productos
     </div>
 </main>
