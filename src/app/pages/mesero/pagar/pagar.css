@@ -1,0 +1,190 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+main {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    background-color: #f5f5f5;
+
+}
+
+section {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f5f5;
+    padding-top: 10px;
+    padding: 5px;
+    flex-direction: column;
+    position: relative;
+}
+
+.conteiner {
+    margin-top: 6%;
+    padding: 10px;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    box-shadow: 4px 4px 4px 0 rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    border: #d6b45a solid 1px;
+    gap: 25px;
+}
+
+
+.buton-style {
+    background: #d6b45a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 5px;
+    font-weight: 400;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    /* centra horizontalmente */
+    align-items: center;
+    /* centra verticalmente */
+    text-align: center;
+    cursor: pointer;
+
+    transition: 0.3s;
+    width: 100%;
+    height: 60px;
+    font-size: 2rem;
+    margin-top: 30px;
+}
+
+.buton-style:hover {
+    background: transparent;
+    border: #d6b45a solid 2px;
+    color: #d6b45a;
+}
+
+
+@media (max-width: 768px) {
+    .conteiner {
+        width: 100%;
+    }
+}
+
+/* 🔙 Botón Volver */
+.btn-regresar {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: #fff;
+    color: #D0AF43;
+    border: 1px solid #D0AF43;
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.btn-regresar:hover {
+    background-color: #D0AF43;
+    color: white;
+    transform: scale(1.05);
+}
+
+.info-header {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.info-header h2 {
+    border-bottom: #D0AF43 solid 2px;
+    margin-bottom: 5px;
+}
+
+.info-header span {
+    color: #333;
+    font-style: italic;
+}
+
+.info-header h1 {
+    color: #0CAF03;
+    font-weight: 300;
+    font-style: italic;
+}
+
+.metodo-pago {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.opciones-switch {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    width: 250px;
+    background: #f0f0f0;
+    border: 2px solid #d6b45a;
+    border-radius: 50px;
+    overflow: hidden;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Ocultamos los radios */
+.opciones-switch input[type="radio"] {
+    display: none;
+}
+
+/* Estilo de cada opción */
+.opciones-switch label {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    font-weight: 600;
+    color: #a5a5a5;
+    z-index: 2;
+    transition: color 0.3s ease;
+    cursor: pointer;
+}
+
+/* Fondo deslizante */
+.switch-bg {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: calc(50% - 6px);
+    height: calc(100% - 6px);
+    background-color: #d6b45a;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+/* Cuando está activo Efectivo */
+#efectivo:checked~.switch-bg {
+    left: 3px;
+}
+
+/* Cuando está activo Tarjeta */
+#tarjeta:checked~.switch-bg {
+    left: 50%;
+}
+
+/* Texto activo cambia de color */
+#efectivo:checked+label[for="efectivo"],
+#tarjeta:checked+label[for="tarjeta"] {
+    color: white;
+}

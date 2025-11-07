@@ -32,10 +32,10 @@ section {
 
 .rol-nombre {
     display: flex;
-
+    gap: 5px;
 }
 
-.disponible {
+.disponible1 {
     width: 50%;
     display: flex;
     flex-direction: row;
@@ -50,26 +50,26 @@ section {
 }
 
 .mesas-container {
-    padding-left: 10px;
     display: flex;
     flex-direction: column;
+    /* separa cada mesa */
+    padding: 10px;
+    max-height: 80vh;
+    /* opcional: para scroll si hay muchas mesas */
+    overflow-y: auto;
+    /* scroll vertical */
 }
 
-
-.mesa-list {
-    border: none;
+.mesa-item label {
     width: 100%;
-    height: 50px;
-    text-align: left;
-    padding-left: 10px;
-    font-style: italic;
-    border-bottom: #D0AF43 solid 1px;
-}
-
-.mesa-list:hover {
-    background-color: #D0AF4380;
-    border-left: #877129 solid 10px;
-    transition: 100ms;
+    min-height: 50px;
+    /* tamaño visible de cada mesa */
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    border-bottom: #333 solid 1px;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
 .botones-principales {
@@ -146,4 +146,71 @@ section {
 
 #listo_para_servir {
     border: none;
+}
+
+/* Estilo base */
+.Libre,
+.Ocupada {
+    position: relative;
+    cursor: pointer;
+    width: 100%;
+    min-height: 8%;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+    border-bottom: #333 solid 1px;
+}
+
+.Ocupada {
+    display: flex;
+    flex-direction: column;
+}
+
+.Ocupada>div>span {
+    color: #333;
+    font-style: italic;
+    font-size: small;
+}
+
+.Libre>span,
+.Ocupada>span {
+    display: flex;
+    align-items: start;
+    /* <-- esto centra verticalmente */
+    padding-left: 1rem;
+    height: 100%;
+    width: 100%;
+    /* opcional si quieres que el span ocupe todo el alto del label */
+}
+
+/* Oculta el radio */
+.Libre input[type="radio"],
+.Ocupada input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Aplica estilo al label completo si el radio está seleccionado */
+.Libre:has(input[type="radio"]:checked) {
+    background-color: #d0af4380;
+    color: white;
+    border-left: #D0AF43 solid 10px;
+    outline: #D0AF43 solid 1px;
+    border-radius: 10px;
+    border-bottom: none;
+    transition: 200ms;
+}
+
+.Ocupada {
+    background-color: #77383288;
+}
+
+.Ocupada:has(input[type="radio"]:checked) {
+    background-color: #77383280;
+    color: white;
+    border-left: #773832 solid 10px;
+    outline: #773832 solid 1px;
+    border-radius: 10px;
+    border-bottom: none;
+    transition: 200ms;
 }

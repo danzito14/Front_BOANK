@@ -19,6 +19,7 @@ export class TarjetaProduct implements OnInit, OnChanges, OnDestroy {
   @Input() mostrarFavorito: boolean = true;
   @Input() autoCargar: boolean = true;
   @Input() favoritospage: boolean = false;
+  @Input() userview: boolean = true;
 
   productos$: Observable<ProductoConFavorito[]>;
   private productosSubject = new BehaviorSubject<ProductoConFavorito[]>([]);

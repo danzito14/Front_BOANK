@@ -3,44 +3,46 @@
         <div class="seleccion-mesa">
             <div class="titulo">
                 <h1>Mesas</h1>
-                <div class="disponible">
+                <div class="disponible1">
                     <div class="cuadrito"></div>
                     <h3> Ocupadas</h3>
                 </div>
             </div>
             <div class="mesas-container">
-                <button type="button" class="mesa-list">
-                    <h2>Mesa n</h2>
-                </button>
-                <button type="button" class="mesa-list">
-                    <h2>Mesa n</h2>
-                </button><button type="button" class="mesa-list">
-                    <h2>Mesa n</h2>
-                </button><button type="button" class="mesa-list">
-                    <h2>Mesa n</h2>
-                </button><button type="button" class="mesa-list">
-                    <h2>Mesa n</h2>
-                </button>
+                <div class="mesa-item" *ngFor="let mesa of mesas$">
+                    <label [ngClass]="mesa.Estado">
+                        <input type="radio" name="mesaSeleccionada" [(ngModel)]="mesaSeleccionada"
+                            [value]="mesa.id_mesa"
+                            (change)="mesaseleccionada(mesa.id_mesa, mesa.Nombre_mesa, mesa.Estado, mesa.id_pedido)" />
+                        <span>{{ mesa.Nombre_mesa }}</span>
+                        <div *ngIf="mesa.id_pedido">
+                            <span>ID pedido: {{mesa.id_pedido}}</span>
+                        </div>
+                    </label>
+                </div>
             </div>
+
         </div>
         <div class="botones-principales">
             <div class="cabeza-inicio">
-                <div class="rol-nombre">
-                    <h2>Rol empleado</h2>
-                    <h2>Nombre: Empleado</h2>
+                <div class="rol-nombre" *ngIf="empleado_puesto_nombre">
+                    <h2>{{ empleado_puesto_nombre?.Nombre_puesto }}: </h2>
+                    <h2> {{empleado_puesto_nombre.Nombre_empleado}}</h2>
                 </div>
-                <h2>HH:MM</h2>
+                <!-- <h2>{{hora$ |async}}</h2> -->
             </div>
 
             <div class="botones-platos">
                 <div class="botones-seleccion">
                     <h1>Seleccione una mesa disponible
                         para abrir una orden</h1>
-                    <button type="button" class="button-style" id="crear_pedido" title="Abrir pedido">Abrir
+                    <button [disabled]="!mesaSeleccionada" (click)="confirmarMesa()" type="button" class="button-style"
+                        id="crear_pedido" title="Abrir pedido">Abrir
                         Orden</button>
 
                     <h1>Seleccione una mesa en rojo para agregar algún platillo a la orden o sacar la cuenta</h1>
-                    <button type="button" class="button-style" id="agregar_pedido" title="Agregar al pedido">
+                    <button [disabled]="!id_pedido" type="button" class="button-style" id="agregar_pedido"
+                        title="Agregar al pedido" (click)="actualizarpedido()">
                         Agregar a la orden
                     </button>
                 </div>

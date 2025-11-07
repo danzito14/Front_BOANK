@@ -70,8 +70,12 @@ export class CarritoService {
 
   constructor(private http: HttpClient, private authStore: AuthStoreService) { }
 
+  getToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('token');
+  }
   private getHeaders(): HttpHeaders | null {
-    const token = this.authStore.getToken();
+    const token = this.getToken();
     return token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : null;
   }
 
@@ -123,9 +127,17 @@ export class CarritoService {
 
   eliminarPlatillo(id_detalle_carrito: string): Observable<any> {
     const headers = this.getHeaders();
+    console.log(headers);
     if (!headers) return of(null);
-
     return this.http.delete(`${this.apiUrlCarrito}/eliminar/${id_detalle_carrito}`, { headers })
+      .pipe(catchError(err => { console.error(err); return of(null); }));
+  }
+
+  vaciarCarrito(): Observable<any> {
+    const headers = this.getHeaders();
+    console.log(headers);
+    if (!headers) return of(null);
+    return this.http.delete(`${this.apiUrlCarrito}/vaciar`, { headers })
       .pipe(catchError(err => { console.error(err); return of(null); }));
   }
 
@@ -135,6 +147,7 @@ export class CarritoService {
     idscarrito: string[];
     precio: number;
     lista_producto: { nombre: string; cant: number }[];
+    id_mesa?: string
   }): Observable<any> {
     const headers = this.getHeaders();
     if (!headers) return of(null);
@@ -145,8 +158,10 @@ export class CarritoService {
       fecha_creacion: new Date(),
       pagado: false,
       precio: data.precio,
-      lista_producto: data.lista_producto
+      lista_producto: data.lista_producto,
+      ...(data.id_mesa && { id_mesa: data.id_mesa })
     };
+    console.log(body);
 
     return this.http.post<any>(
       `${this.apiUrltemproal}/guardar`,
@@ -279,6 +294,13 @@ export class CarritoService {
 
 
   enviarCorreoResumen(data: any): Observable<any> {
+    const headers = this.getHeaders();
+    if (!headers) return of([]);
+    return this.http.post(`${this.apiRegistrar}/enviar_recibo`, data, { headers });
+  }
+
+  // se usa cuando se va actualizar un pedido de mesa, mas que nada actualizar el total a pagar 
+  actualizarpedido(data: any): Observable<any> {
     const headers = this.getHeaders();
     if (!headers) return of([]);
     return this.http.post(`${this.apiRegistrar}/enviar_recibo`, data, { headers });

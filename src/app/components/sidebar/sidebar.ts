@@ -5,7 +5,8 @@ import { Router } from '@angular/router';
 import { Categoria, CategoriasService } from '../../services/categorias/categorias-service';
 import { MaxAndMinPrice, maxandmin } from '../../services/home/max-and-min-price';
 import { FormsModule } from '@angular/forms';
-import { debounceTime, Subject } from 'rxjs';
+import { BehaviorSubject, debounceTime, Subject } from 'rxjs';
+import { AuthStoreService } from '../../services/auth/auth-store';
 
 
 @Component({
@@ -45,6 +46,9 @@ export class Sidebar implements OnInit {
 
   private precioSubject = new Subject<number>();
 
+
+  private tokenSubject = new BehaviorSubject<string | null>(null);
+  token$ = this.tokenSubject.asObservable();
   //varaible para actualizar el input range en tiempo real
   rangoActual: number = this.precioMax / 2;
   constructor(
@@ -52,7 +56,8 @@ export class Sidebar implements OnInit {
     private cd: ChangeDetectorRef,
     private zone: NgZone,
     private maxandmin: MaxAndMinPrice,
-    private router: Router
+    private router: Router,
+    private authstore: AuthStoreService
   ) {
     this.precioSubject.pipe(debounceTime(1000)).subscribe(valor => this.filtrarPorPrecio(this.prices.min_price, valor))
   }
@@ -81,6 +86,8 @@ export class Sidebar implements OnInit {
       },
       error: (err) => console.log("Error al llamar al servicio", err)
     });
+
+    this.get_nvl_usuario();
   }
 
   // 🔍 Buscar texto libre
@@ -108,6 +115,16 @@ export class Sidebar implements OnInit {
 
   buscar_filtro(filtro: string) {
     console.log("filtro aca usado", filtro)
+
     this.router.navigate(["/result"], { queryParams: { filtro_especial: filtro } });
   }
+
+
+  get_nvl_usuario() {
+    if (typeof window === 'undefined') return null;
+    const token = localStorage.getItem('nvl_usuario');
+    this.tokenSubject.next(token);
+    return token;
+  }
+
 }

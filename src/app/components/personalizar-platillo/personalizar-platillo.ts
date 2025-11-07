@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, Subject, takeUntil } from 'rxjs';
 import { ProductosService, Producto, OpcionesPlatillo } from '../../services/home/productos-service';
 import { CarritoService } from '../../services/carrito/carrito';
 import { Router } from '@angular/router';
-
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-personalizar-platillo',
@@ -108,7 +108,23 @@ export class PersonalizarPlatillo implements OnChanges, OnDestroy {
 
           // 🔹 Si no quedan productos, redirigir a carrito
           if (productosActuales.length === 0) {
-            this.router.navigate(['/carrito']);
+            Swal.fire({
+              title: `Platillos listos`,
+              text: "¿Desea ir al carrito?",
+              icon: "question",
+              iconColor: "#d6b45a",
+              showCancelButton: true,
+              cancelButtonColor: "#773832",
+              confirmButtonColor: "#D0AF43",
+              confirmButtonText: "Ir al carrito",
+              cancelButtonText: "Regresar al inicio"
+            }).then((result) => {
+              if (result.isConfirmed) {
+                this.router.navigate(['/carrito']);
+              } else {
+                window.history.back();
+              }
+            });
           }
         },
         error: (err) => console.error(err)

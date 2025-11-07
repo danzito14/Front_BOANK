@@ -13,19 +13,30 @@ import { General } from './pages/general/general';
 import { ResumenPedido } from './pages/resumen-pedido/resumen-pedido';
 import { AuthGuard } from './guards/auth-guard';
 import { RoleGuard } from './guards/role-guard';
+import { MeseroInicio } from './pages/mesero/mesero-inicio/mesero-inicio';
+import { MeseroMenu } from './pages/mesero/mesero-menu/mesero-menu';
+import { Pedido } from './pages/pedido/pedido';
+import { Pagar } from './pages/mesero/pagar/pagar';
 
 export const routes: Routes = [
     { path: '', component: Home, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1'] } },
-    { path: 'carrito', component: Carrito, canActivate: [AuthGuard] },
-    { path: 'usuario', component: User, canActivate: [AuthGuard] },
+    { path: 'carrito', component: Carrito, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1', '2'] } },
+    { path: 'usuario', component: User, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1'] } },
     { path: 'login', component: Login },
     { path: 'register', component: Register },
     { path: 'auth-code', component: AuthCode },
     { path: 'auth-error', component: AuthError },
-    { path: 'result', component: Result, canActivate: [AuthGuard] },
-    { path: 'direccion-pago', component: DireccionPago, canActivate: [AuthGuard] },
+    { path: 'result', component: Result, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1'] } },
+    { path: 'direccion-pago', component: DireccionPago, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1'] } },
     { path: 'general', component: General, canActivate: [AuthGuard] },
-    { path: 'resumen-pedido', component: ResumenPedido, canActivate: [AuthGuard] },
+    { path: 'resumen-pedido', component: ResumenPedido, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1', '2'] } },
+    { path: 'pedido', component: Pedido, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1', '2'] } },
+
+
+    // Mesero
+    { path: 'mesero-inicio', component: MeseroInicio, canActivate: [AuthGuard, RoleGuard], data: { roles: ['2'] } },
+    { path: 'mesero-menu', component: MeseroMenu, canActivate: [AuthGuard, RoleGuard], data: { roles: ['2'] } },
+    { path: 'pagar', component: Pagar, canActivate: [AuthGuard, RoleGuard], data: { roles: ['2'] } },
 
 
     { path: 'temporal', component: Temporal }

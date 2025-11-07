@@ -1,25 +1,24 @@
-import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, NgZone } from '@angular/core';
+import { FormsModule } from "@angular/forms";
+import { TarjetaProduct } from "../../../components/tarjeta-product/tarjeta-product";
+import { TarjetaOferta } from "../../../components/tarjeta-oferta/tarjeta-oferta";
 import { ActivatedRoute, Router } from '@angular/router';
-import { Categoria, CategoriasService } from '../../services/categorias/categorias-service';
-import { Filtros } from '../../services/filtrado/filtros';
-import { Producto, CombosInterface, ProductosService } from '../../services/home/productos-service';
-import { UntilsPedido } from '../../services/untils/untils-pedido';
-import { FormsModule } from '@angular/forms';
-import { TarjetaCombos } from '../../components/tarjeta-combos/tarjeta-combos';
-import { TarjetaOferta } from '../../components/tarjeta-oferta/tarjeta-oferta';
-import { TarjetaProduct } from '../../components/tarjeta-product/tarjeta-product';
+import { Categoria, CategoriasService } from '../../../services/categorias/categorias-service';
+import { MaxAndMinPrice } from '../../../services/home/max-and-min-price';
+import { CombosInterface, Producto, ProductosService } from '../../../services/home/productos-service';
+import { Filtros } from '../../../services/filtrado/filtros';
+import { UntilsPedido } from '../../../services/untils/untils-pedido';
+import { TarjetaCombos } from '../../../components/tarjeta-combos/tarjeta-combos';
 
 @Component({
-  selector: 'app-temporal',
-  standalone: true,
+  selector: 'app-mesero-menu',
   imports: [CommonModule, FormsModule, TarjetaProduct, TarjetaCombos, TarjetaOferta],
-  templateUrl: './temporal.html',
-  styleUrls: ['./temporal.css'],
-
+  templateUrl: './mesero-menu.html',
+  styleUrl: './mesero-menu.css',
 })
-export class Temporal implements OnInit {
-  modal$: boolean = true;
+export class MeseroMenu {
+
   //Arrays para las listas de productos y categorias
   productos: Producto[] = [];
   categoria: Categoria[] = [];
@@ -133,13 +132,6 @@ export class Temporal implements OnInit {
       error: (err) => console.error(err)
     });
   }
-
-
-
-  cambiar_modal() {
-    this.modal$ = !this.modal$;
-  }
-
 
   regresar() {
     window.history.back();

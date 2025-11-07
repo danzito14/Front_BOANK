@@ -1,10 +1,14 @@
-<section class="cajero">
-    <div class="modal_inicio_cajero" *ngIf="modal$">
-        <h1>Modal</h1>
-        <button type="button" title="button" class="mostrar_menu" (click)=" cambiar_modal()"> boton</button>
-    </div>
-    <div class="mesero-menu" *ngIf="!modal$">
-        <button type="button" title="button" class="mostrar_menu" (click)=" cambiar_modal()"> boton</button>
+<main>
+    <section>
+        <div class="header-pedido">
+            <button class="btn-regresar" type="button" (click)="regresar()">← Volver</button>
+
+            <h3>Mesa seleccionada: {{nombre_mesa}}</h3>
+            <div *ngIf="id_pedido">
+                <h3>Pedido: {{id_pedido}}</h3>
+            </div>
+
+        </div>
         <div class="filtros-header">
             <!-- Contenedor de filtros -->
             <div>
@@ -50,7 +54,5 @@
                 <app-tarjeta-oferta></app-tarjeta-oferta>
             </div>
         </div>
-    </div>
-
-
-</section>
+    </section>
+</main>

@@ -1,7 +1,16 @@
 <section>
     <section class="conteiner">
-        <div>
-            <h1>Carrito</h1>
+        <div class="cabeza">
+            <button class="btn-regresar" type="button" (click)="regresar()">← Volver</button>
+            <div class="header-pedido">
+                <h1>Carrito</h1>
+
+                <h3>Mesa seleccionada: {{nombre_mesa}}</h3>
+                <div *ngIf="id_pedido">
+                    <h3>Pedido: {{id_pedido}}</h3>
+                </div>
+            </div>
+
         </div>
 
         <div class="cuerpo">

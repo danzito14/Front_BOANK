@@ -34,6 +34,11 @@
     width: 1.5em;
 }
 
+.fa-money-check {
+    font-size: 1.5em;
+    color: #D0AF43;
+}
+
 .buscar button {
     border: none;
     background-color: #e4e4e4;

@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
-
-import { jwtDecode } from 'jwt-decode';
 import { AuthStoreService } from '../services/auth/auth-store';
 
 @Injectable({
@@ -12,23 +10,29 @@ export class RoleGuard implements CanActivate {
   constructor(private authStore: AuthStoreService, private router: Router) { }
 
   canActivate(route: ActivatedRouteSnapshot): boolean | UrlTree {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('nvl_usuario');
-      if (token) {
-        const rolesPermitidos = route.data['roles'] as Array<string>;
-        console.log(token);
-        console.log(rolesPermitidos);
-        if (!rolesPermitidos.includes(token)) {
-          // 🚫 No tiene permiso → redirige a acceso denegado o dashboard
-          return this.router.createUrlTree(['/temporal']);
-        }
-        return true;
-      } else {
-        return this.router.parseUrl('/login'); // redirige al login
-      }
+    // 👇 Evita error en entornos SSR
+    if (typeof window === 'undefined') {
+      return true; // o redirige a una página segura si quieres
     }
 
+    const nivelUsuario = localStorage.getItem('nvl_usuario');
+    if (!nivelUsuario) {
+      console.log(nivelUsuario);
+      console.log("auxilio");
+      return this.router.parseUrl('/login');
+    }
+
+    const rolesPermitidos = route.data['roles'] as string[];
+
+    if (nivelUsuario === '2' && !rolesPermitidos.includes('2')) {
+      return this.router.parseUrl('/mesero-inicio');
+    }
+
+    if (!rolesPermitidos.includes(nivelUsuario)) {
+      return this.router.parseUrl('/temporal');
+    }
 
     return true;
   }
+
 }

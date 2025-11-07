@@ -23,6 +23,7 @@ export class AuthStoreService {
 
   getToken2(): string | null {
     if (typeof window === 'undefined') return null;
+    console.log(localStorage.getItem('nvl_usuario'));
     return this.tokenSubject.value || localStorage.getItem('nvl_usuario');
   }
 

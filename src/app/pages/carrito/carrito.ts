@@ -3,6 +3,7 @@ import { CarritoInterface, CarritoService } from '../../services/carrito/carrito
 import { TarjetaCarrito } from '../../components/tarjeta-carrito/tarjeta-carrito';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { UntilsPedido } from '../../services/untils/untils-pedido';
 
 @Component({
   selector: 'app-carrito',
@@ -25,14 +26,20 @@ export class Carrito implements OnInit {
 
   // Array con los IDs de detalle de carrito seleccionados
   public idscarrito: string[] = [];
+  data: any;
+  nombre_mesa: any;
+  id_pedido: any;
+  id_mesa: any;
 
   constructor(
     private carritoService: CarritoService,
-    private router: Router
+    private router: Router,
+    private untilsService: UntilsPedido
   ) { }
 
   ngOnInit() {
     this.cargarPlatillos();
+    this.get_datos_pedido();
   }
 
   cargarPlatillos() {
@@ -83,6 +90,10 @@ export class Carrito implements OnInit {
       console.warn('No hay productos seleccionados');
       return;
     }
+    // if (this.id_pedido) {
+    //   this.actualizar_pedido();
+    // } else {
+
 
     // 🔹 Crear lista_producto según el formato esperado
     const lista_producto = this.resumenSeleccion.map(item => ({
@@ -94,7 +105,8 @@ export class Carrito implements OnInit {
     const data = {
       idscarrito: this.idscarrito,
       precio: this.total,
-      lista_producto
+      lista_producto,
+      ...(this.id_mesa && { id_mesa: this.id_mesa })
     };
 
     console.log(data);
@@ -102,11 +114,32 @@ export class Carrito implements OnInit {
     this.carritoService.agregar_temporal(data).subscribe({
       next: (res) => {
         console.log('Carrito temporal guardado:', res);
-        this.router.navigate(['/direccion-pago']);
+        if (this.nombre_mesa) {
+          this.router.navigate(['/resumen-pedido']);
+        } else {
+          this.router.navigate(['/direccion-pago']);
+        }
       },
       error: (err) => {
         console.error('Error al guardar el carrito temporal:', err);
       }
     });
+    //}
+  }
+
+  actualizar_pedido() {
+    alert(this.id_pedido);
+  }
+
+
+  get_datos_pedido() {
+    this.data = this.untilsService.get_datos_pedido();
+    this.nombre_mesa = this.data.Nombre_mesa;
+    this.id_pedido = this.data.id_pedido;
+    this.id_mesa = this.data.id_mesa;
+  }
+
+  regresar() {
+    window.history.back();
   }
 }

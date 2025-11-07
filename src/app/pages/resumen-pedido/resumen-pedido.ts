@@ -5,6 +5,7 @@ import { CarritoService, TemporalInterface } from '../../services/carrito/carrit
 import { Router } from '@angular/router';
 import { FormsModule } from "@angular/forms";
 import Swal from "sweetalert2"
+import { UntilsPedido } from '../../services/untils/untils-pedido';
 
 @Component({
   selector: 'app-resumen-pedido',
@@ -19,15 +20,24 @@ export class ResumenPedido implements OnInit {
 
   enviandocorreo = false;
 
+
+  data: any;
+  nombre_mesa: string = "";;
+  id_mesa: string = "";;
+  id_pedido: string = "";;
+
+
   constructor(
     private carritoService: CarritoService,
     private router: Router,
     private zone: NgZone,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private untilsService: UntilsPedido
   ) { }
 
   ngOnInit() {
     this.obtener_resumen();
+    this.get_datos_pedido();
   }
 
   regresar() {
@@ -66,7 +76,53 @@ export class ResumenPedido implements OnInit {
       cancelButtonText: "Cancelar"
     }).then((result) => {
       if (result.isConfirmed) {
-        this.enviarCorreo();
+        if (this.id_pedido) {
+          this.actualizar_pedido();
+        } else {
+          this.enviarCorreo();
+        }
+      }
+    });
+  }
+
+  actualizar_pedido() {
+    if (this.resumen.length === 0) return;
+
+    const pedido = this.resumen[0];
+    const payload = {
+      id_temporal: pedido.id_temporal,
+      id_pedido: this.id_pedido,
+      precio: pedido.precio,
+      productos: this.ticket
+    };
+
+    this.enviandocorreo = true;
+    this.carritoService.enviarCorreoResumen(payload).subscribe({
+      next: (res) => {
+        this.enviandocorreo = false;
+
+        // Solo cuando el correo se envía correctamente mostramos el Swal
+        Swal.fire({
+          title: "Pedido actulizado",
+          text: "Se han enviado los pedidos a las cocina",
+          icon: "success",
+          iconColor: "#d6b45a",
+          confirmButtonColor: "#d6b45a"
+        }).then(() => {
+          this.router.navigate(['']);
+        });
+      },
+      error: (err) => {
+        this.enviandocorreo = false;
+
+        console.error(err);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo enviar el correo.",
+          icon: "error",
+          iconColor: "#d33",
+          confirmButtonColor: "#d33"
+        });
       }
     });
   }
@@ -115,6 +171,12 @@ export class ResumenPedido implements OnInit {
     });
   }
 
+  get_datos_pedido() {
+    this.data = this.untilsService.get_datos_pedido();
+    this.id_mesa = this.data.id_mesa;
+    this.id_pedido = this.data.id_pedido;
+    this.nombre_mesa = this.data.Nombre_mesa;
+  }
 
 
 }

@@ -11,7 +11,7 @@
                     {{producto.Porcentaje_oferta}} % Descuento
                 </span>
             </div>
-            <div class="icons">
+            <div class="icons" *ngIf="userview">
                 <button class="icon-btn" title="Carrito"
                     (click)="personalizar_plato(producto.id_platillo, 'plato', 'carrito')">
                     <i class="fas fa-shopping-cart"></i>
@@ -38,7 +38,7 @@
                 <span class="old-price" *ngIf="producto.En_oferta">{{producto.precio_original}} mxn</span>
             </div>
             <button class="order-btn"
-                (click)="personalizar_plato(producto.id_platillo, 'plato', 'pedido')">Encargar</button>
+                (click)="personalizar_plato(producto.id_platillo, 'plato', 'carrito')">Encargar</button>
         </div>
     </div>
 

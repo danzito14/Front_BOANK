@@ -1,0 +1,38 @@
+<section class="pago-section">
+    <button class="btn-regresar" type="button" (click)="regresar()">← Volver</button>
+
+    <div class="conteiner">
+        <div class="info-header">
+            <div class="pedido-info">
+                <h2>Pagar</h2>
+                <h3>Mesa: {{nombre_mesa}}</h3>
+                <span>ID Pedido: {{id_pedido}}</span>
+            </div>
+
+            <div class="total-info">
+                <h2>Total</h2>
+                <h1>${{total}} MXN</h1>
+                <span>Propina recomendable: ${{ total * 0.1}} MXN</span>
+            </div>
+        </div>
+
+        <div class="metodo-pago">
+            <h2>Método de pago</h2>
+            <div class="opciones-switch">
+                <input type="radio" id="efectivo" name="metodo_pago" value="efectivo"
+                    (change)="cambiarMetodoPago($event)" checked>
+                <label for="efectivo">Efectivo</label>
+
+                <input type="radio" id="tarjeta" name="metodo_pago" value="tarjeta"
+                    (change)="cambiarMetodoPago($event)">
+                <label for="tarjeta">Tarjeta</label>
+
+                <div class="switch-bg"></div>
+            </div>
+
+            <button type="button" title="pagar" class="buton-style" (click)="pagarPedido()">
+                Pagar
+            </button>
+        </div>
+    </div>
+</section>
