@@ -1,0 +1,200 @@
+/* ======= GENERAL ======= */
+section {
+    background-color: #fff;
+    width: 100%;
+    min-height: 100vh;
+    height: 100%;
+    padding: 10px;
+    gap: 10px;
+}
+
+
+.header-pedido {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    border-bottom: #d6b45a 2px solid;
+    padding: 5px;
+    justify-content: left;
+    align-items: center;
+}
+
+.header-pedido h3 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.filtros-header {
+    width: 100%;
+    display: flex;
+    padding: 10px;
+    overflow-x: auto;
+    gap: 10px;
+    border-bottom: #D0AF43 solid 2px;
+    overflow-y: auto;
+
+}
+
+/* ======= FILTROS ======= */
+.filtros-class {
+    flex: 6;
+    width: 100%;
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+/* ======= OTROS BOTONES ======= */
+.Others {
+    flex: 3;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    height: 50px;
+}
+
+/* ======= BOTÓN ESTILO GENERAL ======= */
+.button-style {
+    background-color: transparent;
+    border: 1px solid #d6b45a;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    min-width: 150px;
+    max-width: max-content;
+    padding: 2%;
+    gap: 10px;
+    border-radius: 20px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 200ms ease-in-out;
+}
+
+.button-style:hover {
+    background-color: #d6b45a;
+    color: #fff;
+    transition: 200ms;
+    transform: translateY(-3px);
+}
+
+.btn-regresar {
+    position: relative;
+    left: 10;
+    top: 10;
+    background-color: #fff;
+    color: #D0AF43;
+    border: #D0AF43 solid 1px;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btn-regresar:hover {
+    background-color: #D0AF43;
+    transform: scale(1.05);
+    color: white;
+}
+
+
+
+/*##############################################*/
+
+.modal_inicio_cajero {
+    width: 100vw;
+    /* Ancho total del viewport */
+    height: 100vh;
+    /* Alto total del viewport */
+    /* Fondo semitransparente */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Centra el contenido */
+    align-items: center;
+    z-index: 9999;
+    /* Encima de todo */
+}
+
+.rol-nombre {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.botones_modal {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.boton_columna {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+    justify-content: space-evenly;
+}
+
+.boton_columna button {
+    width: 80%;
+    height: 15%;
+    border-radius: 10px;
+    border: none;
+    font-size: 2rem;
+}
+
+#abrir_orden {
+    background-color: #d6b45a;
+    color: #fff;
+}
+
+#abrir_orden:hover {
+    border: #d6b45a solid 2px;
+    color: #D0AF43;
+    background-color: #fff;
+    transition: 200ms;
+}
+
+.boton_columna:first-of-type {
+    border-right: #7a7a7a solid 2px;
+}
+
+.boton_columna:last-of-type {
+    border-left: #7a7a7a 2px solid;
+}
+
+#pagar_mesa {
+    background-color: #773832;
+    color: #fff;
+}
+
+#pagar_mesa:hover {
+    border: #773832 solid 2px;
+    color: #773832;
+    background-color: #fff;
+    transition: 200ms;
+}
+
+#ver_pedido {
+    background-color: #8B5E3C;
+    color: #fff;
+}
+
+#ver_pedido:hover {
+    background-color: #fff;
+    border: #8B5E3C solid 2px;
+    color: #8B5E3C;
+    transition: 200ms;
+}
+
+.pagar_menu {
+    width: 100%;
+    height: 100%;
+}

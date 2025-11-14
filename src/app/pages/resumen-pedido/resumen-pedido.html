@@ -18,6 +18,8 @@
                     <h3>{{resumen[0].metodo_pago}}</h3>
                     <h2 *ngIf="nombre_mesa">Mesa:</h2>
                     <h3>{{nombre_mesa}}</h3>
+                    <h2 *ngIf="resumen[0].titular">Titular</h2>
+                    <h2>{{resumen[0].titular}}</h2>
                     <h2 *ngIf="id_pedido">Pedido</h2>
                     <h3>{{id_pedido}}</h3>
                     <h2>Platillos</h2>

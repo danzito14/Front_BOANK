@@ -1,7 +1,7 @@
 <main>
     <section>
         <!-- SECCIÓN DE DIRECCIÓN -->
-        <div class="direccion">
+        <div class="direccion" *ngIf="(token$ | async) === '1'">
             <h1>Seleccione una dirección</h1>
             <div class="direccion-options">
                 <button class="agregar-direccion" (click)="agregar_tarjeta_o_direccion('direccion')">
@@ -28,7 +28,7 @@
         </div>
 
         <!-- SECCIÓN DE PAGO -->
-        <div class="direccion">
+        <div class="direccion" *ngIf="(token$ | async) === '1'">
             <h1>Seleccione el tipo de pago</h1>
             <div class="direccion-options">
                 <h2>Tarjeta</h2>
@@ -71,6 +71,26 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Modal que saldra si es pedido a domicilio y es el cajero quien lo hace -->
+
+        <div class="direccion" *ngIf="(token$ | async) === '4'">
+            <h1>Datos de entrega</h1>
+            <div class="direccion-options">
+                <div>
+                    <h2>Titular</h2>
+                    <input type="text" name="Titular" id="titular" title="titular" placeholder="¿A nombre de quién?"
+                        class="input-style" [(ngModel)]="titularSeleccionado">
+                </div>
+                <div>
+                    <h2>Direccion</h2>
+                    <textarea class="textarea-style" name="direccion" id="direccion" title="Direccion"
+                        [(ngModel)]="direccionPersonalizadaSeleccionada"
+                        placeholder="Avenida Revolución esquina con el boulevard Independencia a lado del abarrote Don Luis"></textarea>
+                </div>
+
             </div>
         </div>
 

@@ -1,56 +1,54 @@
-<section class="cajero">
-    <div class="modal_inicio_cajero" *ngIf="modal$">
-        <h1>Modal</h1>
-        <button type="button" title="button" class="mostrar_menu" (click)=" cambiar_modal()"> boton</button>
-    </div>
-    <div class="mesero-menu" *ngIf="!modal$">
-        <button type="button" title="button" class="mostrar_menu" (click)=" cambiar_modal()"> boton</button>
-        <div class="filtros-header">
-            <!-- Contenedor de filtros -->
-            <div>
-                <button type="button" class="button-style" (click)="buscar_filtro('inicio')">
-                    <img src="icons/icons-sidebar/Home.svg" alt="Inicio" />
-                    <h4>Inicio</h4>
-                </button>
+<section>
+    <div class="container">
+        <div class="cola_preparar">
+            <div class="cabeza_cola">
+                <h2>Platillos en Cola</h2>
             </div>
-            <div class="filtros-class">
-                <button *ngFor="let filtro of categoria" type="button" class="button-style"
-                    (click)="filtrarCategoria(filtro.id_tipo_platillo, filtro.descripcion); buscar_filtro('normal')">
-                    <img [src]="filtro.ruta_icono" alt="" />
-                    <h4>{{ filtro.descripcion }}</h4>
-                </button>
+            <div class="cola">
+                <div class="platillo_item" *ngFor="let platillo of listaspendiente">
+                    <img [src]="platillo.Ruta_imagen" alt="">
+                    <h3>{{ platillo.Nombre_platillo }}</h3>
+                    <h3 class="p_mesa" *ngIf="platillo.Nombre_mesa">{{platillo.Nombre_mesa}}</h3>
+                    <h3 class="p_domicilio" *ngIf="platillo.Tipo_pedido == 'Entrega'">Pedido a domicilio </h3>
+                    <h6>ID pedido:{{ platillo.id_pedido }}</h6>
+                    <h6>Estado: {{platillo.estado}}</h6>
+                </div>
             </div>
 
-            <!-- Contenedor de otros botones -->
-            <div class="Others">
-                <a (click)="buscar_filtro('combo')" id="Combos-option" title="Combos-page" class="button-style">
-                    <img src="icons/icons-sidebar/Gift.svg" alt="Combos">
-                    <h4>Combos</h4>
-                </a>
-                <a (click)="buscar_filtro('oferta')" id="Ofertas-option" class="button-style" title="Ofertas-page">
-                    <img src="icons/icons-sidebar/Tag.svg" alt="Ofertas-page">
-                    <h4>Ofertas</h4>
-                </a>
-                <a href="/recomendaciones" id="Recomendacion-option" class="button-style" title="Recomendacion-option">
-                    <img src="icons/icons-sidebar/star_filled.svg" alt="">
-                    <h4>Recomendaciones</h4>
-                </a>
-            </div>
         </div>
-        <div class="productos" [ngSwitch]="filtro_especial">
-            <h1>Nuestros platillos</h1>
-            <div *ngSwitchCase="'normal'">
-                <app-tarjeta-product tipo="productos" [autoCargar]="false" [userview]="false" [favoritospage]="false"
-                    [productosExternos]="productos"></app-tarjeta-product>
+        <div class="platillo_preparado">
+            <div class="cabeza_preparando">
+                <h2>Rol usuario: </h2>
+                <h2>Nombre Completo</h2>
             </div>
-            <div *ngSwitchCase="'combo'">
-                <app-tarjeta-combo [combosExternos]="combos" [autoCargar]="false"></app-tarjeta-combo>
-            </div>
-            <div *ngSwitchCase="'oferta'">
-                <app-tarjeta-oferta></app-tarjeta-oferta>
+            <div class="preparando_plato">
+                <div class="plato_y_botones">
+                    <div class="plato_en_curso" *ngIf="primerPlatillo; else sinPlatillo">
+                        <img [src]="primerPlatillo.Ruta_imagen" alt="">
+                        <h1>{{ primerPlatillo.Nombre_platillo }}</h1>
+                        <h2 class="p_mesa" *ngIf="primerPlatillo.Nombre_mesa">{{primerPlatillo.Nombre_mesa}}</h2>
+                        <h2 class="p_domicilio" *ngIf="primerPlatillo.Tipo_pedido == 'Entrega'">Pedido a domicilio </h2>
+                        <h6>ID detalle pedido:{{ primerPlatillo.id_detalle }}</h6>
+
+                    </div>
+
+                    <ng-template #sinPlatillo>
+                        <h3>No hay platillos pendientes.</h3>
+                    </ng-template>
+
+                    <div class="botones_platillo">
+                        <button type="button" class="buton-style" id="Listo" title="Listo"
+                            (click)="terminar_plato('listo', primerPlatillo?.id_detalle)">Listo</button>
+                        <button type="button" class="buton-style" id="Cancelar" title="Cancelar"
+                            (click)="cancelar_pedido(primerPlatillo?.id_detalle, primerPlatillo?.id_pedido, primerPlatillo?.Nombre_platillo, primerPlatillo?.id_mesa)">Cancelar</button>
+                    </div>
+                </div>
+                <div class="detalles_del_plato">
+                    <h2>Detalles del plato</h2>
+                    <h3>{{primerPlatillo?.detalles_adicionales}}</h3>
+                </div>
             </div>
         </div>
     </div>
-
 
 </section>

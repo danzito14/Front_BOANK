@@ -63,31 +63,34 @@ export class Sidebar implements OnInit {
   }
 
   ngOnInit(): void {
-    // cargar categorías
-    this.categoriaservice.get_all_categorias().subscribe({
-      next: (data) => {
-        this.zone.run(() => {
-          this.categoria = data;
-          this.cd.detectChanges();
-        });
-      },
-      error: (err) => console.log("Error al llamar al servidor", err)
-    });
+    let token = this.get_nvl_usuario();
+    if (token === '1') {
 
-    // obtener precios máximo y mínimo
-    this.maxandmin.get_min_and_max_price().subscribe({
-      next: (dataprice) => {
-        this.zone.run(() => {
-          this.prices = dataprice;
-          this.precioMin = dataprice.min_price;
-          this.precioMax = dataprice.max_price;
-          this.cd.detectChanges();
-        });
-      },
-      error: (err) => console.log("Error al llamar al servicio", err)
-    });
+      // cargar categorías
+      this.categoriaservice.get_all_categorias().subscribe({
+        next: (data) => {
+          this.zone.run(() => {
+            this.categoria = data;
+            this.cd.detectChanges();
+          });
+        },
+        error: (err) => console.log("Error al llamar al servidor", err)
+      });
 
-    this.get_nvl_usuario();
+      // obtener precios máximo y mínimo
+      this.maxandmin.get_min_and_max_price().subscribe({
+        next: (dataprice) => {
+          this.zone.run(() => {
+            this.prices = dataprice;
+            this.precioMin = dataprice.min_price;
+            this.precioMax = dataprice.max_price;
+            this.cd.detectChanges();
+          });
+        },
+        error: (err) => console.log("Error al llamar al servicio", err)
+      });
+
+    }
   }
 
   // 🔍 Buscar texto libre
