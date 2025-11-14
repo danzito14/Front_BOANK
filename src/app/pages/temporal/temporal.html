@@ -56,11 +56,11 @@
 
 <!-- Indicador de conexión WebSocket -->
 <div class="websocket-status">
-    <span class="status-indicator" [class.connected]="wsService.isConnected()"
-        [class.disconnected]="!wsService.isConnected()">
+    <span class="status-indicator" [class.connected]="webSocketService.isConnected()"
+        [class.disconnected]="!webSocketService.isConnected()">
     </span>
     <span class="status-text">
-        {{ wsService.isConnected() ? 'En vivo' : 'Sin conexión' }}
+        {{ webSocketService.isConnected() ? 'En vivo' : 'Sin conexión' }}
     </span>
 </div>
 

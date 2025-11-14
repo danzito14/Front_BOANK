@@ -1,78 +1,98 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, timer } from 'rxjs';
+import { retryWhen, tap, delayWhen } from 'rxjs/operators';
 
 export interface WebSocketMessage {
-  tipo: 'nuevo_pedido' | 'actualizacion_pedido' | 'nuevos_platillos' | 'estado_actualizado';
+  tipo: string;
   id_pedido?: string;
-  id_detalle?: string;
   tipo_pedido?: string;
   id_mesa?: string;
   platillos?: any[];
-  timestamp: string;
+  timestamp?: string;
+  mensaje?: string;
+  [key: string]: any;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebSocketService {
-  private ws: WebSocket | null = null;
+  private socket: WebSocket | null = null;
   private messageSubject = new Subject<WebSocketMessage>();
-  private reconnectInterval = 5000; // 5 segundos
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 10;
-  private isIntentionalClose = false;
+  private maxReconnectAttempts = 5;
+  private reconnectInterval = 3000; // 3 segundos
+
+  // Cambia esta URL según tu configuración
+  private wsUrl = 'ws://localhost:8000/ws/connect';
 
   constructor() { }
 
   /**
-   * Conecta al WebSocket del servidor
-   * @param role - El rol del usuario (cocina, meseros, admin, cliente)
-   * @param userId - ID del usuario actual
+   * Conecta al servidor WebSocket
+   * @param userType Tipo de usuario: 'cocineros', 'meseros', 'admin'
    */
-  connect(role: string, userId: string): void {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+  connect(userType: string): Observable<WebSocketMessage> {
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       console.log('WebSocket ya está conectado');
-      return;
+      return this.messageSubject.asObservable();
     }
 
-    const wsUrl = `ws://localhost:8000/ws/${role}/${userId}`;
-    console.log(`Conectando a WebSocket: ${wsUrl}`);
+    const url = `${this.wsUrl}?user_type=${userType}`;
+    console.log(`Conectando a WebSocket: ${url}`);
 
     try {
-      this.ws = new WebSocket(wsUrl);
+      this.socket = new WebSocket(url);
 
-      this.ws.onopen = () => {
+      this.socket.onopen = (event) => {
         console.log('✅ WebSocket conectado exitosamente');
         this.reconnectAttempts = 0;
       };
 
-      this.ws.onmessage = (event) => {
+      this.socket.onmessage = (event) => {
         try {
           const message: WebSocketMessage = JSON.parse(event.data);
-          console.log('📩 Mensaje recibido por WebSocket:', message);
+          console.log('📨 Mensaje recibido:', message);
           this.messageSubject.next(message);
         } catch (error) {
           console.error('Error al parsear mensaje WebSocket:', error);
         }
       };
 
-      this.ws.onerror = (error) => {
+      this.socket.onerror = (error) => {
         console.error('❌ Error en WebSocket:', error);
       };
 
-      this.ws.onclose = (event) => {
-        console.log('🔌 WebSocket desconectado', event);
-        this.ws = null;
+      this.socket.onclose = (event) => {
+        console.log('🔌 WebSocket desconectado');
+        this.socket = null;
 
-        // Solo reconectar si no fue un cierre intencional
-        if (!this.isIntentionalClose && this.reconnectAttempts < this.maxReconnectAttempts) {
+        // Intentar reconectar automáticamente
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
           this.reconnectAttempts++;
           console.log(`Reintentando conexión (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
-          setTimeout(() => this.connect(role, userId), this.reconnectInterval);
+          setTimeout(() => this.connect(userType), this.reconnectInterval);
+        } else {
+          console.error('❌ Máximo de intentos de reconexión alcanzado');
         }
       };
+
     } catch (error) {
       console.error('Error al crear WebSocket:', error);
+    }
+
+    return this.messageSubject.asObservable();
+  }
+
+  /**
+   * Envía un mensaje al servidor
+   */
+  sendMessage(message: WebSocketMessage): void {
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      this.socket.send(JSON.stringify(message));
+      console.log('📤 Mensaje enviado:', message);
+    } else {
+      console.warn('⚠️ WebSocket no está conectado');
     }
   }
 
@@ -80,29 +100,10 @@ export class WebSocketService {
    * Desconecta el WebSocket
    */
   disconnect(): void {
-    if (this.ws) {
-      this.isIntentionalClose = true;
-      this.ws.close();
-      this.ws = null;
+    if (this.socket) {
+      this.socket.close();
+      this.socket = null;
       console.log('WebSocket desconectado manualmente');
-    }
-  }
-
-  /**
-   * Observable para escuchar mensajes del WebSocket
-   */
-  onMessage(): Observable<WebSocketMessage> {
-    return this.messageSubject.asObservable();
-  }
-
-  /**
-   * Envía un mensaje al servidor (opcional, por si necesitas confirmaciones)
-   */
-  sendMessage(message: any): void {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify(message));
-    } else {
-      console.warn('WebSocket no está conectado. No se puede enviar mensaje.');
     }
   }
 
@@ -110,6 +111,16 @@ export class WebSocketService {
    * Verifica si el WebSocket está conectado
    */
   isConnected(): boolean {
-    return this.ws !== null && this.ws.readyState === WebSocket.OPEN;
+    return this.socket !== null && this.socket.readyState === WebSocket.OPEN;
+  }
+
+  /**
+   * Envía un ping para mantener la conexión activa
+   */
+  sendPing(): void {
+    this.sendMessage({
+      tipo: 'ping',
+      timestamp: new Date().toISOString()
+    });
   }
 }

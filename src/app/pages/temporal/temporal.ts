@@ -1,16 +1,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ListaPlatoPendienteInterface } from '../../services/untils/obtener-listas';
-import { ObtenerListas } from '../../services/untils/obtener-listas';
-import { Cocina } from '../../services/untils/cocina';
-import Swal from 'sweetalert2';
-import { PedidoService } from '../../services/mesero/pedido';
-
 import { Subscription } from 'rxjs';
+import Swal from 'sweetalert2';
 
 // Importa el servicio WebSocket
 import { WebSocketService, WebSocketMessage } from '../../services/untils/web-socket-service';
+import { ListaPlatoPendienteInterface, ObtenerListas } from '../../services/untils/obtener-listas';
+import { Cocina } from '../../services/untils/cocina';
+import { PedidoService } from '../../services/mesero/pedido';
+
 @Component({
   selector: 'app-temporal',
   standalone: true,
@@ -24,138 +23,130 @@ export class Temporal implements OnInit, OnDestroy {
   primerPlatillo: ListaPlatoPendienteInterface | null = null;
   cargando = true;
 
-  // 🔥 NUEVO: Suscripción al WebSocket
-  private wsSubscription: Subscription | null = null;
+  // 🔥 Suscripción al WebSocket
+  private wsSubscription?: Subscription;
 
   constructor(
     private listasservice: ObtenerListas,
     private cocinaService: Cocina,
     private meseroService: PedidoService,
-    // 🔥 NUEVO: Inyectar el servicio WebSocket
-    public wsService: WebSocketService
+    public webSocketService: WebSocketService // 🔥 Inyectar servicio WebSocket
   ) { }
 
   ngOnInit(): void {
-    this.inicializarCocinero();
-    this.conectarWebSocket();
+    // Solo conectar WebSocket en el navegador (no en SSR)
+    if (typeof window !== 'undefined') {
+      this.inicializarCocinero();
+      this.conectarWebSocket(); // 🔥 Conectar al WebSocket
+    }
   }
 
-  // 🔥 NUEVO: Limpiar la conexión WebSocket al destruir el componente
   ngOnDestroy(): void {
+    // 🔥 Desconectar WebSocket al destruir el componente
     if (this.wsSubscription) {
       this.wsSubscription.unsubscribe();
     }
-    this.wsService.disconnect();
+    this.webSocketService.disconnect();
   }
 
-  // 🔥 NUEVO: Conectar y escuchar eventos del WebSocket
+  // 🔥 NUEVO: Conectar al WebSocket y escuchar eventos
   conectarWebSocket(): void {
-    // Obtener el ID del usuario actual (ajusta según tu lógica de autenticación)
-    const userId = this.obtenerIdUsuario();
+    console.log('🔌 Conectando al WebSocket como cocinero...');
 
-    // Conectar al WebSocket como "cocina"
-    this.wsService.connect('cocina', userId);
-
-    // Escuchar mensajes entrantes
-    this.wsSubscription = this.wsService.onMessage().subscribe({
-      next: (message: WebSocketMessage) => {
-        this.manejarMensajeWebSocket(message);
+    this.wsSubscription = this.webSocketService.connect('cocineros').subscribe({
+      next: (mensaje: WebSocketMessage) => {
+        console.log('📨 Mensaje WebSocket recibido:', mensaje);
+        this.manejarMensajeWebSocket(mensaje);
       },
-      error: (err) => {
-        console.error('Error en WebSocket:', err);
+      error: (error) => {
+        console.error('❌ Error en WebSocket:', error);
       }
     });
+
+    // Enviar ping cada 30 segundos para mantener la conexión
+    setInterval(() => {
+      if (this.webSocketService.isConnected()) {
+        this.webSocketService.sendPing();
+      }
+    }, 30000);
   }
 
-  // 🔥 NUEVO: Manejar los diferentes tipos de mensajes WebSocket
-  manejarMensajeWebSocket(message: WebSocketMessage): void {
-    console.log('Mensaje WebSocket recibido:', message);
-
-    switch (message.tipo) {
+  // 🔥 NUEVO: Manejar diferentes tipos de mensajes WebSocket
+  manejarMensajeWebSocket(mensaje: WebSocketMessage): void {
+    switch (mensaje.tipo) {
       case 'nuevo_pedido':
-        this.onNuevoPedido(message);
+        console.log('🆕 Nuevo pedido recibido:', mensaje.id_pedido);
+        this.mostrarNotificacionNuevoPedido(mensaje);
+        this.recargarListaPendientes(); // 🔥 Recargar la lista automáticamente
         break;
 
-      case 'actualizacion_pedido':
-        this.onActualizacionPedido(message);
+      case 'conexion_exitosa':
+        console.log('✅ Conexión WebSocket exitosa:', mensaje.mensaje);
         break;
 
-      case 'nuevos_platillos':
-        this.onNuevosPlatillos(message);
+      case 'pong':
+        console.log('🏓 Pong recibido');
         break;
 
       default:
-        console.log('Tipo de mensaje no manejado:', message.tipo);
+        console.log('📩 Mensaje no manejado:', mensaje);
     }
   }
 
-  // 🔥 NUEVO: Cuando llega un nuevo pedido
-  onNuevoPedido(message: WebSocketMessage): void {
-    console.log('🆕 Nuevo pedido recibido:', message.id_pedido);
+  // 🔥 NUEVO: Mostrar notificación de nuevo pedido
+  mostrarNotificacionNuevoPedido(mensaje: WebSocketMessage): void {
+    const platillos = mensaje.platillos || [];
+    const cantidad = platillos.length;
 
-    // Mostrar notificación visual
-    this.mostrarNotificacion('Nuevo pedido', `Pedido ${message.id_pedido} recibido`);
-
-    // Recargar la lista de pendientes
-    this.cargarListaPendientes();
-  }
-
-  // 🔥 NUEVO: Cuando se actualiza un pedido existente
-  onActualizacionPedido(message: WebSocketMessage): void {
-    console.log('🔄 Pedido actualizado:', message.id_pedido);
-
-    this.mostrarNotificacion('Pedido actualizado', `Se agregaron platillos al pedido ${message.id_pedido}`);
-
-    // Recargar la lista
-    this.cargarListaPendientes();
-  }
-
-  // 🔥 NUEVO: Cuando se agregan nuevos platillos
-  onNuevosPlatillos(message: WebSocketMessage): void {
-    console.log('🍽️ Nuevos platillos agregados:', message.platillos);
-
-    const cantidad = message.platillos?.length || 0;
-    this.mostrarNotificacion(
-      'Nuevos platillos',
-      `${cantidad} platillo(s) agregado(s) al pedido ${message.id_pedido}`
-    );
-
-    // Recargar la lista de pendientes
-    this.cargarListaPendientes();
-  }
-
-  // 🔥 NUEVO: Mostrar notificación toast
-  mostrarNotificacion(titulo: string, mensaje: string): void {
-    const Toast = Swal.mixin({
+    Swal.fire({
+      title: '🔔 Nuevo Pedido',
+      html: `
+        <p><strong>Pedido:</strong> ${mensaje.id_pedido?.substring(0, 8)}...</p>
+        <p><strong>Tipo:</strong> ${mensaje.tipo_pedido}</p>
+        ${mensaje.id_mesa ? `<p><strong>Mesa:</strong> ${mensaje.id_mesa}</p>` : ''}
+        <p><strong>Platillos:</strong> ${cantidad}</p>
+      `,
+      icon: 'info',
+      iconColor: '#d6b45a',
+      confirmButtonColor: '#D0AF43',
+      timer: 5000,
+      timerProgressBar: true,
       toast: true,
       position: 'top-end',
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      didOpen: (toast) => {
-        toast.addEventListener('mouseenter', Swal.stopTimer);
-        toast.addEventListener('mouseleave', Swal.resumeTimer);
-      }
+      showConfirmButton: false
     });
 
-    Toast.fire({
-      icon: 'info',
-      title: titulo,
-      text: mensaje,
-      iconColor: '#d6b45a'
-    });
+    // Opcional: Reproducir sonido de notificación
+    this.reproducirSonidoNotificacion();
   }
 
-  // 🔥 NUEVO: Obtener ID del usuario (ajusta según tu auth)
-  obtenerIdUsuario(): string {
-    // Implementa según tu sistema de autenticación
-    // Ejemplo usando localStorage:
-    const userData = localStorage.getItem('user_data');
-    if (userData) {
-      const user = JSON.parse(userData);
-      return user.id_usuario || 'unknown';
+  // 🔥 NUEVO: Reproducir sonido de notificación (opcional)
+  reproducirSonidoNotificacion(): void {
+    try {
+      const audio = new Audio('assets/sounds/notification.mp3');
+      audio.volume = 0.5;
+      audio.play().catch(err => console.log('No se pudo reproducir el sonido:', err));
+    } catch (error) {
+      console.log('Error al reproducir sonido:', error);
     }
-    return 'cocinero_' + Date.now();
+  }
+
+  // 🔥 NUEVO: Recargar lista de pendientes sin resetear el platillo actual
+  recargarListaPendientes(): void {
+    console.log('🔄 Recargando lista de platillos pendientes...');
+
+    this.listasservice.get_lista_platillos_pendientes().subscribe({
+      next: (data) => {
+        this.listaspendiente = data;
+        console.log('✅ Lista actualizada:', this.listaspendiente.length, 'platillos');
+
+        // Si no hay platillo actual, asignar uno automáticamente
+        if (!this.primerPlatillo && this.listaspendiente.length > 0) {
+          this.verificarYTomarPlatillo();
+        }
+      },
+      error: (err) => console.error('Error al recargar lista:', err)
+    });
   }
 
   // ==================== MÉTODOS EXISTENTES ====================
