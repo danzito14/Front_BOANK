@@ -35,23 +35,6 @@ export interface platillos_detalle {
   detalles_adicionales: string;
 }
 
-
-export interface PedidoEntregaInterface {
-  id_pedido: string;
-  fecha: string; // formato ISO (ej. "2025-11-07T17:15:00")
-  estado_pedido: string;
-  tipo_pedido: string; // 'Entrega' o 'Local'
-  id_usuario: string;
-  nombre_completo: string;
-  total: number;
-  id_direccion: string;
-  direccion_completa: string;
-  platillos: platillos_detalle[];
-}
-
-
-
-
 @Injectable({
   providedIn: 'root',
 })
@@ -87,17 +70,6 @@ export class PedidoService {
     );
   }
 
-  get_all_mesas_ocupadas(): Observable<MesasInterface[]> {
-    return this.http.get<MesasInterface[]>(
-      `${this.apiUrlMesas}/get_all_mesas_ocupadas`
-    ).pipe(
-      catchError(err => {
-        console.error('Error al obtener todas las direcciones:', err);
-        return of([]);
-      })
-    );
-  }
-
   get_nombre_empleado(): Observable<NombreEmpleadoInterface[]> {
     const headers = this.getHeaders();
     if (!headers) return of([]);
@@ -123,16 +95,6 @@ export class PedidoService {
     )
   }
 
-  get_pedidos_mesa_absolute(): Observable<PedidoEntregaInterface[]> {
-    return this.http.get<PedidoEntregaInterface[]>(
-      `${this.apiUrlPedidogets}/gets_pedidos_absolute`
-    ).pipe(
-      catchError(err => {
-        console.error('Error al obtener los pedidos:', err);
-        return of([]);
-      })
-    )
-  }
 
   delete_pedidos_mesa(id_detalle: string, id_pedido: string, id_mesa: string) {
     return this.http.delete(
@@ -152,23 +114,6 @@ export class PedidoService {
     );
   }
 
-  delete_pedidos_entrega(id_detalle: string, id_pedido: string) {
-    return this.http.delete(
-      `${this.apiUrlPedidogets}/delete_platillo`,
-      {
-        params: {
-          id_detalle,
-          id_pedido
-        }
-      }
-    ).pipe(
-      catchError(err => {
-        console.error('Error al cancelar platillo:', err);
-        return of({ error: true });
-      })
-    );
-  }
-
   cancelar_pedido(id_pedido: string, id_mesa: string) {
     return this.http.delete(
       `${this.apiUrlPedidogets}/cancelar_pedido`,
@@ -176,22 +121,6 @@ export class PedidoService {
         params: {
           id_pedido,
           id_mesa
-        }
-      }
-    ).pipe(
-      catchError(err => {
-        console.error('Error al cancelar pedido:', err);
-        return of({ error: true });
-      })
-    );
-  }
-
-  cancelar_pedido_entrega(id_pedido: string) {
-    return this.http.delete(
-      `${this.apiUrlPedidogets}/cancelar_pedido`,
-      {
-        params: {
-          id_pedido
         }
       }
     ).pipe(

@@ -4,7 +4,6 @@ import { TarjetaCarrito } from '../../components/tarjeta-carrito/tarjeta-carrito
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UntilsPedido } from '../../services/untils/untils-pedido';
-import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-carrito',
@@ -31,9 +30,6 @@ export class Carrito implements OnInit {
   nombre_mesa: any;
   id_pedido: any;
   id_mesa: any;
-
-  private tokenSubject = new BehaviorSubject<string | null>(null);
-  token$ = this.tokenSubject.asObservable();
 
   constructor(
     private carritoService: CarritoService,
@@ -83,8 +79,8 @@ export class Carrito implements OnInit {
       0
     );
 
-    // console.log("Resumen con subtotal:", this.resumenSeleccion);
-    // console.log("Total:", this.total);
+    console.log("Resumen con subtotal:", this.resumenSeleccion);
+    console.log("Total:", this.total);
   }
 
 
@@ -117,20 +113,11 @@ export class Carrito implements OnInit {
 
     this.carritoService.agregar_temporal(data).subscribe({
       next: (res) => {
-        // console.log('Carrito temporal guardado:', res);
-        let nvl_usuario = this.get_nvl_usuario();
-        switch (nvl_usuario) {
-          case '1':
-            this.router.navigate(['/direccion-pago']);
-            break;
-          case '2':
-            this.router.navigate(['/resumen-pedido']);
-            break;
-          case '4':
-            this.router.navigate(['/direccion-pago']);
-            break;
-          default:
-            break;
+        console.log('Carrito temporal guardado:', res);
+        if (this.nombre_mesa) {
+          this.router.navigate(['/resumen-pedido']);
+        } else {
+          this.router.navigate(['/direccion-pago']);
         }
       },
       error: (err) => {
@@ -150,14 +137,6 @@ export class Carrito implements OnInit {
     this.nombre_mesa = this.data.Nombre_mesa;
     this.id_pedido = this.data.id_pedido;
     this.id_mesa = this.data.id_mesa;
-  }
-
-
-  get_nvl_usuario() {
-    if (typeof window === 'undefined') return null;
-    const token = localStorage.getItem('nvl_usuario');
-    this.tokenSubject.next(token);
-    return token;
   }
 
   regresar() {

@@ -30,7 +30,6 @@ export interface TemporalInterface {
   direccion?: string;
   id_mesa?: string;
   id_direccion?: string;
-  titular?: string
 
 }
 
@@ -253,7 +252,6 @@ export class CarritoService {
       direccion: data.direccion,
       ...(data.id_mesa ? { id_mesa: data.id_mesa } : {}),
       ...(data.id_direccion ? { id_direccion: data.id_direccion } : {}),
-      ...(data.titular ? { titular: data.titular } : {}),
     };
 
     return this.http.put<any>(

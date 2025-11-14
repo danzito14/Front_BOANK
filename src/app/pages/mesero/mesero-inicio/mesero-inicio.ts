@@ -7,7 +7,6 @@ import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
 import { UntilsPedido } from '../../../services/untils/untils-pedido';
 import { CarritoService } from '../../../services/carrito/carrito';
-import { ListaPlatoPendienteInterface, ObtenerListas } from '../../../services/untils/obtener-listas';
 
 @Component({
   selector: 'app-mesero-inicio',
@@ -29,15 +28,11 @@ export class MeseroInicio implements OnInit {
   Estado_mesa: string = "";
   id_pedido: string = "";
 
-  listasListos: ListaPlatoPendienteInterface[] = [];
-
   constructor(private meseroService: PedidoService, private zone: NgZone, private cd: ChangeDetectorRef,
-    private router: Router, private untils_pedido: UntilsPedido, private carritoService: CarritoService,
-    private listasservice: ObtenerListas
+    private router: Router, private untils_pedido: UntilsPedido, private carritoService: CarritoService
   ) { }
 
   ngOnInit(): void {
-    this.cargarListaListos();
     this.obtener_mesas();
     this.obtener_nombre_puesto();
     this.untils_pedido.set_datos_pedido(this.id_mesa = "", this.mesaSeleccionada = "", this.id_pedido = "");
@@ -47,17 +42,6 @@ export class MeseroInicio implements OnInit {
 
       },
       error: (err) => console.error('Error al vaciar carrito:', err)
-    });
-  }
-
-
-  cargarListaListos(): void {
-    this.listasservice.get_lista_platillos_listos().subscribe({
-      next: (data) => {
-        console.log(data);
-        this.listasListos = data;
-      },
-      error: (err) => console.error('Error al cargar lista de cocina:', err),
     });
   }
 
@@ -167,25 +151,6 @@ export class MeseroInicio implements OnInit {
       }
     });
   }
-
-
-  terminar_plato(estado: string, id_detalle: string) {
-    this.listasservice.update_estado_platillo(id_detalle, estado).subscribe({
-      next: () => {
-        console.log(`Platillo ${id_detalle} actualizado a estado "${estado}"`);
-
-        // 👇 Quitar el platillo de la lista local
-        this.listasListos = this.listasListos.filter(
-          platillo => platillo.id_detalle !== id_detalle
-        );
-
-        // (opcional) mostrar confirmación visual
-        // Swal.fire('Listo', 'El platillo fue marcado como servido', 'success');
-      },
-      error: (err) => console.error('Error al actualizar estado del platillo:', err),
-    });
-  }
-
 
 
 

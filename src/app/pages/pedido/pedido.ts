@@ -4,10 +4,12 @@ import {
   trigger, state, style, transition, animate
 } from '@angular/animations';
 import Swal from 'sweetalert2';
+import { map } from 'rxjs';
 import { CarritoService } from '../../services/carrito/carrito';
-import { MesasInterface, PedidoService, PedidoMesaInterface, PedidoEntregaInterface } from '../../services/mesero/pedido';
+import { MesasInterface, PedidoService, PedidoMesaInterface } from '../../services/mesero/pedido';
 import { UntilsPedido } from '../../services/untils/untils-pedido';
 import { Router } from '@angular/router';
+import { title } from 'process';
 
 @Component({
   selector: 'app-pedido',
@@ -38,35 +40,13 @@ export class Pedido implements OnInit {
   openedIndex: number | null = null; // Guarda cuál mesa está abierta
 
   pedidos: PedidoMesaInterface[] = [];
-  pedidos_absolute: PedidoEntregaInterface[] = [];
-
-  nvl_usuario: string | null = "";
 
   constructor(private meseroService: PedidoService, private zone: NgZone, private cd: ChangeDetectorRef,
     private router: Router, private untils_pedido: UntilsPedido, private carritoService: CarritoService
   ) { }
 
   ngOnInit(): void {
-    let nvl_usu = this.getToken2();
-    switch (nvl_usu) {
-      case '2':
-        this.get_pedido_mesa();
-        break;
-      case '4':
-        this.get_pedido_mesa();
-        this.get_pedido_mesa_absolute();
-        break;
-      default:
-        break;
-    }
-  }
-
-  getToken2() {
-    if (typeof window === 'undefined') return null;
-    const token = localStorage.getItem('nvl_usuario');
-    // console.log(token);
-    this.nvl_usuario = token;
-    return token;
+    this.get_pedido_mesa();
   }
 
   toggleMesa(index: number) {
@@ -95,37 +75,6 @@ export class Pedido implements OnInit {
               confirmButtonColor: "#D0AF43",
               iconColor: "#d6b45a"
             });
-            this.get_pedido_mesa();  // 👈 refrescar lista
-          });
-      }
-    });
-  }
-
-
-
-  cancelar_pedido_entrega(id_detalle: string, id_pedido: string, nombre: string) {
-    Swal.fire({
-      title: `¿Esta seguro de que desea quitar:  ${nombre} de su orden?`,
-      text: "Una vez cancelada no se podra recuperar",
-      icon: "question",
-      iconColor: "#d6b45a",
-      showCancelButton: true,
-      cancelButtonColor: "#773832",
-      confirmButtonColor: "#D0AF43",
-      confirmButtonText: "Quitar platillo",
-      cancelButtonText: "Cancelar",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.meseroService.delete_pedidos_entrega(id_detalle, id_pedido)
-          .subscribe(resp => {
-            Swal.fire({
-              title: "Hecho",
-              text: "Platillo cancelado",
-              icon: "success",
-              confirmButtonColor: "#D0AF43",
-              iconColor: "#d6b45a"
-            });
-            this.get_pedido_mesa_absolute(); // 👈 refrescar lista de entrega
           });
       }
     });
@@ -161,49 +110,12 @@ export class Pedido implements OnInit {
     });
   }
 
-
-  cancelar_todo_pedido_entrega(id_pedido: string, nombre: string) {
-    Swal.fire({
-      title: `¿Esta seguro de que desea cancelar todo el pedido de:  ${nombre}?`,
-      text: "Una vez cancelada no se podra recuperar",
-      icon: "question",
-      iconColor: "#d6b45a",
-      showCancelButton: true,
-      cancelButtonColor: "#773832",
-      confirmButtonColor: "#D0AF43",
-      confirmButtonText: "Cancelar toda la orden",
-      cancelButtonText: "Cancelar",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.meseroService.cancelar_pedido_entrega(id_pedido)
-          .subscribe(resp => {
-            Swal.fire({
-              title: "Hecho",
-              text: "Pedido cancelado",
-              icon: "success",
-              confirmButtonColor: "#D0AF43",
-              iconColor: "#d6b45a"
-            });
-
-            this.get_pedido_mesa_absolute(); // refrescar
-          });
-      }
-    });
-  }
-
-
   get_pedido_mesa() {
     this.meseroService.get_pedidos_mesa().subscribe(data => {
-      // console.log(JSON.stringify(data, null, 2));
+      console.log(JSON.stringify(data, null, 2));
       this.pedidos = [...data]; // 👈 esto sí fuerza el render sin conflictos
     });
   }
 
 
-  get_pedido_mesa_absolute() {
-    this.meseroService.get_pedidos_mesa_absolute().subscribe(data => {
-      // console.log(JSON.stringify(data, null, 2));
-      this.pedidos_absolute = [...data]; // 👈 esto sí fuerza el render sin conflictos
-    });
-  }
 }
