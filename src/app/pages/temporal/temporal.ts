@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ListaPlatoPendienteInterface } from '../../services/untils/obtener-listas';
@@ -7,6 +7,10 @@ import { Cocina } from '../../services/untils/cocina';
 import Swal from 'sweetalert2';
 import { PedidoService } from '../../services/mesero/pedido';
 
+import { Subscription } from 'rxjs';
+
+// Importa el servicio WebSocket
+import { WebSocketService, WebSocketMessage } from '../../services/untils/web-socket-service';
 @Component({
   selector: 'app-temporal',
   standalone: true,
@@ -14,21 +18,147 @@ import { PedidoService } from '../../services/mesero/pedido';
   templateUrl: './temporal.html',
   styleUrls: ['./temporal.css'],
 })
-export class Temporal implements OnInit {
+export class Temporal implements OnInit, OnDestroy {
 
   listaspendiente: ListaPlatoPendienteInterface[] = [];
   primerPlatillo: ListaPlatoPendienteInterface | null = null;
   cargando = true;
 
+  // 🔥 NUEVO: Suscripción al WebSocket
+  private wsSubscription: Subscription | null = null;
+
   constructor(
     private listasservice: ObtenerListas,
     private cocinaService: Cocina,
-    private meseroService: PedidoService
+    private meseroService: PedidoService,
+    // 🔥 NUEVO: Inyectar el servicio WebSocket
+    public wsService: WebSocketService
   ) { }
 
   ngOnInit(): void {
     this.inicializarCocinero();
+    this.conectarWebSocket();
   }
+
+  // 🔥 NUEVO: Limpiar la conexión WebSocket al destruir el componente
+  ngOnDestroy(): void {
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
+    this.wsService.disconnect();
+  }
+
+  // 🔥 NUEVO: Conectar y escuchar eventos del WebSocket
+  conectarWebSocket(): void {
+    // Obtener el ID del usuario actual (ajusta según tu lógica de autenticación)
+    const userId = this.obtenerIdUsuario();
+
+    // Conectar al WebSocket como "cocina"
+    this.wsService.connect('cocina', userId);
+
+    // Escuchar mensajes entrantes
+    this.wsSubscription = this.wsService.onMessage().subscribe({
+      next: (message: WebSocketMessage) => {
+        this.manejarMensajeWebSocket(message);
+      },
+      error: (err) => {
+        console.error('Error en WebSocket:', err);
+      }
+    });
+  }
+
+  // 🔥 NUEVO: Manejar los diferentes tipos de mensajes WebSocket
+  manejarMensajeWebSocket(message: WebSocketMessage): void {
+    console.log('Mensaje WebSocket recibido:', message);
+
+    switch (message.tipo) {
+      case 'nuevo_pedido':
+        this.onNuevoPedido(message);
+        break;
+
+      case 'actualizacion_pedido':
+        this.onActualizacionPedido(message);
+        break;
+
+      case 'nuevos_platillos':
+        this.onNuevosPlatillos(message);
+        break;
+
+      default:
+        console.log('Tipo de mensaje no manejado:', message.tipo);
+    }
+  }
+
+  // 🔥 NUEVO: Cuando llega un nuevo pedido
+  onNuevoPedido(message: WebSocketMessage): void {
+    console.log('🆕 Nuevo pedido recibido:', message.id_pedido);
+
+    // Mostrar notificación visual
+    this.mostrarNotificacion('Nuevo pedido', `Pedido ${message.id_pedido} recibido`);
+
+    // Recargar la lista de pendientes
+    this.cargarListaPendientes();
+  }
+
+  // 🔥 NUEVO: Cuando se actualiza un pedido existente
+  onActualizacionPedido(message: WebSocketMessage): void {
+    console.log('🔄 Pedido actualizado:', message.id_pedido);
+
+    this.mostrarNotificacion('Pedido actualizado', `Se agregaron platillos al pedido ${message.id_pedido}`);
+
+    // Recargar la lista
+    this.cargarListaPendientes();
+  }
+
+  // 🔥 NUEVO: Cuando se agregan nuevos platillos
+  onNuevosPlatillos(message: WebSocketMessage): void {
+    console.log('🍽️ Nuevos platillos agregados:', message.platillos);
+
+    const cantidad = message.platillos?.length || 0;
+    this.mostrarNotificacion(
+      'Nuevos platillos',
+      `${cantidad} platillo(s) agregado(s) al pedido ${message.id_pedido}`
+    );
+
+    // Recargar la lista de pendientes
+    this.cargarListaPendientes();
+  }
+
+  // 🔥 NUEVO: Mostrar notificación toast
+  mostrarNotificacion(titulo: string, mensaje: string): void {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+      }
+    });
+
+    Toast.fire({
+      icon: 'info',
+      title: titulo,
+      text: mensaje,
+      iconColor: '#d6b45a'
+    });
+  }
+
+  // 🔥 NUEVO: Obtener ID del usuario (ajusta según tu auth)
+  obtenerIdUsuario(): string {
+    // Implementa según tu sistema de autenticación
+    // Ejemplo usando localStorage:
+    const userData = localStorage.getItem('user_data');
+    if (userData) {
+      const user = JSON.parse(userData);
+      return user.id_usuario || 'unknown';
+    }
+    return 'cocinero_' + Date.now();
+  }
+
+  // ==================== MÉTODOS EXISTENTES ====================
 
   /** 🔹 Flujo principal: primero verifica si tiene platillo, si no lo tiene carga lista */
   inicializarCocinero(): void {
@@ -45,9 +175,8 @@ export class Temporal implements OnInit {
           // Cargar los datos completos del platillo actual
           this.listasservice.get_lista_platillos_by_id(platoActual.id_detalle).subscribe({
             next: (detalle) => {
-              this.primerPlatillo = detalle[0]; // asumiendo que el backend devuelve una lista
+              this.primerPlatillo = detalle[0];
               console.log('Detalle del platillo en curso:', this.primerPlatillo);
-              // También carga la lista general de pendientes (para mostrar otros)
               this.cargarListaPendientes();
             },
             error: (err) => {
@@ -63,7 +192,6 @@ export class Temporal implements OnInit {
       },
       error: (err) => {
         console.error('Error al verificar platillo actual:', err);
-        // En caso de error también intentamos cargar lista
         this.cargarListaPendientes();
       },
       complete: () => (this.cargando = false),
@@ -115,7 +243,6 @@ export class Temporal implements OnInit {
       error: (err) => console.error('Error al actualizar estado del platillo:', err),
     });
   }
-
 
   cancelar_pedido(id_detalle?: string, id_pedido?: string, nombre?: string, id_mesa?: string) {
     if (!id_detalle || !id_pedido || !nombre) {
@@ -170,11 +297,6 @@ export class Temporal implements OnInit {
     });
   }
 
-  alert() {
-    alert("seee");
-  }
-
-
   terminar_plato(estado: string, id_detalle?: string) {
     this.listasservice.update_estado_platillo(id_detalle!, estado).subscribe({
       next: () => {
@@ -185,7 +307,4 @@ export class Temporal implements OnInit {
       error: (err) => console.error('Error al actualizar estado del platillo:', err),
     });
   }
-
-
-
 }
