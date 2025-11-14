@@ -1,0 +1,43 @@
+<section>
+    <div class="modal_inicio_cajero" *ngIf="modal$ === 'modal'">
+        <div class="rol-nombre" *ngIf="empleado_puesto_nombre">
+            <h2>{{ empleado_puesto_nombre?.Nombre_puesto }}: </h2>
+            <h2> {{empleado_puesto_nombre.Nombre_empleado}}</h2>
+        </div>
+        <div class="botones_modal">
+            <div class="boton_columna">
+                <h1>Hacer una orden a docimilio</h1>
+                <button id="abrir_orden" type="button" class="buton-style" title="Abrir orden"
+                    (click)="menu_page()">Abrir
+                    orden a domicilio</button>
+            </div>
+
+            <div class="boton_columna">
+                <h1>Pagar la cuenta de una mesa</h1>
+                <button id="pagar_mesa" type="button" class="buton-style" title="Abrir orden"
+                    (click)="cambiar_modal('pagar')">Pagar la orden
+                    de una mesa</button>
+            </div>
+            <div class="boton_columna">
+                <h1>Mostrar estado de los pedidos</h1>
+                <button id="ver_pedido" type="button" class="buton-style" title="Abrir orden"
+                    (click)="pedido_page()">Ver
+                    pedidos</button>
+            </div>
+        </div>
+    </div>
+    <div class="pagar_menu" *ngIf="modal$ === 'pagar'">
+        <div class="header-pedido">
+            <button type="button" title="button" class="btn-regresar" (click)=" cambiar_modal('modal')"> ←
+                Volver</button>
+            <h3 *ngIf="nombre_mesa">Mesa seleccionada: {{nombre_mesa}}</h3>
+            <div *ngIf="id_pedido">
+                <h3>Pedido: {{id_pedido}}</h3>
+            </div>
+        </div>
+        <div>
+            <app-paga-mesa> </app-paga-mesa>
+        </div>
+    </div>
+
+</section>

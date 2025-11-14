@@ -1,7 +1,8 @@
 <section>
     <h1>Pedidos</h1>
 
-    <div class="lista_pedidos_mesa">
+    <div class="lista_pedidos_mesa" *ngIf="nvl_usuario === '2' || nvl_usuario === '4'">
+        <h2 class="titulos">Mesas</h2>
         <div class="pedido_mesa" *ngFor="let pedido of pedidos; let i = index">
 
             <div class="pedido_button" (click)="toggleMesa(i)" [ngClass]="{ 'open-btn': openedIndex === i }">
@@ -30,6 +31,43 @@
                     <div class="button_cancelar">
                         <button type="button" title="Cancelar"
                             (click)="cancelar_todo_pedido(pedido.id_pedido, pedido.mesa, pedido.id_mesa)">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="lista_pedidos_mesa" *ngIf="nvl_usuario === '4'">
+        <h2 class="titulos">Pedidos a domicilio</h2>
+        <div class="pedido_mesa" *ngFor="let pedido of pedidos_absolute; let i = index">
+
+            <div class="pedido_button" (click)="toggleMesa(i)" [ngClass]="{ 'open-btn': openedIndex === i }">
+                <h2>Titular: {{ pedido.nombre_completo}}</h2>
+                <h4>Direccion: {{ pedido.direccion_completa }}</h4>
+                <span>ID: {{pedido.id_pedido }}</span>
+                <h3>Estado: {{ pedido.estado_pedido }}</h3>
+            </div>
+
+            <div class="pedido_detalle" [@slideToggle]="openedIndex === i ? 'open' : 'closed'">
+                <div class="plato" *ngFor="let plato of pedido.platillos">
+                    <div class="datos_plato">
+                        <h3>{{ plato.nombre_platillo }}</h3>
+                        <span>{{ plato.detalles_adicionales }}</span><br>
+                        <span>Estado: {{ plato.estado_detalle }}</span><br>
+                    </div>
+                    <div class="button_cancelar">
+                        <button type="button" title="Cancelar"
+                            (click)="cancelar_pedido_entrega(plato.id_detalle, pedido.id_pedido, plato.nombre_platillo)">Cancelar</button>
+                    </div>
+                </div>
+
+                <div class="cancelar_pedido">
+                    <div>
+                        <h4>Cancelar todo el pedido</h4>
+                    </div>
+                    <div class="button_cancelar">
+                        <button type="button" title="Cancelar"
+                            (click)="cancelar_todo_pedido_entrega(pedido.id_pedido, pedido.nombre_completo)">Cancelar</button>
                     </div>
                 </div>
             </div>

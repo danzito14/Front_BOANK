@@ -34,31 +34,13 @@
 
             <div class="botones-platos">
                 <div class="botones-seleccion">
-                    <h1>Seleccione una mesa disponible
-                        para abrir una orden</h1>
-                    <button [disabled]="!mesaSeleccionada" (click)="confirmarMesa()" type="button" class="button-style"
-                        id="crear_pedido" title="Abrir pedido">Abrir
-                        Orden</button>
-
                     <h1>Seleccione una mesa en rojo para agregar algún platillo a la orden o sacar la cuenta</h1>
                     <button [disabled]="!id_pedido" type="button" class="button-style" id="agregar_pedido"
                         title="Agregar al pedido" (click)="actualizarpedido()">
-                        Agregar a la orden
+                        Pagar
                     </button>
                 </div>
-                <div class="platillos-listos">
-                    <div id="listo_para_servir" class="titulo">
-                        <h2>Listo para servir</h2>
-                    </div>
-                    <div class="cola">
-                        <div class="platillo_item" *ngFor="let platillo of listasListos">
-                            <img [src]="platillo.Ruta_imagen" alt="">
-                            <h3>{{ platillo.Nombre_platillo }}</h3>
-                            <h3 class="p_mesa" *ngIf="platillo.Nombre_mesa">{{platillo.Nombre_mesa}}</h3>
-                            <button (click)="terminar_plato('servido', platillo.id_detalle)">Servido</button>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
 
