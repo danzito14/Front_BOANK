@@ -1,306 +1,106 @@
-<!-- <section>
+<section>
+    <!-- Indicador de conexión WebSocket -->
+
+
+    <!-- Indicador de carga -->
+    <div *ngIf="cargando" class="loading-spinner">
+        <p>⏳ Cargando platillos...</p>
+    </div>
 
     <div class="container">
+        <!-- Cola de platillos pendientes -->
         <div class="cola_preparar">
             <div class="cabeza_cola">
-                <h2>Platillos en Cola</h2>
+                <h3>Platillos en Cola ({{ listaspendiente.length }})</h3>
             </div>
             <div class="cola">
+                <!-- Mensaje cuando no hay platillos -->
+                <div *ngIf="listaspendiente.length === 0 && !cargando" class="no-pendientes">
+                    <p>✨ No hay platillos pendientes</p>
+                </div>
+
+                <!-- Lista de platillos pendientes -->
                 <div class="platillo_item" *ngFor="let platillo of listaspendiente">
-                    <img [src]="platillo.Ruta_imagen" alt="">
+                    <img [src]="platillo.Ruta_imagen" [alt]="platillo.Nombre_platillo" title="Producto">
                     <h3>{{ platillo.Nombre_platillo }}</h3>
                     <h3 class="p_mesa" *ngIf="platillo.Nombre_mesa">{{platillo.Nombre_mesa}}</h3>
-                    <h3 class="p_domicilio" *ngIf="platillo.Tipo_pedido == 'Entrega'">Pedido a domicilio </h3>
-                    <h6>ID pedido:{{ platillo.id_pedido }}</h6>
-                    <h6>Estado: {{platillo.estado}}</h6>
+                    <h3 class="p_domicilio" *ngIf="platillo.Tipo_pedido == 'Entrega'">Pedido a domicilio</h3>
+                    <h6>ID pedido: {{ platillo.id_pedido?.substring(0, 8) }}...</h6>
+                    <h6>Estado: <span class="badge-estado">{{platillo.estado}}</span></h6>
                 </div>
             </div>
-
         </div>
+
+        <!-- Platillo en preparación -->
         <div class="platillo_preparado">
             <div class="cabeza_preparando">
-                <h2>Rol usuario: </h2>
-                <h2>Nombre Completo</h2>
+                <div class="nombre_usu">
+                    <h3>Rol usuario: </h3>
+                    <h3>Nombre Completo</h3>
+                </div>
+                <!-- <div class="websocket-mini-status">
+                    <span class="mini-indicator" [class.connected]="webSocketService.isConnected()"
+                        [class.disconnected]="!webSocketService.isConnected()">
+                    </span>
+                    <span class="status-text">
+                        {{ webSocketService.isConnected() ? 'Conectado' : 'Sin conexión' }}
+                    </span>
+                </div> -->
             </div>
             <div class="preparando_plato">
                 <div class="plato_y_botones">
+                    <!-- Platillo actual -->
                     <div class="plato_en_curso" *ngIf="primerPlatillo; else sinPlatillo">
-                        <img [src]="primerPlatillo.Ruta_imagen" alt="">
+                        <img [src]="primerPlatillo.Ruta_imagen" [alt]="primerPlatillo.Nombre_platillo" title="Producto">
                         <h1>{{ primerPlatillo.Nombre_platillo }}</h1>
                         <h2 class="p_mesa" *ngIf="primerPlatillo.Nombre_mesa">{{primerPlatillo.Nombre_mesa}}</h2>
-                        <h2 class="p_domicilio" *ngIf="primerPlatillo.Tipo_pedido == 'Entrega'">Pedido a domicilio </h2>
-                        <h6>ID detalle pedido:{{ primerPlatillo.id_detalle }}</h6>
-
+                        <h2 class="p_domicilio" *ngIf="primerPlatillo.Tipo_pedido == 'Entrega'">Pedido a domicilio
+                        </h2>
+                        <h6>ID detalle: {{ primerPlatillo.id_detalle?.substring(0, 8) }}...</h6>
+                        <h6>ID pedido: {{ primerPlatillo.id_pedido?.substring(0, 8) }}...</h6>
+                        <h6>Estado: <span class="badge-estado badge-cocinando">{{ primerPlatillo.estado }}</span></h6>
                     </div>
 
+                    <!-- Sin platillo -->
                     <ng-template #sinPlatillo>
-                        <h3>No hay platillos pendientes.</h3>
+                        <div class="sin-platillo">
+                            <div class="sin-platillo-icon">🍽️</div>
+                            <h3>No hay platillos en preparación</h3>
+                            <p *ngIf="listaspendiente.length > 0">Toma el siguiente de la cola</p>
+                            <p *ngIf="listaspendiente.length === 0 && !cargando">Esperando nuevos pedidos...</p>
+                        </div>
                     </ng-template>
 
-                    <div class="botones_platillo">
-                        <button type="button" class="buton-style" id="Listo" title="Listo"
-                            (click)="terminar_plato('listo', primerPlatillo?.id_detalle)">Listo</button>
-                        <button type="button" class="buton-style" id="Cancelar" title="Cancelar"
-                            (click)="cancelar_pedido(primerPlatillo?.id_detalle, primerPlatillo?.id_pedido, primerPlatillo?.Nombre_platillo, primerPlatillo?.id_mesa)">Cancelar</button>
+                    <!-- Botones de acción -->
+                    <div class="botones_platillo" *ngIf="primerPlatillo">
+                        <button type="button" class="buton-style" id="Listo" title="Marcar como listo"
+                            (click)="terminar_plato('listo', primerPlatillo?.id_detalle)">
+                            Listo
+                        </button>
+                        <button type="button" class="buton-style" id="Cancelar" title="Cancelar pedido" (click)="cancelar_pedido(
+                                    primerPlatillo?.id_detalle, 
+                                    primerPlatillo?.id_pedido, 
+                                    primerPlatillo?.Nombre_platillo, 
+                                    primerPlatillo?.id_mesa
+                                )">
+                            Cancelar
+                        </button>
                     </div>
                 </div>
-                <div class="detalles_del_plato">
+
+                <!-- Detalles del platillo -->
+                <div class="detalles_del_plato" *ngIf="primerPlatillo">
                     <h2>Detalles del plato</h2>
-                    <h3>{{primerPlatillo?.detalles_adicionales}}</h3>
+                    <div class="detalles-content">
+                        <p *ngIf="primerPlatillo.detalles_adicionales; else sinDetalles">
+                            {{ primerPlatillo.detalles_adicionales }}
+                        </p>
+                        <ng-template #sinDetalles>
+                            <p class="sin-detalles">Sin detalles adicionales</p>
+                        </ng-template>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-</section> -->
-
-<!-- Indicador de conexión WebSocket -->
-<div class="websocket-status">
-    <span class="status-indicator" [class.connected]="webSocketService.isConnected()"
-        [class.disconnected]="!webSocketService.isConnected()">
-    </span>
-    <span class="status-text">
-        {{ webSocketService.isConnected() ? 'En vivo' : 'Sin conexión' }}
-    </span>
-</div>
-
-<!-- Indicador de carga -->
-<div *ngIf="cargando" class="loading-spinner">
-    <p>Cargando platillos...</p>
-</div>
-
-<!-- Platillo actual en preparación -->
-<div *ngIf="primerPlatillo" class="platillo-actual">
-    <h2>🔥 Platillo en preparación</h2>
-    <div class="platillo-card">
-        <img [src]="primerPlatillo.Ruta_imagen" [alt]="primerPlatillo.Nombre_platillo" title="Platillo">
-        <div class="platillo-info">
-            <h3>{{ primerPlatillo.Nombre_platillo }}</h3>
-            <p><strong>Pedido:</strong> {{ primerPlatillo.id_pedido }}</p>
-            <p><strong>Estado:</strong> {{ primerPlatillo.estado }}</p>
-            <p *ngIf="primerPlatillo.id_mesa"><strong>Mesa:</strong> {{ primerPlatillo.Nombre_mesa }}</p>
-            <p *ngIf="primerPlatillo.detalles_adicionales">
-                <strong>Detalles:</strong> {{ primerPlatillo.detalles_adicionales }}
-            </p>
-        </div>
-        <div class="platillo-actions">
-            <button class="btn-terminar" (click)="terminar_plato('listo', primerPlatillo.id_detalle)">
-                ✅ Marcar como listo
-            </button>
-            <button class="btn-cancelar" (click)="cancelar_pedido(
-          primerPlatillo.id_detalle, 
-          primerPlatillo.id_pedido, 
-          primerPlatillo.Nombre_platillo,
-          primerPlatillo.id_mesa
-        )">
-                ❌ Cancelar
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Lista de platillos pendientes -->
-<div class="platillos-pendientes">
-    <h2>📋 Platillos en espera ({{ listaspendiente.length }})</h2>
-
-    <div *ngIf="listaspendiente.length === 0 && !cargando" class="no-pendientes">
-        <p>✨ No hay platillos pendientes</p>
-    </div>
-
-    <div class="platillos-lista">
-        <div *ngFor="let platillo of listaspendiente" class="platillo-item">
-            <img [src]="platillo.Ruta_imagen" [alt]="platillo.Nombre_platillo" title="Platillo">
-            <div class="platillo-mini-info">
-                <h4>{{ platillo.Nombre_platillo }}</h4>
-                <span class="tipo-pedido">{{ platillo.Tipo_pedido }}</span>
-                <span *ngIf="platillo.id_mesa" class="mesa-info">
-                    Mesa: {{ platillo.Nombre_mesa }}
-                </span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Estilos CSS (agregar a temporal.css) -->
-<style>
-    .websocket-status {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-    }
-
-    .status-indicator {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        animation: pulse 2s infinite;
-    }
-
-    .status-indicator.connected {
-        background-color: #4CAF50;
-    }
-
-    .status-indicator.disconnected {
-        background-color: #f44336;
-        animation: none;
-    }
-
-    .status-text {
-        font-size: 14px;
-        font-weight: 500;
-        color: #333;
-    }
-
-    @keyframes pulse {
-
-        0%,
-        100% {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0.5;
-        }
-    }
-
-    .loading-spinner {
-        text-align: center;
-        padding: 40px;
-        color: #666;
-    }
-
-    .platillo-actual {
-        margin-bottom: 40px;
-        padding: 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 12px;
-        color: white;
-    }
-
-    .platillo-card {
-        display: flex;
-        gap: 20px;
-        background: white;
-        border-radius: 8px;
-        padding: 20px;
-        color: #333;
-    }
-
-    .platillo-card img {
-        width: 150px;
-        height: 150px;
-        object-fit: cover;
-        border-radius: 8px;
-    }
-
-    .platillo-info {
-        flex: 1;
-    }
-
-    .platillo-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        justify-content: center;
-    }
-
-    .btn-terminar,
-    .btn-cancelar {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.3s;
-    }
-
-    .btn-terminar {
-        background-color: #4CAF50;
-        color: white;
-    }
-
-    .btn-terminar:hover {
-        background-color: #45a049;
-    }
-
-    .btn-cancelar {
-        background-color: #f44336;
-        color: white;
-    }
-
-    .btn-cancelar:hover {
-        background-color: #da190b;
-    }
-
-    .platillos-pendientes {
-        padding: 20px;
-    }
-
-    .no-pendientes {
-        text-align: center;
-        padding: 40px;
-        color: #999;
-        font-size: 18px;
-    }
-
-    .platillos-lista {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 20px;
-        margin-top: 20px;
-    }
-
-    .platillo-item {
-        display: flex;
-        flex-direction: column;
-        background: white;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s;
-    }
-
-    .platillo-item:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    }
-
-    .platillo-item img {
-        width: 100%;
-        height: 180px;
-        object-fit: cover;
-    }
-
-    .platillo-mini-info {
-        padding: 16px;
-    }
-
-    .platillo-mini-info h4 {
-        margin: 0 0 8px 0;
-        font-size: 16px;
-    }
-
-    .tipo-pedido {
-        display: inline-block;
-        padding: 4px 8px;
-        background: #D0AF43;
-        color: white;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 600;
-        margin-right: 8px;
-    }
-
-    .mesa-info {
-        font-size: 14px;
-        color: #666;
-    }
-</style>
+</section>

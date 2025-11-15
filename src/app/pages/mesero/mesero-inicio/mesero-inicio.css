@@ -280,3 +280,26 @@ section {
     color: #d6b45a;
     /* efecto hover */
 }
+
+
+.websocket-mini-status {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.mini-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.mini-indicator.connected {
+    background: #4caf50;
+}
+
+.mini-indicator.disconnected {
+    background: #f44336;
+    animation: none;
+}

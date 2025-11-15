@@ -59,6 +59,24 @@ export class Cocina {
   }
 
 
+  limpiar_cocina() {
+    const headers = this.getHeaders();
+    if (!headers) return of([]);
+
+    const body = { 'id_detalle': null };
+
+    return this.http.put<any>(
+      `${this.apiUrlCocina}/update_cocinero_plato`,
+      body,
+      { headers }
+    ).pipe(
+      catchError(err => {
+        console.error('Error al actualizar el estado del cocinero:', err);
+        return of(null);
+      })
+    );
+  }
+
 
   check_cocina_platillo(): Observable<ListaPlatoPendienteInterface[]> {
     const headers = this.getHeaders();

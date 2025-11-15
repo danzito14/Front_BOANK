@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
-import { interval, map } from 'rxjs';
+import { ChangeDetectorRef, Component, NgZone, OnInit, OnDestroy } from '@angular/core';
+import { interval, map, Subscription } from 'rxjs';
 import { FormsModule } from "@angular/forms";
 import { MesasInterface, NombreEmpleadoInterface, PedidoService } from '../../../services/mesero/pedido';
 import Swal from 'sweetalert2';
@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { UntilsPedido } from '../../../services/untils/untils-pedido';
 import { CarritoService } from '../../../services/carrito/carrito';
 import { ListaPlatoPendienteInterface, ObtenerListas } from '../../../services/untils/obtener-listas';
+import { WebSocketService, WebSocketMessage } from '../../../services/untils/web-socket-service';
 
 @Component({
   selector: 'app-mesero-inicio',
@@ -15,7 +16,7 @@ import { ListaPlatoPendienteInterface, ObtenerListas } from '../../../services/u
   templateUrl: './mesero-inicio.html',
   styleUrl: './mesero-inicio.css',
 })
-export class MeseroInicio implements OnInit {
+export class MeseroInicio implements OnInit, OnDestroy {
 
   mesas$: MesasInterface[] = [];
   empleado_puesto_nombre: any = null;
@@ -31,9 +32,19 @@ export class MeseroInicio implements OnInit {
 
   listasListos: ListaPlatoPendienteInterface[] = [];
 
-  constructor(private meseroService: PedidoService, private zone: NgZone, private cd: ChangeDetectorRef,
-    private router: Router, private untils_pedido: UntilsPedido, private carritoService: CarritoService,
-    private listasservice: ObtenerListas
+  // WebSocket
+  private wsSubscription: Subscription | null = null;
+  isWebSocketConnected: boolean = false;
+
+  constructor(
+    private meseroService: PedidoService,
+    private zone: NgZone,
+    private cd: ChangeDetectorRef,
+    private router: Router,
+    private untils_pedido: UntilsPedido,
+    private carritoService: CarritoService,
+    private listasservice: ObtenerListas,
+    public wsService: WebSocketService
   ) { }
 
   ngOnInit(): void {
@@ -44,12 +55,162 @@ export class MeseroInicio implements OnInit {
     this.carritoService.vaciarCarrito().subscribe({
       next: (res) => {
         console.log('Carrito vaciado correctamente');
-
       },
       error: (err) => console.error('Error al vaciar carrito:', err)
     });
+
+    // 🔥 Conectar al WebSocket como mesero
+    this.conectarWebSocket();
   }
 
+  ngOnDestroy(): void {
+    // 🔥 Limpiar suscripción y desconectar WebSocket
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
+    this.wsService.disconnect();
+  }
+
+  /**
+   * 🔥 Conecta al WebSocket y escucha notificaciones
+   */
+
+  conectarWebSocket(): void {
+    console.log('🔌 Conectando al WebSocket como mesero...');
+
+    this.wsSubscription = this.wsService.connect('meseros').subscribe({
+      next: (mensaje: WebSocketMessage) => {
+        console.log('📨 Mensaje WebSocket recibido para mesero:', mensaje);
+        this.handleWebSocketMessage(mensaje);
+      },
+      error: (error) => {
+        console.error('❌ Error en WebSocket:', error);
+      }
+    });
+
+    // ❌ ELIMINAR ESTE INTERVALO - Ya lo maneja el servicio automáticamente
+    // setInterval(() => { ... }, 30000);
+  }
+  // private conectarWebSocket(): void {
+  //   // Conectar como mesero
+  //   this.wsService.connect('meseros');
+
+  //   // Suscribirse al estado de conexión
+  //   this.wsService.connectionStatus$.subscribe(connected => {
+  //     this.isWebSocketConnected = connected;
+  //     console.log(`WebSocket ${connected ? 'conectado ✅' : 'desconectado 🔌'}`);
+  //   });
+
+  //   // Suscribirse a los mensajes
+  //   this.wsSubscription = this.wsService.messages$.subscribe(
+  //     (message: WebSocketMessage) => {
+  //       this.handleWebSocketMessage(message);
+  //     }
+  //   );
+  // }
+
+  /**
+   * 🔥 Maneja los mensajes recibidos por WebSocket
+   */
+  private handleWebSocketMessage(message: WebSocketMessage): void {
+    console.log('📨 Notificación recibida:', message);
+
+    switch (message.tipo) {
+      case 'platillo_listo':
+        this.manejarPlatilloListo(message);
+        break;
+
+      case 'platillo_cancelado':
+        this.manejarPlatilloCancelado(message);
+        break;
+
+      case 'nuevo_pedido':
+        // Si quieres notificar cuando hay un nuevo pedido
+        this.obtener_mesas();
+        break;
+
+      case 'pong':
+        // No hacer nada, es solo para mantener la conexión
+        break;
+
+      default:
+        console.log('Tipo de mensaje no manejado:', message.tipo);
+    }
+  }
+
+  /**
+   * 🔥 Maneja la notificación de platillo listo
+   */
+  private manejarPlatilloListo(message: WebSocketMessage): void {
+    // Agregar el platillo a la lista de listos
+    this.cargarListaListos();
+
+    // Mostrar notificación visual
+    this.mostrarNotificacion(
+      '🍽️ Platillo Listo',
+      `${message.nombre_platillo} está listo en ${message.nombre_mesa || 'mesa'}`,
+      'success'
+    );
+
+    // Reproducir sonido (opcional)
+    this.reproducirSonidoNotificacion();
+  }
+
+  /**
+   * 🔥 Maneja la notificación de platillo cancelado
+   */
+  private manejarPlatilloCancelado(message: WebSocketMessage): void {
+    // Remover de la lista de listos si está ahí
+    this.listasListos = this.listasListos.filter(
+      platillo => platillo.id_detalle !== message.id_detalle
+    );
+
+    // Actualizar mesas por si se canceló el pedido completo
+    this.obtener_mesas();
+
+    // Mostrar notificación
+    this.mostrarNotificacion(
+      '❌ Platillo Cancelado',
+      `${message.nombre_platillo} ha sido cancelado`,
+      'warning'
+    );
+  }
+
+  /**
+   * 🔥 Muestra una notificación toast
+   */
+  private mostrarNotificacion(title: string, text: string, icon: 'success' | 'error' | 'warning' | 'info'): void {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+      }
+    });
+
+    Toast.fire({
+      icon: icon,
+      title: title,
+      text: text
+    });
+  }
+
+  /**
+   * 🔥 Reproduce un sonido de notificación (opcional)
+   */
+  private reproducirSonidoNotificacion(): void {
+    try {
+      const audio = new Audio('assets/sounds/notification.mp3');
+      audio.volume = 0.5;
+      audio.play().catch(err => console.log('No se pudo reproducir el sonido:', err));
+    } catch (error) {
+      console.log('Error al reproducir sonido:', error);
+    }
+  }
 
   cargarListaListos(): void {
     this.listasservice.get_lista_platillos_listos().subscribe({
@@ -60,7 +221,6 @@ export class MeseroInicio implements OnInit {
       error: (err) => console.error('Error al cargar lista de cocina:', err),
     });
   }
-
 
   obtener_mesas() {
     this.meseroService.get_all_mesas().subscribe(tmesas => {
@@ -127,7 +287,6 @@ export class MeseroInicio implements OnInit {
           error: (err) => console.error('Error al vaciar carrito:', err)
         });
       }
-
     });
   }
 
@@ -163,30 +322,21 @@ export class MeseroInicio implements OnInit {
         this.router.navigate(['/mesero-menu']);
       } if (result.isDenied) {
         this.router.navigate(['/pagar'], { queryParams: { id_mesa: this.id_mesa, id_pedido: this.id_pedido, nombre_mesa: this.mesaSeleccionada } });
-        // this.meseroService.generar_pago(this.id_pedido, metodo_pago,)
       }
     });
   }
-
 
   terminar_plato(estado: string, id_detalle: string) {
     this.listasservice.update_estado_platillo(id_detalle, estado).subscribe({
       next: () => {
         console.log(`Platillo ${id_detalle} actualizado a estado "${estado}"`);
 
-        // 👇 Quitar el platillo de la lista local
+        // Quitar el platillo de la lista local
         this.listasListos = this.listasListos.filter(
           platillo => platillo.id_detalle !== id_detalle
         );
-
-        // (opcional) mostrar confirmación visual
-        // Swal.fire('Listo', 'El platillo fue marcado como servido', 'success');
       },
       error: (err) => console.error('Error al actualizar estado del platillo:', err),
     });
   }
-
-
-
-
 }

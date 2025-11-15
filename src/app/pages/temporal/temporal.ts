@@ -49,7 +49,7 @@ export class Temporal implements OnInit, OnDestroy {
     this.webSocketService.disconnect();
   }
 
-  // 🔥 NUEVO: Conectar al WebSocket y escuchar eventos
+  // Método conectarWebSocket actualizado para Cocineros
   conectarWebSocket(): void {
     console.log('🔌 Conectando al WebSocket como cocinero...');
 
@@ -63,15 +63,11 @@ export class Temporal implements OnInit, OnDestroy {
       }
     });
 
-    // Enviar ping cada 30 segundos para mantener la conexión
-    setInterval(() => {
-      if (this.webSocketService.isConnected()) {
-        this.webSocketService.sendPing();
-      }
-    }, 30000);
+    // ❌ ELIMINAR ESTE INTERVALO - Ya lo maneja el servicio automáticamente
+    // setInterval(() => { ... }, 30000);
   }
 
-  // 🔥 NUEVO: Manejar diferentes tipos de mensajes WebSocket
+  // 🔥 Manejar diferentes tipos de mensajes WebSocket
   manejarMensajeWebSocket(mensaje: WebSocketMessage): void {
     switch (mensaje.tipo) {
       case 'nuevo_pedido':
@@ -80,12 +76,31 @@ export class Temporal implements OnInit, OnDestroy {
         this.recargarListaPendientes(); // 🔥 Recargar la lista automáticamente
         break;
 
+      case 'platillo_cancelado':
+        console.log('❌ Platillo cancelado:', mensaje.id_detalle);
+        // Si es el platillo actual, liberarlo
+        if (this.primerPlatillo?.id_detalle === mensaje.id_detalle) {
+          this.mostrarNotificacionCancelacion(mensaje);
+          this.primerPlatillo = null;
+          this.recargarListaPendientes();
+        }
+        break;
+
+      case 'pedido_cancelado':
+        console.log('❌ Pedido cancelado completo:', mensaje.id_pedido);
+        // Verificar si el platillo actual pertenece a este pedido
+        if (this.primerPlatillo?.id_pedido === mensaje.id_pedido) {
+          this.primerPlatillo = null;
+        }
+        this.recargarListaPendientes();
+        break;
+
       case 'conexion_exitosa':
         console.log('✅ Conexión WebSocket exitosa:', mensaje.mensaje);
         break;
 
       case 'pong':
-        console.log('🏓 Pong recibido');
+        // No hacer nada, es solo para mantener la conexión
         break;
 
       default:
@@ -93,7 +108,26 @@ export class Temporal implements OnInit, OnDestroy {
     }
   }
 
-  // 🔥 NUEVO: Mostrar notificación de nuevo pedido
+  // 🔥 NUEVO: Notificación de cancelación
+  mostrarNotificacionCancelacion(mensaje: WebSocketMessage): void {
+    Swal.fire({
+      title: '❌ Platillo Cancelado',
+      html: `
+      <p><strong>Platillo:</strong> ${mensaje.nombre_platillo}</p>
+      <p>El platillo que estabas preparando ha sido cancelado.</p>
+    `,
+      icon: 'warning',
+      iconColor: '#ffc107',
+      confirmButtonColor: '#D0AF43',
+      timer: 5000,
+      timerProgressBar: true,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: true
+    });
+  }
+
+  // 🔥 Mostrar notificación de nuevo pedido
   mostrarNotificacionNuevoPedido(mensaje: WebSocketMessage): void {
     const platillos = mensaje.platillos || [];
     const cantidad = platillos.length;
@@ -101,11 +135,11 @@ export class Temporal implements OnInit, OnDestroy {
     Swal.fire({
       title: '🔔 Nuevo Pedido',
       html: `
-        <p><strong>Pedido:</strong> ${mensaje.id_pedido?.substring(0, 8)}...</p>
-        <p><strong>Tipo:</strong> ${mensaje.tipo_pedido}</p>
-        ${mensaje.id_mesa ? `<p><strong>Mesa:</strong> ${mensaje.id_mesa}</p>` : ''}
-        <p><strong>Platillos:</strong> ${cantidad}</p>
-      `,
+      <p><strong>Pedido:</strong> ${mensaje.id_pedido?.substring(0, 8)}...</p>
+      <p><strong>Tipo:</strong> ${mensaje.tipo_pedido}</p>
+      ${mensaje.id_mesa ? `<p><strong>Mesa:</strong> ${mensaje.nombre_mesa || mensaje.id_mesa}</p>` : ''}
+      <p><strong>Platillos:</strong> ${cantidad}</p>
+    `,
       icon: 'info',
       iconColor: '#d6b45a',
       confirmButtonColor: '#D0AF43',
@@ -116,11 +150,10 @@ export class Temporal implements OnInit, OnDestroy {
       showConfirmButton: false
     });
 
-    // Opcional: Reproducir sonido de notificación
     this.reproducirSonidoNotificacion();
   }
 
-  // 🔥 NUEVO: Reproducir sonido de notificación (opcional)
+  // 🔥 Reproducir sonido de notificación
   reproducirSonidoNotificacion(): void {
     try {
       const audio = new Audio('assets/sounds/notification.mp3');
@@ -131,7 +164,7 @@ export class Temporal implements OnInit, OnDestroy {
     }
   }
 
-  // 🔥 NUEVO: Recargar lista de pendientes sin resetear el platillo actual
+  // 🔥 Recargar lista de pendientes sin resetear el platillo actual
   recargarListaPendientes(): void {
     console.log('🔄 Recargando lista de platillos pendientes...');
 
@@ -264,6 +297,10 @@ export class Temporal implements OnInit, OnDestroy {
                 iconColor: "#d6b45a"
               });
               this.primerPlatillo = null;
+              this.cocinaService.limpiar_cocina().subscribe({
+                next: () => console.log('Cocina limpiada'),
+                error: (err) => console.error('Error al actualizar cocina:', err),
+              });
               this.cargarListaPendientes();
             },
             error: (err) => console.error("Error al cancelar pedido:", err),
@@ -279,6 +316,10 @@ export class Temporal implements OnInit, OnDestroy {
                 iconColor: "#d6b45a"
               });
               this.primerPlatillo = null;
+              this.cocinaService.limpiar_cocina().subscribe({
+                next: () => console.log('Cocina limpiada'),
+                error: (err) => console.error('Error al actualizar cocina:', err),
+              });
               this.cargarListaPendientes();
             },
             error: (err) => console.error("Error al cancelar pedido:", err),
@@ -293,6 +334,10 @@ export class Temporal implements OnInit, OnDestroy {
       next: () => {
         console.log(`Platillo ${id_detalle} actualizado a estado "${estado}"`);
         this.primerPlatillo = null;
+        this.cocinaService.limpiar_cocina().subscribe({
+          next: () => console.log('Cocina limpiada'),
+          error: (err) => console.error('Error al actualizar cocina:', err),
+        });
         this.cargarListaPendientes();
       },
       error: (err) => console.error('Error al actualizar estado del platillo:', err),

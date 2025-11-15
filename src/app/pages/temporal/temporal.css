@@ -50,6 +50,14 @@ section {
     flex-direction: row;
     gap: 5px;
     border-bottom: #d6b45a solid 2px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.nombre_usu {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
 }
 
 .plato_y_botones {
@@ -187,4 +195,27 @@ h2 {
     font-weight: 300;
     padding-left: 5px;
     color: #D0AF43;
+}
+
+
+.websocket-mini-status {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.mini-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.mini-indicator.connected {
+    background: #4caf50;
+}
+
+.mini-indicator.disconnected {
+    background: #f44336;
+    animation: none;
 }
