@@ -26,6 +26,9 @@ export class RoleGuard implements CanActivate {
 
     if (nivelUsuario === '2' && !rolesPermitidos.includes('2')) {
       return this.router.parseUrl('/mesero-inicio');
+    }
+    else if (nivelUsuario === '3' && !rolesPermitidos.includes('3')) {
+      return this.router.parseUrl('/cocina');
     } else if (nivelUsuario === '4' && !rolesPermitidos.includes('4')) {
       return this.router.parseUrl('/cajero-inicio');
     }

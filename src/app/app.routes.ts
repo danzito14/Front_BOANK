@@ -18,6 +18,7 @@ import { MeseroMenu } from './pages/mesero/mesero-menu/mesero-menu';
 import { Pedido } from './pages/pedido/pedido';
 import { Pagar } from './pages/mesero/pagar/pagar';
 import { CajeroInicio } from './pages/cajero/cajero-inicio/cajero-inicio';
+import { EstacionTrabajo } from './pages/cocinero/estacion-trabajo/estacion-trabajo';
 
 export const routes: Routes = [
     { path: '', component: Home, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1'] } },
@@ -38,6 +39,10 @@ export const routes: Routes = [
     { path: 'mesero-inicio', component: MeseroInicio, canActivate: [AuthGuard, RoleGuard], data: { roles: ['2'] } },
     { path: 'mesero-menu', component: MeseroMenu, canActivate: [AuthGuard, RoleGuard], data: { roles: ['2', '4'] } },
     { path: 'pagar', component: Pagar, canActivate: [AuthGuard, RoleGuard], data: { roles: ['2', '4'] } },
+
+    //Cocinero
+    { path: 'cocina', component: EstacionTrabajo, canActivate: [AuthGuard, RoleGuard], data: { roles: ['3'] } },
+
 
     //cajero
     { path: 'cajero-inicio', component: CajeroInicio, canActivate: [AuthGuard, RoleGuard], data: { roles: ['4'] } },

@@ -2,32 +2,35 @@
     <!-- Indicador de conexión WebSocket -->
 
 
-    <!-- Indicador de carga -->
+    <!-- Indicador de carga
     <div *ngIf="cargando" class="loading-spinner">
         <p>⏳ Cargando platillos...</p>
-    </div>
+    </div> -->
 
     <div class="container">
         <!-- Cola de platillos pendientes -->
         <div class="cola_preparar">
             <div class="cabeza_cola">
-                <h3>Platillos en Cola ({{ listaspendiente.length }})</h3>
+                <h3>Platillos en Cola</h3>
             </div>
             <div class="cola">
-                <!-- Mensaje cuando no hay platillos -->
-                <div *ngIf="listaspendiente.length === 0 && !cargando" class="no-pendientes">
-                    <p>✨ No hay platillos pendientes</p>
+                <div *ngFor="let pedido of pedidos_absolute; let i = index">
+                    <!-- Lista de pedidos pendientes -->
+                    <div class="pedido_button" (click)="abrirModalPedido(pedido)"
+                        [ngClass]="{ 'open-btn': openedIndex === i }">
+
+                        <h3>{{ pedido.nombre_completo }}</h3>
+                        <h4>{{ pedido.direccion_completa }}</h4>
+
+                        <span>ID: {{ pedido.id_pedido.substring(0,8) }}...</span>
+
+                        <div class="estado_pedido">
+                            <span>Estado: </span>
+                            <span [ngClass]="pedido.estado_pedido"> {{ pedido.estado_pedido }}</span>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Lista de platillos pendientes -->
-                <div class="platillo_item" *ngFor="let platillo of listaspendiente">
-                    <img [src]="platillo.Ruta_imagen" [alt]="platillo.Nombre_platillo" title="Producto">
-                    <h3>{{ platillo.Nombre_platillo }}</h3>
-                    <h3 class="p_mesa" *ngIf="platillo.Nombre_mesa">{{platillo.Nombre_mesa}}</h3>
-                    <h3 class="p_domicilio" *ngIf="platillo.Tipo_pedido == 'Entrega'">Pedido a domicilio</h3>
-                    <h6>ID pedido: {{ platillo.id_pedido?.substring(0, 8) }}...</h6>
-                    <h6>Estado: <span class="badge-estado">{{platillo.estado}}</span></h6>
-                </div>
             </div>
         </div>
 
@@ -38,69 +41,73 @@
                     <h3>Rol usuario: </h3>
                     <h3>Nombre Completo</h3>
                 </div>
-                <!-- <div class="websocket-mini-status">
-                    <span class="mini-indicator" [class.connected]="webSocketService.isConnected()"
-                        [class.disconnected]="!webSocketService.isConnected()">
-                    </span>
-                    <span class="status-text">
-                        {{ webSocketService.isConnected() ? 'Conectado' : 'Sin conexión' }}
-                    </span>
-                </div> -->
+
             </div>
-            <div class="preparando_plato">
-                <div class="plato_y_botones">
-                    <!-- Platillo actual -->
-                    <div class="plato_en_curso" *ngIf="primerPlatillo; else sinPlatillo">
-                        <img [src]="primerPlatillo.Ruta_imagen" [alt]="primerPlatillo.Nombre_platillo" title="Producto">
-                        <h1>{{ primerPlatillo.Nombre_platillo }}</h1>
-                        <h2 class="p_mesa" *ngIf="primerPlatillo.Nombre_mesa">{{primerPlatillo.Nombre_mesa}}</h2>
-                        <h2 class="p_domicilio" *ngIf="primerPlatillo.Tipo_pedido == 'Entrega'">Pedido a domicilio
-                        </h2>
-                        <h6>ID detalle: {{ primerPlatillo.id_detalle?.substring(0, 8) }}...</h6>
-                        <h6>ID pedido: {{ primerPlatillo.id_pedido?.substring(0, 8) }}...</h6>
-                        <h6>Estado: <span class="badge-estado badge-cocinando">{{ primerPlatillo.estado }}</span></h6>
+            <div class="mapa_y_botones">
+
+                <!-- Botones de acción -->
+                <div class="botones_datos_pedido">
+                    <div class="datos_pedido">
+                        <h3 *ngIf="direccionSeleccionada">Destino:{{direccionSeleccionada}}</h3>
+                        <h3 *ngIf="titularSeleccionado">Titular: {{titularSeleccionado}}</h3>
                     </div>
-
-                    <!-- Sin platillo -->
-                    <ng-template #sinPlatillo>
-                        <div class="sin-platillo">
-                            <div class="sin-platillo-icon">🍽️</div>
-                            <h3>No hay platillos en preparación</h3>
-                            <p *ngIf="listaspendiente.length > 0">Toma el siguiente de la cola</p>
-                            <p *ngIf="listaspendiente.length === 0 && !cargando">Esperando nuevos pedidos...</p>
-                        </div>
-                    </ng-template>
-
-                    <!-- Botones de acción -->
-                    <div class="botones_platillo" *ngIf="primerPlatillo">
-                        <button type="button" class="buton-style" id="Listo" title="Marcar como listo"
-                            (click)="terminar_plato('listo', primerPlatillo?.id_detalle)">
-                            Listo
-                        </button>
-                        <button type="button" class="buton-style" id="Cancelar" title="Cancelar pedido" (click)="cancelar_pedido(
-                                    primerPlatillo?.id_detalle, 
-                                    primerPlatillo?.id_pedido, 
-                                    primerPlatillo?.Nombre_platillo, 
-                                    primerPlatillo?.id_mesa
-                                )">
-                            Cancelar
-                        </button>
+                    <div class="botones_accion">
+                        <button type="button" class="empezar_ruta" title="Empezar ruta">Inciar entrega</button>
+                        <button type="button" class="cancelar_pedido" title="Cancelar pedido"
+                            (click)="seleccionar_que_cancelar()">Cancelar</button>
                     </div>
                 </div>
-
-                <!-- Detalles del platillo -->
-                <div class="detalles_del_plato" *ngIf="primerPlatillo">
-                    <h2>Detalles del plato</h2>
-                    <div class="detalles-content">
-                        <p *ngIf="primerPlatillo.detalles_adicionales; else sinDetalles">
-                            {{ primerPlatillo.detalles_adicionales }}
-                        </p>
-                        <ng-template #sinDetalles>
-                            <p class="sin-detalles">Sin detalles adicionales</p>
-                        </ng-template>
-                    </div>
+                <!-- Platillo actual -->
+                <div class="mapa">
                 </div>
             </div>
+
+
         </div>
     </div>
 </section>
+<!-- MODAL -->
+<div class="modal-backdrop" *ngIf="mostrarModal">
+    <div class="modal-container">
+        <div>
+            <button class="cerrar" (click)="cerrarModal()">X</button>
+
+            <h2>Pedido #{{ selectedPedido?.id_pedido }}</h2>
+            <h3>Titular: {{ selectedPedido?.nombre_completo }}</h3>
+            <h4>Dirección: {{ selectedPedido?.direccion_completa }}</h4>
+
+            <hr>
+
+            <div class="plato" *ngFor="let plato of selectedPedido?.platillos">
+                <div class="datos_plato">
+                    <h3>{{ plato.nombre_platillo }}</h3>
+                    <span>{{ plato.detalles_adicionales }}</span><br>
+                    <div class="estado_plato">
+                        <span>Estado: </span><br>
+                        <span [ngClass]="plato.estado_detalle"> {{ plato.estado_detalle }}</span><br>
+                    </div>
+                </div>
+                <div class="button_cancelar">
+                    <button type="button" title="Cancelar"
+                        (click)="cancelar_pedido_entrega(plato.id_detalle, plato.id_pedido, plato.id_mesa)">Cancelar</button>
+                </div>
+            </div>
+
+            <div class="cancelar_todo_pedido">
+                <h3>Cancelar todo el pedido: </h3>
+                <button class="cancelar-total"
+                    (click)="cancelar_todo_pedido_entrega(selectedPedido.id_pedido, selectedPedido.nombre_completo)">
+                    Cancelar Pedido
+                </button>
+            </div>
+        </div>
+
+        <div class="boton_seleccion">
+            <button type="button" class="seleccionar_ruta" title="Seleccionar ruta"
+                (click)="pedido_seleccionado(selectedPedido?.id_pedido, selectedPedido?.nombre_completo, selectedPedido?.direccion_completa)">
+                Seleccionar pedido y Comenzar con la entrega
+            </button>
+        </div>
+    </div>
+
+</div>

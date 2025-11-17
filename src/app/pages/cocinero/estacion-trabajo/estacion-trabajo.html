@@ -1,0 +1,107 @@
+<section>
+    <!-- Indicador de conexión WebSocket -->
+
+
+    <!-- Indicador de carga -->
+    <div *ngIf="cargando" class="loading-spinner">
+        <p>⏳ Cargando platillos...</p>
+    </div>
+
+    <div class="container">
+        <!-- Cola de platillos pendientes -->
+        <div class="cola_preparar">
+            <div class="cabeza_cola">
+                <h3>Platillos en Cola ({{ listaspendiente.length }})</h3>
+            </div>
+            <div class="cola">
+                <!-- Mensaje cuando no hay platillos -->
+                <div *ngIf="listaspendiente.length === 0 && !cargando" class="no-pendientes">
+                    <p>✨ No hay platillos pendientes</p>
+                </div>
+
+                <!-- Lista de platillos pendientes -->
+                <div class="platillo_item" *ngFor="let platillo of listaspendiente">
+                    <img [src]="platillo.Ruta_imagen" [alt]="platillo.Nombre_platillo" title="Producto">
+                    <h3>{{ platillo.Nombre_platillo }}</h3>
+                    <h3 class="p_mesa" *ngIf="platillo.Nombre_mesa">{{platillo.Nombre_mesa}}</h3>
+                    <h3 class="p_domicilio" *ngIf="platillo.Tipo_pedido == 'Entrega'">Pedido a domicilio</h3>
+                    <h6>ID pedido: {{ platillo.id_pedido?.substring(0, 8) }}...</h6>
+                    <h6>Estado: <span class="badge-estado">{{platillo.estado}}</span></h6>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platillo en preparación -->
+        <div class="platillo_preparado">
+            <div class="cabeza_preparando">
+                <div class="nombre_usu" *ngIf="empleado_puesto_nombre">
+                    <h2>{{ empleado_puesto_nombre?.Nombre_puesto }}: </h2>
+                    <h2> {{empleado_puesto_nombre.Nombre_empleado}}</h2>
+
+                </div>
+                <!-- <div class="websocket-mini-status">
+                    <span class="mini-indicator" [class.connected]="webSocketService.isConnected()"
+                        [class.disconnected]="!webSocketService.isConnected()">
+                    </span>
+                    <span class="status-text">
+                        {{ webSocketService.isConnected() ? 'Conectado' : 'Sin conexión' }}
+                    </span>
+                </div> -->
+            </div>
+            <div class="preparando_plato">
+                <div class="plato_y_botones">
+                    <!-- Platillo actual -->
+                    <div class="plato_en_curso" *ngIf="primerPlatillo; else sinPlatillo">
+                        <img [src]="primerPlatillo.Ruta_imagen" [alt]="primerPlatillo.Nombre_platillo" title="Producto">
+                        <h1>{{ primerPlatillo.Nombre_platillo }}</h1>
+                        <h2 class="p_mesa" *ngIf="primerPlatillo.Nombre_mesa">{{primerPlatillo.Nombre_mesa}}</h2>
+                        <h2 class="p_domicilio" *ngIf="primerPlatillo.Tipo_pedido == 'Entrega'">Pedido a domicilio
+                        </h2>
+                        <h6>ID detalle: {{ primerPlatillo.id_detalle?.substring(0, 8) }}...</h6>
+                        <h6>ID pedido: {{ primerPlatillo.id_pedido?.substring(0, 8) }}...</h6>
+                        <h6>Estado: <span class="badge-estado badge-cocinando">{{ primerPlatillo.estado }}</span></h6>
+                    </div>
+
+                    <!-- Sin platillo -->
+                    <ng-template #sinPlatillo>
+                        <div class="sin-platillo">
+                            <div class="sin-platillo-icon">🍽️</div>
+                            <h3>No hay platillos en preparación</h3>
+                            <p *ngIf="listaspendiente.length > 0">Toma el siguiente de la cola</p>
+                            <p *ngIf="listaspendiente.length === 0 && !cargando">Esperando nuevos pedidos...</p>
+                        </div>
+                    </ng-template>
+
+                    <!-- Botones de acción -->
+                    <div class="botones_platillo" *ngIf="primerPlatillo">
+                        <button type="button" class="buton-style" id="Listo" title="Marcar como listo"
+                            (click)="terminar_plato('listo', primerPlatillo?.id_detalle)">
+                            Listo
+                        </button>
+                        <button type="button" class="buton-style" id="Cancelar" title="Cancelar pedido" (click)="cancelar_pedido(
+                                    primerPlatillo?.id_detalle, 
+                                    primerPlatillo?.id_pedido, 
+                                    primerPlatillo?.Nombre_platillo, 
+                                    primerPlatillo?.id_mesa
+                                )">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Detalles del platillo -->
+                <div class="detalles_del_plato" *ngIf="primerPlatillo">
+                    <h2>Detalles del plato</h2>
+                    <div class="detalles-content">
+                        <p *ngIf="primerPlatillo.detalles_adicionales; else sinDetalles">
+                            {{ primerPlatillo.detalles_adicionales }}
+                        </p>
+                        <ng-template #sinDetalles>
+                            <p class="sin-detalles">Sin detalles adicionales</p>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

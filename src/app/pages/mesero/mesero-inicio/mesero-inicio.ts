@@ -88,26 +88,7 @@ export class MeseroInicio implements OnInit, OnDestroy {
       }
     });
 
-    // ❌ ELIMINAR ESTE INTERVALO - Ya lo maneja el servicio automáticamente
-    // setInterval(() => { ... }, 30000);
   }
-  // private conectarWebSocket(): void {
-  //   // Conectar como mesero
-  //   this.wsService.connect('meseros');
-
-  //   // Suscribirse al estado de conexión
-  //   this.wsService.connectionStatus$.subscribe(connected => {
-  //     this.isWebSocketConnected = connected;
-  //     console.log(`WebSocket ${connected ? 'conectado ✅' : 'desconectado 🔌'}`);
-  //   });
-
-  //   // Suscribirse a los mensajes
-  //   this.wsSubscription = this.wsService.messages$.subscribe(
-  //     (message: WebSocketMessage) => {
-  //       this.handleWebSocketMessage(message);
-  //     }
-  //   );
-  // }
 
   /**
    * 🔥 Maneja los mensajes recibidos por WebSocket
@@ -121,10 +102,31 @@ export class MeseroInicio implements OnInit, OnDestroy {
         break;
 
       case 'platillo_cancelado':
-        this.manejarPlatilloCancelado(message);
+        this.mostrarNotificacion(
+          'Platillo cancelado',
+          `Mesa n`,
+          'warning'
+        );
+        this.cargarListaListos();
+        this.obtener_mesas();
+        break;
+
+      case 'pedido_cancelado':
+        this.mostrarNotificacion(
+          'Pedido cancelado',
+          `Mesa n`,
+          'warning'
+        );
+        this.cargarListaListos();
+        this.obtener_mesas();
         break;
 
       case 'nuevo_pedido':
+        this.mostrarNotificacion(
+          'Pedido creado',
+          `Mesa n`,
+          'warning'
+        );
         // Si quieres notificar cuando hay un nuevo pedido
         this.obtener_mesas();
         break;
@@ -204,7 +206,7 @@ export class MeseroInicio implements OnInit, OnDestroy {
    */
   private reproducirSonidoNotificacion(): void {
     try {
-      const audio = new Audio('assets/sounds/notification.mp3');
+      const audio = new Audio('sistema/sounds/notificacion.mp3');
       audio.volume = 0.5;
       audio.play().catch(err => console.log('No se pudo reproducir el sonido:', err));
     } catch (error) {
@@ -229,6 +231,7 @@ export class MeseroInicio implements OnInit, OnDestroy {
         this.cd.detectChanges();
       });
     });
+
   }
 
   obtener_nombre_puesto() {

@@ -73,6 +73,10 @@ export class Pedido implements OnInit {
     this.openedIndex = this.openedIndex === index ? null : index;
   }
 
+  formatEstado(estado: string): string {
+    return estado.replace(/\s+/g, '');
+  }
+
   cancelar_pedido(id_detalle: string, id_pedido: string, nombre: string, id_mesa: string) {
     Swal.fire({
       title: `¿Esta seguro de que desea quitar:  ${nombre} de su orden?`,

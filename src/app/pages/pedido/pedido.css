@@ -43,12 +43,71 @@ h1 {
     display: flex;
     flex-direction: row;
     width: 100%;
-    justify-content: space-between;
+    gap: 5px;
 }
 
 
 .datos_plato {
     width: 80%;
+    padding: 5px;
+    border-bottom: #d6b45a solid 1px;
+}
+
+.datos_plato span {
+    color: #333;
+    font-style: italic;
+}
+
+.estado_plato {
+    display: flex;
+    flex-direction: row;
+    gap: 3px
+}
+
+.servido,
+.Entregado {
+    background-color: #d6b55aa1;
+    border-radius: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: #d6b45a solid 2px;
+}
+
+.listo,
+.Listo {
+    background-color: #578eada1;
+    border: #578ead solid 2px;
+    border-radius: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.cocinando,
+.Preparando {
+    background-color: #8b5e3ca1;
+    border: #8b5e3c solid 2px;
+    border-radius: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.pendiente,
+.Pendiente {
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: #773832a1;
+    border: #773832 solid 2px;
+    border-radius: 10px;
+
+}
+
+.EnCamino {
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: #089c84a1;
+    border: #089c84 solid 2px;
+    border-radius: 10px;
+
 }
 
 .button_cancelar {

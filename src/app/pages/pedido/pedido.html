@@ -8,7 +8,10 @@
             <div class="pedido_button" (click)="toggleMesa(i)" [ngClass]="{ 'open-btn': openedIndex === i }">
                 <h2>Mesa: {{ pedido.mesa }}</h2>
                 <span>ID: {{pedido.id_pedido }}</span>
-                <h3>Estado: {{ pedido.estado_pedido }}</h3>
+                <div class="estado_plato">
+                    <h3>Estado: </h3>
+                    <h3 [ngClass]="formatEstado(pedido.estado_pedido)"> {{ pedido.estado_pedido }}</h3><br>
+                </div>
             </div>
 
             <div class="pedido_detalle" [@slideToggle]="openedIndex === i ? 'open' : 'closed'">
@@ -16,7 +19,10 @@
                     <div class="datos_plato">
                         <h3>{{ plato.nombre_platillo }}</h3>
                         <span>{{ plato.detalles_adicionales }}</span><br>
-                        <span>Estado: {{ plato.estado_detalle }}</span><br>
+                        <div class="estado_plato">
+                            <span>Estado: </span><br>
+                            <span [ngClass]="plato.estado_detalle"> {{ plato.estado_detalle }}</span><br>
+                        </div>
                     </div>
                     <div class="button_cancelar">
                         <button type="button" title="Cancelar"
@@ -44,8 +50,10 @@
             <div class="pedido_button" (click)="toggleMesa(i)" [ngClass]="{ 'open-btn': openedIndex === i }">
                 <h2>Titular: {{ pedido.nombre_completo}}</h2>
                 <h4>Direccion: {{ pedido.direccion_completa }}</h4>
-                <span>ID: {{pedido.id_pedido }}</span>
-                <h3>Estado: {{ pedido.estado_pedido }}</h3>
+                <div class="estado_plato">
+                    <h3>Estado: </h3>
+                    <h3 [ngClass]="formatEstado(pedido.estado_pedido)"> {{ pedido.estado_pedido }}</h3><br>
+                </div>
             </div>
 
             <div class="pedido_detalle" [@slideToggle]="openedIndex === i ? 'open' : 'closed'">
@@ -53,7 +61,10 @@
                     <div class="datos_plato">
                         <h3>{{ plato.nombre_platillo }}</h3>
                         <span>{{ plato.detalles_adicionales }}</span><br>
-                        <span>Estado: {{ plato.estado_detalle }}</span><br>
+                        <div class="estado_plato">
+                            <span>Estado: </span><br>
+                            <span [ngClass]="plato.estado_detalle"> {{ plato.estado_detalle }}</span><br>
+                        </div>
                     </div>
                     <div class="button_cancelar">
                         <button type="button" title="Cancelar"
