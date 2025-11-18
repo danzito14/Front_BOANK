@@ -280,12 +280,67 @@ export class Temporal implements OnInit, OnDestroy {
     this.cerrarModal();
   }
 
-  cancelar_pedido_entrega(var22: string, var2: string, var3: string) {
 
+
+  cancelar_pedido_entrega(id_detalle: string, id_pedido: string, nombre: string) {
+    Swal.fire({
+      title: `¿Esta seguro de que desea quitar:  ${nombre} de su orden?`,
+      text: "Una vez cancelada no se podra recuperar",
+      icon: "question",
+      iconColor: "#d6b45a",
+      showCancelButton: true,
+      cancelButtonColor: "#773832",
+      confirmButtonColor: "#D0AF43",
+      confirmButtonText: "Quitar platillo",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.meseroService.delete_pedidos_entrega(id_detalle, id_pedido)
+          .subscribe(resp => {
+            Swal.fire({
+              title: "Hecho",
+              text: "Platillo cancelado",
+              icon: "success",
+              confirmButtonColor: "#D0AF43",
+              iconColor: "#d6b45a"
+            });
+            this.get_pedido_mesa_absolute(); // 👈 refrescar lista de entrega
+          });
+      }
+    });
   }
 
-  cancelar_todo_pedido_entrega(var22: string, var3: string) {
 
+  cancelar_todo_pedido_entrega(id_pedido: string, nombre: string) {
+    Swal.fire({
+      title: `¿Esta seguro de que desea cancelar todo el pedido de:  ${nombre}?`,
+      text: "Una vez cancelada no se podra recuperar",
+      icon: "question",
+      iconColor: "#d6b45a",
+      showCancelButton: true,
+      cancelButtonColor: "#773832",
+      confirmButtonColor: "#D0AF43",
+      confirmButtonText: "Cancelar toda la orden",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.meseroService.cancelar_pedido_entrega(id_pedido)
+          .subscribe(resp => {
+            Swal.fire({
+              title: "Hecho",
+              text: "Pedido cancelado",
+              icon: "success",
+              confirmButtonColor: "#D0AF43",
+              iconColor: "#d6b45a"
+            });
+
+            this.get_pedido_mesa_absolute(); // refrescar
+          });
+      }
+    });
   }
+
+
+
 
 }
