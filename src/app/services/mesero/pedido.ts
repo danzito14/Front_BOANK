@@ -134,6 +134,37 @@ export class PedidoService {
     )
   }
 
+
+  gets_pedidos_repartidor(): Observable<PedidoEntregaInterface[]> {
+    const headers = this.getHeaders();
+    if (!headers) return of([]);
+
+    return this.http.get<PedidoEntregaInterface[]>(
+      `${this.apiUrlPedidogets}/gets_pedidos_repartidor`,
+      { headers }
+    ).pipe(
+      catchError(err => {
+        console.error('Error al obtener los pedidos:', err);
+        return of([]);
+      })
+    )
+  }
+
+  gets_pedido_by_id_for_repartidor(id_pedido: string): Observable<PedidoEntregaInterface[]> {
+    const headers = this.getHeaders();
+    if (!headers) return of([]);
+
+    return this.http.get<PedidoEntregaInterface[]>(
+      `${this.apiUrlPedidogets}/gets_pedidos_by_id_for_repartidor/${id_pedido}`,
+      { headers }
+    ).pipe(
+      catchError(err => {
+        console.error('Error al obtener los pedidos:', err);
+        return of([]);
+      })
+    )
+  }
+
   delete_pedidos_mesa(id_detalle: string, id_pedido: string, id_mesa: string) {
     return this.http.delete(
       `${this.apiUrlPedidogets}/delete_platillo`,

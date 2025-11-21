@@ -5,249 +5,363 @@ import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 
 import { WebSocketService, WebSocketMessage } from '../../services/untils/web-socket-service';
-import { ListaPlatoPendienteInterface, ObtenerListas } from '../../services/untils/obtener-listas';
 import { PedidoEntregaInterface, PedidoService } from '../../services/mesero/pedido';
+
+import { RepartidorService, RepartidorInfo } from '../../services/repartidor/repartidor';
+import { Mapa } from "../../components/mapa/mapa";
 
 
 @Component({
   selector: 'app-temporal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Mapa],
   templateUrl: './temporal.html',
   styleUrls: ['./temporal.css'],
 })
 export class Temporal implements OnInit, OnDestroy {
-  openedIndex: number | null = null; // Guarda cuál mesa está abierta
+  openedIndex: number | null = null;
 
-  pedidos_absolute: PedidoEntregaInterface[] = [];
+  // Datos del repartidor
+  pedidos_disponibles: PedidoEntregaInterface[] = [];
+  pedido_actual: PedidoEntregaInterface | null = null;
+  repartidorInfo: RepartidorInfo | null = null;
 
+  // Selección de pedido
   id_pedidoSeleccionado: string = "";
   titularSeleccionado: string = "";
   direccionSeleccionada: string = "";
 
+  // Estado UI
   cargando = true;
+  enRuta = false;
 
+  // Modal
+  selectedPedido: PedidoEntregaInterface | null = null;
+  mostrarModal: boolean = false;
+
+  // WebSocket
   private wsSubscription?: Subscription;
+  conectadoWS = false;
 
   constructor(
     public webSocketService: WebSocketService,
-    private meseroService: PedidoService
+    private pedidoService: PedidoService,
+    private repartidorService: RepartidorService
   ) { }
 
   ngOnInit(): void {
     if (typeof window !== 'undefined') {
-      // this.conectarWebSocket();
+      this.conectarWebSocket();
+      this.cargarRepartidorInfo();
     }
-    this.get_pedido_mesa_absolute();
+    this.cargarPedidosDisponibles();
   }
 
   ngOnDestroy(): void {
-    // if (this.wsSubscription) {
-    //   this.wsSubscription.unsubscribe();
-    // }
-    // this.webSocketService.disconnect();
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
+    this.webSocketService.disconnect('repartidor');
   }
 
-  //      Por el momento vamos a desactivar web sockets para diseñar todo
+  // ==================== WEBSOCKET ====================
 
-  // conectarWebSocket(): void {
-  //   console.log('🔌 Conectando al WebSocket como repartido...');
+  conectarWebSocket(): void {
+    console.log('🔌 Conectando al WebSocket como repartidor...');
 
-  //   this.wsSubscription = this.webSocketService.connect('repartidor').subscribe({
-  //     next: (mensaje: WebSocketMessage) => {
-  //       console.log('📨 Mensaje WebSocket recibido:', mensaje);
-  //       this.manejarMensajeWebSocket(mensaje);
-  //     },
-  //     error: (error) => {
-  //       console.error('❌ Error en WebSocket:', error);
-  //     }
-  //   });
-  // }
+    this.wsSubscription = this.webSocketService.connect('repartidor').subscribe({
+      next: (mensaje: WebSocketMessage) => {
+        console.log('📨 Mensaje WebSocket recibido en Repartidor:', mensaje);
+        this.manejarMensajeWebSocket(mensaje);
+      },
+      error: (error) => {
+        console.error('❌ Error en WebSocket:', error);
+        this.conectadoWS = false;
+      }
+    });
 
-  // manejarMensajeWebSocket(mensaje: WebSocketMessage): void {
-  //   switch (mensaje.tipo) {
-  //     case 'nuevo_pedido':
-  //       console.log('🆕 Nuevo pedido recibido:', mensaje.id_pedido);
-  //       this.mostrarNotificacionNuevoPedido(mensaje);
-  //       this.recargarListaPendientes();
-  //       break;
+    // Verificar conexión después de 1 segundo
+    setTimeout(() => {
+      this.conectadoWS = this.webSocketService.isConnected('repartidor');
+      console.log(`🔌 Estado conexión: ${this.conectadoWS ? '✅ Conectado' : '❌ Desconectado'}`);
+    }, 1000);
+  }
 
-  //     case 'platillo_listo':
-  //       console.log('✅ Platillo listo:', mensaje.id_detalle);
-  //       this.recargarListaPendientes();
-  //       break;
+  manejarMensajeWebSocket(mensaje: WebSocketMessage): void {
+    switch (mensaje.tipo) {
+      case 'nuevo_pedido_asignado':
+        console.log('🆕 Nuevo pedido asignado:', mensaje.id_pedido);
+        this.mostrarNotificacionNuevoPedido(mensaje);
+        this.cargarPedidosDisponibles();
+        this.cargarRepartidorInfo();
+        break;
 
-  //     case 'platillo_cancelado':
-  //       console.log('❌ Platillo cancelado:', mensaje.id_detalle);
-  //       if (this.primerPlatillo?.id_detalle === mensaje.id_detalle) {
-  //         this.mostrarNotificacionCancelacion(mensaje);
-  //         this.primerPlatillo = null;
-  //         this.cocinaService.limpiar_cocina().subscribe({
-  //           next: () => {
-  //             console.log('✅ Cocina limpiada en backend');
-  //             this.recargarListaPendientes();
-  //           },
-  //           error: (err) => console.error('❌ Error al limpiar cocina:', err),
+      case 'pedido_cancelado':
+        console.log('❌ Pedido cancelado:', mensaje.id_pedido);
+        if (this.pedido_actual?.id_pedido === mensaje.id_pedido) {
+          this.mostrarNotificacionCancelacion(mensaje);
+          this.limpiarRutaActual();
+          this.repartidorService.limpiar_repartidor().subscribe();
+        }
+        this.cargarPedidosDisponibles();
+        break;
 
-  //         });
-  //       }
-  //       this.recargarListaPendientes();
-  //       break;
+      case 'platillo_cancelado':
+        console.log('❌ Platillo cancelado en pedido:', mensaje.id_pedido);
+        this.cargarPedidosDisponibles();
+        break;
 
-  //     case 'pedido_cancelado':
-  //       console.log('❌ Pedido cancelado completo:', mensaje.id_pedido);
-  //       if (this.primerPlatillo?.id_pedido === mensaje.id_pedido) {
-  //         this.primerPlatillo = null;
-  //         this.mostrarNotificacionCancelacion(mensaje);
+      case 'conexion_exitosa':
+        console.log('✅ Conexión WebSocket exitosa:', mensaje.mensaje);
+        this.conectadoWS = true;
+        break;
 
-  //         this.cocinaService.limpiar_cocina().subscribe({
-  //           next: () => {
-  //             console.log('✅ Cocina limpiada en backend');
-  //             this.recargarListaPendientes();
-  //           },
-  //           error: (err) => console.error('❌ Error al limpiar cocina:', err),
+      case 'pong':
+        // Respuesta al ping, no hacer nada
+        break;
 
-  //         });
-  //       }
-  //       this.recargarListaPendientes();
-  //       break;
+      default:
+        console.log('📩 Mensaje no manejado:', mensaje);
+    }
+  }
 
-  //     case 'conexion_exitosa':
-  //       console.log('✅ Conexión WebSocket exitosa:', mensaje.mensaje);
-  //       break;
+  mostrarNotificacionNuevoPedido(mensaje: WebSocketMessage): void {
 
-  //     case 'pong':
-  //       break;
+    Swal.fire({
+      title: '🎉 Nuevo Pedido Asignado',
+      html: `
+        <div style="text-align: left; padding: 10px;">
+          <p><strong>Cliente:</strong> ${mensaje || 'N/A'}</p>
+            </div>
+      `,
+      icon: 'success',
+      iconColor: '#d6b45a',
+      confirmButtonColor: '#D0AF43',
+      timer: 8000,
+      timerProgressBar: true,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: true,
+      confirmButtonText: 'Ver pedido'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Buscar el pedido y mostrarlo
+        const pedido = this.pedidos_disponibles.find(p => p.id_pedido === mensaje.id_pedido);
+        if (pedido) {
+          this.abrirModalPedido(pedido);
+        }
+      }
+    });
 
-  //     default:
-  //       console.log('📩 Mensaje no manejado:', mensaje);
-  //   }
-  // }
+    this.reproducirSonidoNotificacion('nuevo');
+  }
 
-  // mostrarNotificacionCancelacion(mensaje: WebSocketMessage): void {
-  //   let pedido = "";
-  //   if (mensaje.id_detalle) {
-  //     pedido = mensaje.id_detalle
-  //   } else if (mensaje.id_pedido) {
-  //     pedido = mensaje.id_pedido
-  //   }
-  //   Swal.fire({
-  //     title: '❌ Platillo Cancelado',
-  //     html: `
-  //       <p><strong>Platillo:</strong> ${pedido}</p>
-  //       <p>El platillo que estabas preparando ha sido cancelado.</p>
-  //     `,
-  //     icon: 'warning',
-  //     iconColor: '#ffc107',
-  //     confirmButtonColor: '#D0AF43',
-  //     timer: 5000,
-  //     timerProgressBar: true,
-  //     toast: true,
-  //     position: 'top-end',
-  //     showConfirmButton: true
-  //   });
-  //   this.reproducirSonidoNotificacion("cancelar");
+  mostrarNotificacionCancelacion(mensaje: WebSocketMessage): void {
 
-  // }
+    Swal.fire({
+      title: '❌ Pedido Cancelado',
+      html: `
+        <p>El pedido <strong>${mensaje}...</strong> ha sido cancelado.</p>
+        <p>Por favor, selecciona un nuevo pedido.</p>
+      `,
+      icon: 'warning',
+      iconColor: '#ffc107',
+      confirmButtonColor: '#D0AF43',
+      timer: 5000,
+      timerProgressBar: true,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: true
+    });
 
-  // mostrarNotificacionNuevoPedido(mensaje: WebSocketMessage): void {
-  //   const platillos = mensaje.platillos || [];
-  //   const cantidad = platillos.length;
+    this.reproducirSonidoNotificacion('cancelar');
+  }
 
-  //   Swal.fire({
-  //     title: '🔔 Nuevo Pedido',
-  //     html: `
-  //       <p><strong>Pedido:</strong> ${mensaje.id_pedido?.substring(0, 8)}...</p>
-  //       <p><strong>Tipo:</strong> ${mensaje.tipo_pedido}</p>
-  //       ${mensaje.id_mesa ? `<p><strong>Mesa:</strong> ${mensaje.nombre_mesa || mensaje.id_mesa}</p>` : ''}
-  //       <p><strong>Platillos:</strong> ${cantidad}</p>
-  //     `,
-  //     icon: 'info',
-  //     iconColor: '#d6b45a',
-  //     confirmButtonColor: '#D0AF43',
-  //     timer: 5000,
-  //     timerProgressBar: true,
-  //     toast: true,
-  //     position: 'top-end',
-  //     showConfirmButton: false
-  //   });
+  reproducirSonidoNotificacion(action: string): void {
+    try {
+      let audio = new Audio('sistema/sounds/notificacion.mp3');
+      if (action === 'cancelar') {
+        audio = new Audio('sistema/sounds/cancelacion.mp3');
+      } else if (action === 'nuevo') {
+        audio = new Audio('sistema/sounds/notificacion.mp3');
+      }
+      audio.volume = 0.5;
+      audio.play().catch(err => console.log('No se pudo reproducir el sonido:', err));
+    } catch (error) {
+      console.log('Error al reproducir sonido:', error);
+    }
+  }
 
-  //   this.reproducirSonidoNotificacion("");
-  // }
+  // ==================== CARGA DE DATOS ====================
 
-  // reproducirSonidoNotificacion(action: string): void {
-  //   try {
-  //     let audio = new Audio('sistema/sounds/notificacion.mp3');
-  //     if (action === 'cancelar') {
-  //       audio = new Audio('sistema/sounds/cancelacion.mp3');
-  //     }
-  //     audio.volume = 0.5;
-  //     audio.play().catch(err => console.log('No se pudo reproducir el sonido:', err));
-  //   } catch (error) {
-  //     console.log('Error al reproducir sonido:', error);
-  //   }
-  // }
-
-
-
-  // // 🔥 CORREGIDO: Recarga sin resetear platillo actual
-  // recargarListaPendientes(): void {
-  //   console.log('🔄 Recargando lista de platillos pendientes...');
-
-  //   this.listasservice.get_lista_platillos_pendientes().subscribe({
-  //     next: (data) => {
-  //       // 🔥 Filtrar el platillo actual de la lista pendiente
-  //       if (this.primerPlatillo) {
-  //         this.listaspendiente = data.filter(
-  //           p => p.id_detalle !== this.primerPlatillo!.id_detalle
-  //         );
-  //       } else {
-  //         this.listaspendiente = data;
-  //       }
-
-  //       console.log('✅ Lista actualizada:', this.listaspendiente.length, 'platillos pendientes');
-
-  //       // Si no hay platillo actual y hay pendientes, asignar uno
-  //       if (!this.primerPlatillo && this.listaspendiente.length > 0) {
-  //         this.verificarYTomarPlatillo();
-  //       }
-  //     },
-  //     error: (err) => console.error('❌ Error al recargar lista:', err)
-  //   });
-  // }
-
-  // ==================== MÉTODOS DE INICIALIZACIÓN ====================
-
-  get_pedido_mesa_absolute() {
-    this.meseroService.get_pedidos_mesa_absolute().subscribe(data => {
-      // console.log(JSON.stringify(data, null, 2));
-      this.pedidos_absolute = [...data]; // 👈 esto sí fuerza el render sin conflictos
+  cargarPedidosDisponibles(): void {
+    this.cargando = true;
+    this.pedidoService.gets_pedidos_repartidor().subscribe({
+      next: (data) => {
+        // Filtrar solo pedidos listos o en camino
+        this.pedidos_disponibles = data.filter(p =>
+          p.estado_pedido === 'Listo' || p.estado_pedido === 'En camino'
+        );
+        console.log('✅ Pedidos disponibles cargados:', this.pedidos_disponibles.length);
+        this.cargando = false;
+      },
+      error: (err) => {
+        console.error('❌ Error al cargar pedidos:', err);
+        this.cargando = false;
+      }
     });
   }
 
+  cargarRepartidorInfo(): void {
 
-  // ======================Metodos generales ==========================
-  toggleMapa(index: number) {
-    this.openedIndex = this.openedIndex === index ? null : index;
+    this.repartidorService.obtenerInfoRepartidor().subscribe({
+      next: (info) => {
+        if (info.id_pedido) { this.cargar_info_anterior(info.id_pedido) }
+        this.repartidorInfo = info;
+        this.enRuta = info.en_ruta;
+      },
+      error: (err) => {
+        console.error('❌ Error al cargar info repartidor:', err);
+      }
+    });
+
   }
 
-  selectedPedido: any = null;
-  mostrarModal: boolean = false;
 
-  abrirModalPedido(pedido: any) {
-    this.selectedPedido = pedido;
-    this.mostrarModal = true;
+  cargar_info_anterior(id_pedido: string) {
+    console.log("Tiene pedido asignado ya");
+    this.pedidoService.gets_pedido_by_id_for_repartidor(id_pedido).subscribe({
+      next: (data) => {
+        const pedido = data[0];
+        console.table(pedido);
+        this.id_pedidoSeleccionado = pedido.id_pedido;
+        this.titularSeleccionado = pedido.nombre_completo;
+        this.direccionSeleccionada = pedido.direccion_completa;
+        this.pedido_actual = pedido;
+      }
+    });
   }
 
-  cerrarModal() {
-    this.mostrarModal = false;
-    this.selectedPedido = null;
+  // ==================== ACCIONES DE PEDIDO ====================
+
+  pedido_seleccionado(pedido: PedidoEntregaInterface): void {
+    this.id_pedidoSeleccionado = pedido.id_pedido;
+    this.titularSeleccionado = pedido.nombre_completo;
+    this.direccionSeleccionada = pedido.direccion_completa;
+    this.pedido_actual = pedido;
+
+    this.repartidorService.limpiar_repartidor().subscribe();
+    this.repartidorService.asignar_pedido_repartidor(pedido.id_pedido).subscribe();
+    this.cerrarModal();
+
+    Swal.fire({
+      title: 'Pedido Seleccionado',
+      text: `Has seleccionado el pedido de ${pedido.nombre_completo}`,
+      icon: 'success',
+      iconColor: '#d6b45a',
+      confirmButtonColor: '#D0AF43',
+      timer: 2000,
+      showConfirmButton: false
+    });
   }
 
-  seleccionar_que_cancelar() {
+  iniciarEntrega(): void {
+    if (!this.pedido_actual) {
+      Swal.fire({
+        title: 'Selecciona un pedido',
+        text: 'Primero debes seleccionar un pedido para iniciar la entrega',
+        icon: 'warning',
+        iconColor: '#d6b45a',
+        confirmButtonColor: '#D0AF43'
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: '¿Iniciar entrega?',
+      html: `
+        <p>Cliente: <strong>${this.titularSeleccionado}</strong></p>
+        <p>Dirección: <strong>${this.direccionSeleccionada}</strong></p>
+      `,
+      icon: 'question',
+      iconColor: '#d6b45a',
+      showCancelButton: true,
+      confirmButtonColor: '#D0AF43',
+      cancelButtonColor: '#773832',
+      confirmButtonText: 'Iniciar entrega',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.enRuta = true;
+
+        // Aquí puedes agregar lógica para abrir Google Maps
+        this.abrirGoogleMaps(this.direccionSeleccionada);
+
+        Swal.fire({
+          title: '🚗 Entrega iniciada',
+          text: 'Buena suerte con la entrega',
+          icon: 'success',
+          iconColor: '#d6b45a',
+          confirmButtonColor: '#D0AF43',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
+    });
+  }
+
+  marcarComoEntregado(): void {
+    if (!this.pedido_actual || !this.repartidorInfo) {
+      return;
+    }
+
+    Swal.fire({
+      title: '¿Marcar como entregado?',
+      text: '¿Confirmaste la entrega del pedido?',
+      icon: 'question',
+      iconColor: '#d6b45a',
+      showCancelButton: true,
+      confirmButtonColor: '#D0AF43',
+      cancelButtonColor: '#773832',
+      confirmButtonText: 'Sí, entregado',
+      cancelButtonText: 'No'
+    }).then((result) => {
+      if (result.isConfirmed && this.pedido_actual) {
+        this.repartidorService.marcarEntregado(
+          this.pedido_actual.id_pedido,
+          this.repartidorInfo!.id_repartidor
+        ).subscribe({
+          next: () => {
+            Swal.fire({
+              title: '✅ Entregado',
+              text: 'Pedido marcado como entregado',
+              icon: 'success',
+              iconColor: '#d6b45a',
+              confirmButtonColor: '#D0AF43'
+            });
+
+            this.limpiarRutaActual();
+            this.cargarPedidosDisponibles();
+            this.cargarRepartidorInfo();
+          },
+          error: (err) => {
+            console.error('Error al marcar entregado:', err);
+            Swal.fire({
+              title: 'Error',
+              text: 'No se pudo marcar como entregado',
+              icon: 'error',
+              confirmButtonColor: '#D0AF43'
+            });
+          }
+        });
+      }
+    });
+  }
+
+  seleccionar_que_cancelar(): void {
     Swal.fire({
       title: `¿Qué desea cancelar?`,
-      html: "Puede: <br>Cancelar la ruta actual  y cambiar de pedido <br>ó<br>Cancelar el pedido",
+      html: "Puede: <br>Cancelar la ruta actual y cambiar de pedido <br>ó<br>Cancelar el pedido completamente",
       icon: "question",
       iconColor: "#d6b45a",
       showCancelButton: true,
@@ -255,37 +369,50 @@ export class Temporal implements OnInit, OnDestroy {
       cancelButtonColor: "#773832",
       confirmButtonColor: "#D0AF43",
       denyButtonColor: "#8B5E3C",
-      confirmButtonText: "Cancelar la ruta y cambiar el pedido",
-      cancelButtonText: "Cancelar",
-      denyButtonText: "Cancelar el pedido"
+      confirmButtonText: "Cancelar ruta y cambiar",
+      cancelButtonText: "Volver",
+      denyButtonText: "Cancelar pedido completo"
     }).then((result) => {
       if (result.isConfirmed) {
-
-      } if (result.isDenied) {
+        // Solo limpiar la ruta actual
+        this.limpiarRutaActual();
+      } else if (result.isDenied && this.pedido_actual) {
+        // Cancelar pedido completo
+        this.cancelar_todo_pedido_entrega(
+          this.pedido_actual.id_pedido,
+          this.pedido_actual.nombre_completo
+        );
       }
     });
   }
 
-  pedido_seleccionado(id_pedido: string, titular: string, direccion_completa: string) {
-    // Primero las limpiamos por si quedo residuo de una seleccion anterior
-    this.direccionSeleccionada = "";
+  limpiarRutaActual(): void {
+    this.pedido_actual = null;
     this.id_pedidoSeleccionado = "";
     this.titularSeleccionado = "";
-    // y ya despues ps le damos sus valores 
-    this.id_pedidoSeleccionado = id_pedido;
-    this.titularSeleccionado = titular;
-    this.direccionSeleccionada = direccion_completa;
-
-    //y despues cerramos el modal
-    this.cerrarModal();
+    this.direccionSeleccionada = "";
+    this.enRuta = false;
+    this.repartidorService.limpiar_repartidor().subscribe();
   }
 
+  // ==================== MODAL ====================
 
+  abrirModalPedido(pedido: PedidoEntregaInterface): void {
+    this.selectedPedido = pedido;
+    this.mostrarModal = true;
+  }
 
-  cancelar_pedido_entrega(id_detalle: string, id_pedido: string, nombre: string) {
+  cerrarModal(): void {
+    this.mostrarModal = false;
+    this.selectedPedido = null;
+  }
+
+  // ==================== CANCELACIONES ====================
+
+  cancelar_pedido_entrega(id_detalle: string, id_pedido: string, nombre: string): void {
     Swal.fire({
-      title: `¿Esta seguro de que desea quitar:  ${nombre} de su orden?`,
-      text: "Una vez cancelada no se podra recuperar",
+      title: `¿Quitar ${nombre}?`,
+      text: "Una vez cancelado no se podrá recuperar",
       icon: "question",
       iconColor: "#d6b45a",
       showCancelButton: true,
@@ -295,52 +422,105 @@ export class Temporal implements OnInit, OnDestroy {
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        this.meseroService.delete_pedidos_entrega(id_detalle, id_pedido)
-          .subscribe(resp => {
-            Swal.fire({
-              title: "Hecho",
-              text: "Platillo cancelado",
-              icon: "success",
-              confirmButtonColor: "#D0AF43",
-              iconColor: "#d6b45a"
-            });
-            this.get_pedido_mesa_absolute(); // 👈 refrescar lista de entrega
+        this.pedidoService.delete_pedidos_entrega(id_detalle, id_pedido)
+          .subscribe({
+            next: () => {
+              Swal.fire({
+                title: "Hecho",
+                text: "Platillo cancelado",
+                icon: "success",
+                confirmButtonColor: "#D0AF43",
+                iconColor: "#d6b45a"
+              });
+              this.cargarPedidosDisponibles();
+            },
+            error: (err) => {
+              console.error('Error:', err);
+              Swal.fire({
+                title: "Error",
+                text: "No se pudo cancelar el platillo",
+                icon: "error",
+                confirmButtonColor: "#D0AF43"
+              });
+            }
           });
       }
     });
   }
 
-
-  cancelar_todo_pedido_entrega(id_pedido: string, nombre: string) {
+  cancelar_todo_pedido_entrega(id_pedido: string, nombre: string): void {
     Swal.fire({
-      title: `¿Esta seguro de que desea cancelar todo el pedido de:  ${nombre}?`,
-      text: "Una vez cancelada no se podra recuperar",
-      icon: "question",
+      title: `¿Cancelar pedido de ${nombre}?`,
+      text: "Una vez cancelado no se podrá recuperar",
+      icon: "warning",
       iconColor: "#d6b45a",
       showCancelButton: true,
       cancelButtonColor: "#773832",
       confirmButtonColor: "#D0AF43",
-      confirmButtonText: "Cancelar toda la orden",
-      cancelButtonText: "Cancelar",
+      confirmButtonText: "Cancelar pedido",
+      cancelButtonText: "Volver",
     }).then((result) => {
       if (result.isConfirmed) {
-        this.meseroService.cancelar_pedido_entrega(id_pedido)
-          .subscribe(resp => {
-            Swal.fire({
-              title: "Hecho",
-              text: "Pedido cancelado",
-              icon: "success",
-              confirmButtonColor: "#D0AF43",
-              iconColor: "#d6b45a"
-            });
+        this.pedidoService.cancelar_pedido_entrega(id_pedido)
+          .subscribe({
+            next: () => {
+              Swal.fire({
+                title: "Hecho",
+                text: "Pedido cancelado",
+                icon: "success",
+                confirmButtonColor: "#D0AF43",
+                iconColor: "#d6b45a"
+              });
 
-            this.get_pedido_mesa_absolute(); // refrescar
+              if (this.pedido_actual?.id_pedido === id_pedido) {
+                this.limpiarRutaActual();
+              }
+
+              this.cargarPedidosDisponibles();
+            },
+            error: (err) => {
+              console.error('Error:', err);
+              Swal.fire({
+                title: "Error",
+                text: "No se pudo cancelar el pedido",
+                icon: "error",
+                confirmButtonColor: "#D0AF43"
+              });
+            }
           });
       }
     });
   }
 
+  // ==================== UTILS ====================
 
+  toggleMapa(index: number): void {
+    this.openedIndex = this.openedIndex === index ? null : index;
+  }
 
+  abrirGoogleMaps(direccion: string): void {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(direccion)}`;
+    window.open(url, '_blank');
+  }
 
+  getIdUsuarioFromToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('id_usuario');
+  }
+
+  // ==================== FORMATEO ====================
+
+  formatEstado(estado: string): string {
+    return estado.replace(/\s+/g, '');
+  }
+
+  obtenerColorEstado(estado: string): string {
+    const estadoMap: { [key: string]: string } = {
+      'Listo': '#578ead',
+      'En camino': '#089c84',
+      'Preparando': '#8b5e3c',
+      'Entregado': '#d6b45a'
+    };
+    return estadoMap[estado] || '#gray';
+  }
 }

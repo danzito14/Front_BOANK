@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth/auth-service';
 import { AuthStoreService } from '../../services/auth/auth-store';
 import { Cocina } from '../../services/untils/cocina';
+import { RepartidorService } from '../../services/repartidor/repartidor';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +21,8 @@ export class Login {
     private authservice: AuthService,
     private authStore: AuthStoreService, // ✅ Inyecta aquí
     private router: Router,
-    private cocinaService: Cocina
+    private cocinaService: Cocina,
+    private RepartidorService: RepartidorService
   ) { }
 
   onLogin(): void {
@@ -36,6 +38,14 @@ export class Login {
           this.cocinaService.logear_cocinero().subscribe({
             next: (res) => {
               console.log('Cocinero actualizado');
+            },
+            error: (err) => console.error('Error al actualizar estado del platillo:', err)
+          });
+        } else if (response.nvl_usuario === 5) {
+          // Aqui vamos a llamar la funcion de activar sesion del cocinero para asignarle un platillo
+          this.RepartidorService.loggear_repartidor().subscribe({
+            next: (res) => {
+              console.log('Repartidor actualizado');
             },
             error: (err) => console.error('Error al actualizar estado del platillo:', err)
           });
