@@ -39,7 +39,8 @@ export interface AsignacionResponse {
   providedIn: 'root'
 })
 export class RepartidorService {
-  private apiUrl = 'http://localhost:8000'; // Ajusta tu URL base
+  // private apiUrl = 'http://localhost:8000'; // Ajusta tu URL base
+  private apiUrl = 'http://192.168.1.64:8000'; // Ajusta tu URL base
 
   constructor(private http: HttpClient) { }
 

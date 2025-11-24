@@ -1,0 +1,40 @@
+<main>
+
+    <!-- 🔙 Botón para regresar -->
+    <button class="btn-regresar" type="button" (click)="regresar()">Cancelar</button>
+
+    <section>
+        <h2>Datos Personales</h2>
+
+        <!-- ✅ Agrega el formGroup aquí -->
+        <form [formGroup]="form" class="form">
+            <div class="inputs">
+                <div class="nickname">
+                    <label for="nickname">Apodo:</label>
+                    <input id="nickname" type="text" class="input-style" formControlName="Nickname" />
+                </div>
+                <div class="nombre_y_apellido">
+                    <label for="nombre">Nombre(s)</label>
+                    <input id="nombre" type="text" class="input-style" formControlName="Nombre" />
+                    <label for="apellido">Apellido(s)</label>
+                    <input id="apellido" type="text" class="input-style" formControlName="Apellido" />
+                </div>
+                <div class="correo">
+                    <label for="correo">Correo Electronico</label>
+                    <input id="correo" type="email" class="input-style" appCorreo
+                        formControlName="Correo_electronico" />
+                </div>
+                <div class="telefono">
+                    <label for="telefono">Teléfono:</label>
+                    <input id="telefono" type="tel" class="input-style" appTelefononumeros
+                        formControlName="Num_telefonico" />
+                </div>
+            </div>
+
+            <div class="botones">
+                <button type="submit" class="buton-style" (click)="guardar_cambios()">Guardar Cambios</button>
+            </div>
+
+        </form>
+    </section>
+</main>

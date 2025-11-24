@@ -9,8 +9,12 @@ import { HttpClient } from '@angular/common/http';
 export class Filtros {
   constructor(private http: HttpClient) { }
 
-  apiUrltexto = 'http://127.0.0.1:8000/platillo';
-  apiUrlCombo = 'http://127.0.0.1:8000/combos';
+  // apiUrltexto = 'http://127.0.0.1:8000/platillo';
+  // apiUrlCombo = 'http://127.0.0.1:8000/combos';
+
+
+  apiUrltexto = 'http://192.168.1.64:8000/platillo';
+  apiUrlCombo = 'http://192.168.1.64:8000/combos';
 
   get_productos_by_name(texto: string): Observable<Producto[]> {
     return this.http.get<Producto[]>(`${this.apiUrltexto}/get_platillo?Nombre_platillo=${texto}`);

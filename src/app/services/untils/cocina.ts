@@ -11,7 +11,9 @@ interface AsignarPlatoResponse {
   providedIn: 'root',
 })
 export class Cocina {
-  private apiUrlCocina = 'http://localhost:8000/cocineros';
+  // private apiUrlCocina = 'http://localhost:8000/cocineros';
+
+  private apiUrlCocina = 'http://192.168.1.64:8000/cocineros';
 
   constructor(private http: HttpClient) { }
 

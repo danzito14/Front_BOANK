@@ -19,11 +19,13 @@ import { Pedido } from './pages/pedido/pedido';
 import { Pagar } from './pages/mesero/pagar/pagar';
 import { CajeroInicio } from './pages/cajero/cajero-inicio/cajero-inicio';
 import { EstacionTrabajo } from './pages/cocinero/estacion-trabajo/estacion-trabajo';
+import { Historial } from './pages/historial/historial';
+import { Repartidor } from './pages/repartidor/repartidor';
 
 export const routes: Routes = [
     { path: '', component: Home, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1'] } },
     { path: 'carrito', component: Carrito, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1', '2', '4'] } },
-    { path: 'usuario', component: User, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1'] } },
+    { path: 'usuario', component: User, canActivate: [AuthGuard] },
     { path: 'login', component: Login },
     { path: 'register', component: Register },
     { path: 'auth-code', component: AuthCode },
@@ -33,7 +35,7 @@ export const routes: Routes = [
     { path: 'general', component: General, canActivate: [AuthGuard] },
     { path: 'resumen-pedido', component: ResumenPedido, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1', '2', '4'] } },
     { path: 'pedido', component: Pedido, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1', '2', '4'] } },
-
+    { path: 'historial', component: Historial, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1'] } },
 
     // Mesero
     { path: 'mesero-inicio', component: MeseroInicio, canActivate: [AuthGuard, RoleGuard], data: { roles: ['2'] } },
@@ -46,6 +48,9 @@ export const routes: Routes = [
 
     //cajero
     { path: 'cajero-inicio', component: CajeroInicio, canActivate: [AuthGuard, RoleGuard], data: { roles: ['4'] } },
+
+    //Repartidor
+    { path: 'repartidor', component: Repartidor, canActivate: [AuthGuard, RoleGuard], data: { roles: ['5'] } },
 
     { path: 'temporal', component: Temporal }
 ];

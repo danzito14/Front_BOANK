@@ -21,6 +21,7 @@ export class Result implements OnInit {
   minprice: number | null = null;
   maxprice: number | null = null;
   filtro_especial: string = "normal";
+  @Input() filtro_usuario: string = "";
 
 
   //para guardar los productos de la busqueda
@@ -70,7 +71,7 @@ export class Result implements OnInit {
       this.filtro_especial = 'combo';
       this.titulo = 'Nuestros Combos';
     }
-    else if (this.filtro_especial === 'favoritos') {
+    else if (this.filtro_especial === 'favoritos' || this.filtro_usuario === 'favoritos') {
       this.cargarFavoritos();
     }
     else {

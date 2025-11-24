@@ -1,1 +1,13 @@
-<div id="map" style="width: 100%; height: 100%;"></div>
+<div class="mapa-container">
+    <div [id]="idMapa" class="mapa"></div>
+
+    <!-- Info de ruta cuando hay destino -->
+    <!-- <div *ngIf="destino && distancia" class="ruta-info">
+        <div class="info-badge" [class.en-ruta]="enRuta">
+            <span class="icono">{{ enRuta ? '🚗' : '📍' }}</span>
+            <span class="distancia">{{ distancia }}</span>
+            <span class="separador">•</span>
+            <span class="duracion">{{ duracion }}</span>
+        </div>
+    </div> -->
+</div>

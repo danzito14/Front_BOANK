@@ -42,6 +42,7 @@ export interface PedidoEntregaInterface {
   estado_pedido: string;
   tipo_pedido: string; // 'Entrega' o 'Local'
   id_usuario: string;
+  forma_pago: string;
   nombre_completo: string;
   total: number;
   id_direccion: string;
@@ -57,11 +58,18 @@ export interface PedidoEntregaInterface {
 })
 export class PedidoService {
   // la verdad dudo usar mas de una funcion de mesas aqui
-  private apiUrlMesas = 'http://127.0.0.1:8000/mesas';
-  private apiUrlUntilsEmpleados = 'http://127.0.0.1:8000/untils_empleados';
-  private apiUrlPedidogets = 'http://localhost:8000/pedido_gets';
+  // private apiUrlMesas = 'http://127.0.0.1:8000/mesas';
+  // private apiUrlUntilsEmpleados = 'http://127.0.0.1:8000/untils_empleados';
+  // private apiUrlPedidogets = 'http://localhost:8000/pedido_gets';
 
-  private apiUrlPagar = 'http://localhost:8000/pagar';
+  // private apiUrlPagar = 'http://localhost:8000/pagar';
+
+
+  private apiUrlMesas = 'http://192.168.1.64:8000/mesas';
+  private apiUrlUntilsEmpleados = 'http://192.168.1.64:8000/untils_empleados';
+  private apiUrlPedidogets = 'http://192.168.1.64:8000/pedido_gets';
+
+  private apiUrlPagar = 'http://192.168.1.64:8000/pagar';
 
   constructor(private http: HttpClient, private authStore: AuthStoreService) {
 
@@ -134,6 +142,20 @@ export class PedidoService {
     )
   }
 
+  gets_pedidos_usuario(): Observable<PedidoEntregaInterface[]> {
+    const headers = this.getHeaders();
+    if (!headers) return of([]);
+
+    return this.http.get<PedidoEntregaInterface[]>(
+      `${this.apiUrlPedidogets}/gets_pedido_usuario`,
+      { headers }
+    ).pipe(
+      catchError(err => {
+        console.error('Error al obtener los pedidos:', err);
+        return of([]);
+      })
+    )
+  }
 
   gets_pedidos_repartidor(): Observable<PedidoEntregaInterface[]> {
     const headers = this.getHeaders();
@@ -218,9 +240,13 @@ export class PedidoService {
   }
 
   cancelar_pedido_entrega(id_pedido: string) {
+    const headers = this.getHeaders();
+    if (!headers) return of([]);
+
     return this.http.delete(
       `${this.apiUrlPedidogets}/cancelar_pedido`,
       {
+        headers,
         params: {
           id_pedido
         }
@@ -256,17 +282,19 @@ export class PedidoService {
   }
 
 
-  generar_pago(id_pedido: string,
+  generar_pago(
+    id_pedido: string,
     metodo_pago: string,
-    id_mesa: string,
-    referencia_pago: string) {
+    referencia_pago: string,
+    id_mesa?: string
+  ) {
     const headers = this.getHeaders();
     if (!headers) return of([]);
     const data = {
       id_pedido: id_pedido,
       metodo_pago: metodo_pago,
-      id_mesa: id_mesa,
-      referencia_pago: referencia_pago
+      referencia_pago: referencia_pago,
+      id_mesa: id_mesa || null
     }
     return this.http.post(`${this.apiUrlPagar}/pagar`, data, { headers });
 

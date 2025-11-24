@@ -1,1 +1,152 @@
-<p>user works!</p>
+<div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h3>Mi Cuenta</h3>
+
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a class="nav-link" (click)="cambiar_div('main')">
+                    <i class="fas fa-user"></i>
+                    Datos personales
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" (click)="cambiar_div('direcciones')">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Direcciones
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" (click)="cambiar_div('tarjetas')">
+                    <i class="fas fa-credit-card"></i>
+                    Tarjetas de pago
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" (click)="cambiar_div('pedidos')">
+
+                    <i class="fas fa-receipt"></i>
+                    Mis pedidos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" (click)="cambiar_div('favoritos')">
+                    <i class="fas fa-heart"></i>
+                    Favoritos
+                </a>
+            </li>
+            <!-- <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Configuración
+                </a>
+            </li> -->
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" *ngIf="usuarios_data" [ngSwitch]="accion">
+        <div *ngSwitchCase="'main'" class="conter-principal">
+            <div class="profile-header">
+                <div class="avatar-container">
+                    <div class="avatar">
+                        <img [src]="previsualizacion || '/assets/default-avatar.png'" alt="Avatar">
+                    </div>
+                    <div class="avatar-edit" (click)="fileInput.click()">
+                        <i class="fas fa-camera"></i>
+                        <input #fileInput type="file" accept="image/*" (change)="onImageSelected($event)"
+                            style="display: none;">
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <h1>{{usuarios_data.Nickname}}</h1>
+                    <p class="email">
+                        <i class="fas fa-envelope"></i>
+                        {{usuarios_data.Correo_electronico}}
+                    </p>
+                    <span class="member-badge">
+                        {{nvl_usuario}}
+                    </span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <!-- Personal Info Card -->
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <span class="info-card-title">
+                            <i class="fas fa-id-card"></i>
+                            Información Personal
+                        </span>
+                        <button class="edit-btn" (click)="cambiar_div('editar_info_personal')">
+                            <i class="fas fa-pen"></i>
+                            Editar
+                        </button>
+                    </div>
+                    <div class="info-item">
+                        <p class="info-label">Nombre completo</p>
+                        <p class="info-value">{{usuarios_data.Nombre + " " + usuarios_data.Apellido}}</p>
+                    </div>
+                    <div class="info-item">
+                        <p class="info-label">Teléfono</p>
+                        <p class="info-value">{{usuarios_data.Num_telefonico}}</p>
+                    </div>
+                </div>
+
+                <!-- Address Card -->
+                <div class="info-card2">
+                    <div class="info-card-header">
+                        <span class="info-card-title">
+                            <i class="fas fa-home"></i>
+                            Contraseña
+                        </span>
+                        <button class="edit-btn" (click)="cambiar_contra()">
+                            <i class="fas fa-pen"></i>
+                            Editar
+                        </button>
+                    </div>
+
+                    <p class="info-label">Cambia tu contraseña</p>
+
+                </div>
+            </div>
+        </div>
+
+        <div *ngSwitchCase="'editar_info_personal'">
+            <app-editar-info-personal (volver)="cambiar_div('main')"></app-editar-info-personal>
+        </div>
+
+        <div *ngSwitchCase="'direcciones'">
+            <app-tarjetas-y-direccion [mostrar]="'direcciones'"
+                (cambiar_div)="cambiar_div('agregar_direccion')"></app-tarjetas-y-direccion>
+        </div>
+
+        <div *ngSwitchCase="'agregar_direccion'">
+            <app-direccion origen="usuario" (cambiar_div)="cambiar_div('direcciones')"></app-direccion>
+        </div>
+
+        <div *ngSwitchCase="'tarjetas'">
+            <app-tarjetas-y-direccion [mostrar]="'tarjetas'"
+                (cambiar_div)="cambiar_div('agregar_tarjeta')"></app-tarjetas-y-direccion>
+        </div>
+
+        <div *ngSwitchCase="'agregar_tarjeta'">
+            <app-tarjeta origen="usuario" (cambiar_div)="cambiar_div('tarjetas')"></app-tarjeta>
+
+        </div>
+
+        <div *ngSwitchCase="'pedidos'">
+            <app-pedido></app-pedido>
+        </div>
+
+        <div *ngSwitchCase="'favoritos'">
+            <app-result [filtro_usuario]="'favoritos'"></app-result>
+        </div>
+
+        <div *ngSwitchDefault="">
+            <p>Neta porque tengo que hacer esto cada que agrego algo?</p>
+        </div>
+    </main>
+</div>

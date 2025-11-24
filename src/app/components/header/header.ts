@@ -36,7 +36,8 @@ export class Header implements OnInit {
     const token = window.localStorage.getItem('token');
     if (!token) return;
 
-    this.http.get('http://localhost:8000/user/get_user_id', {
+    // this.http.get('http://localhost:8000/user/get_user_id', {
+    this.http.get('http://192.168.1.64:8000/user/get_user_id', {
       headers: { 'Authorization': `Bearer ${token}` }
     }).subscribe({
       next: (user: any) => {

@@ -17,7 +17,8 @@ export interface FavoritoInterface extends Producto {
 })
 export class FavoritosService {
 
-  private apiUrl = 'http://127.0.0.1:8000/favoritos';
+  // private apiUrl = 'http://127.0.0.1:8000/favoritos';
+  private apiUrl = 'http://192.168.1.64:8000/favoritos';
 
   constructor(private http: HttpClient) { }
 

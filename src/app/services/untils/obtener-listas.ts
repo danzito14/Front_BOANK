@@ -30,7 +30,8 @@ export interface ListaPlatoPendienteInterface {
   providedIn: 'root',
 })
 export class ObtenerListas {
-  apiUrlListas = 'http://localhost:8000/pedido_gets'
+  // apiUrlListas = 'http://localhost:8000/pedido_gets'
+  apiUrlListas = 'http://192.168.1.64:8000/pedido_gets'
 
   constructor(private http: HttpClient) { }
 

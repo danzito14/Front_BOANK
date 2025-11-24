@@ -26,17 +26,22 @@ body {
 .grid-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    /* 4 columnas por defecto */
     gap: 10px;
     padding: 10px;
 }
 
-/* Si la pantalla es menor a 768px (por ejemplo, tablet o móvil), cambia a 2 columnas*/
+/* Pantallas medianas */
+@media (max-width: 1024px) {
+    .grid-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Pantallas pequeñas */
 @media (max-width: 768px) {
-    .grid-productos {
+    .grid-container {
         grid-template-columns: repeat(2, 1fr);
     }
-
 }
 
 
@@ -165,7 +170,7 @@ body {
 
 .new-price {
     color: #0CAF03;
-    font-size: 28px;
+    font-size: 1.4rem;
     font-style: italic;
     font-weight: 500;
     line-height: normal;

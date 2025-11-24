@@ -1,0 +1,190 @@
+section {
+    background-color: #fff;
+    width: 100%;
+    min-height: 100vh;
+    height: 100%;
+    padding: 10px;
+    background-color: #f5f5f5;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    text-align: left;
+    border-bottom: solid 2px #d6b45a;
+    width: 80%;
+    margin-bottom: 10px;
+}
+
+.titulos {
+    padding-left: 2%;
+}
+
+.lista_pedidos_mesa {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 80%;
+}
+
+.pedido_detalle {
+    background: #efefef;
+    border: 1px solid #d6b45a;
+    border-top: none;
+    border-bottom-right-radius: 10px;
+    box-shadow: 4px 4px 4px 0 rgba(0, 0, 0, 0.25);
+    border-bottom-left-radius: 10px;
+    padding-left: 2%;
+}
+
+.plato {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 5px;
+}
+
+
+.datos_plato {
+    width: 80%;
+    padding: 5px;
+    border-bottom: #d6b45a solid 1px;
+}
+
+.datos_plato span {
+    color: #333;
+    font-style: italic;
+}
+
+.estado_plato {
+    display: flex;
+    flex-direction: row;
+    gap: 3px
+}
+
+.servido,
+.Entregado {
+    background-color: #d6b55aa1;
+    border-radius: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: #d6b45a solid 2px;
+}
+
+.Pagada {
+    background-color: #0e4333a1;
+    border-radius: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: #0e4333 solid 2px;
+}
+
+.Cancelado,
+.cancelado {
+    background-color: #290e43a1;
+    border-radius: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: #290e43a1 solid 2px;
+}
+
+.listo,
+.Listo {
+    background-color: #578eada1;
+    border: #578ead solid 2px;
+    border-radius: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.cocinando,
+.Preparando {
+    background-color: #8b5e3ca1;
+    border: #8b5e3c solid 2px;
+    border-radius: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.pendiente,
+.Pendiente {
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: #773832a1;
+    border: #773832 solid 2px;
+    border-radius: 10px;
+
+}
+
+.EnCamino {
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: #089c84a1;
+    border: #089c84 solid 2px;
+    border-radius: 10px;
+
+}
+
+.button_cancelar {
+    width: 20%;
+
+}
+
+.button_cancelar button {
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    border: none;
+    border-left: #773832 solid 1px;
+    border-top: #773832 solid 1px;
+    cursor: pointer;
+    color: #773832;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.cancelar_pedido {
+    border-top: #d6b45a solid 2px;
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    align-items: center;
+    padding-top: 20px;
+    gap: 5px;
+}
+
+.button_cancelar button:hover {
+    background-color: #773832;
+    color: #fff;
+    transition: 200ms;
+}
+
+.pedido_button {
+    cursor: pointer;
+    padding: 12px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    transition: background 0.2s, border-radius .2s;
+    background-color: #fff;
+    box-shadow: 4px 4px 4px 0 rgba(0, 0, 0, 0.25);
+    border: #d6b45a 1px solid;
+    transition: 0.3s;
+}
+
+.pedido_button:hover {
+    background: #fff6e5;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Cuando está abierto el detalle */
+.pedido_button.open-btn {
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom: none;
+
+}

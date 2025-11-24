@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MesFecha } from "../../../directives/tarjeta/mes-fecha";
 import { TarjetaNumeros } from '../../../directives/tarjeta/tarjeta-numeros';
 import { TarjetaCvv } from "../../../directives/tarjeta/tarjeta-cvv";
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { CarritoService, TarjetaInterface } from '../../../services/carrito/carrito';
+import Swal from 'sweetalert2';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-tarjeta',
@@ -14,9 +16,12 @@ import { CarritoService, TarjetaInterface } from '../../../services/carrito/carr
   styleUrl: './tarjeta.css'
 })
 export class Tarjeta {
+  @Input() origen = "";
+
+  @Output() cambiar_div = new EventEmitter<void>();
   form!: FormGroup;
 
-  constructor(private carritoService: CarritoService, private fb: FormBuilder) { }
+  constructor(private carritoService: CarritoService, private fb: FormBuilder, private router: Router,) { }
 
 
   ngOnInit() {
@@ -47,13 +52,32 @@ export class Tarjeta {
     }
 
     this.carritoService.agregar_tarjeta(nueva_tarjeta).subscribe({
-      next: (res) => console.log('Tarjeta guardada:', res),
+      next: (res) =>
+        Swal.fire({
+          title: "¡Tarjeta guardada!",
+          text: "La tarjeta ha sido guardada exitosamente.",
+          icon: "success",
+          iconColor: "#d6b45a",
+          confirmButtonColor: "#d6b45a"
+        }).then(() => {
+          if (this.origen) {
+            this.cambiar_div.emit();
+          } else {
+
+            window.history.back();
+          }
+        }),
       error: (err) => console.error('Error al guardar la tarjeta:', err)
     });
   }
 
   regresar() {
-    window.history.back();
+    if (this.origen) {
+      this.cambiar_div.emit();
+    } else {
+
+      window.history.back();
+    }
   }
 
 

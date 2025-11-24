@@ -1,0 +1,34 @@
+<section>
+    <h1>Historial</h1>
+
+    <div class="lista_pedidos_mesa">
+        <h2 class="titulos">Pedidos a domicilio</h2>
+        <div class="pedido_mesa" *ngFor="let pedido of pedidos_absolute; let i = index">
+
+            <div class="pedido_button" (click)="toggleMesa(i)" [ngClass]="{ 'open-btn': openedIndex === i }">
+                <h2>Titular: {{ pedido.nombre_completo}}</h2>
+                <h4>Direccion: {{ pedido.direccion_completa }}</h4>
+                <div class="estado_plato">
+                    <h3>Estado: </h3>
+                    <h3 [ngClass]="formatEstado(pedido.estado_pedido)"> {{ pedido.estado_pedido }}</h3><br>
+                </div>
+            </div>
+
+            <div class="pedido_detalle" [@slideToggle]="openedIndex === i ? 'open' : 'closed'">
+                <div class="plato" *ngFor="let plato of pedido.platillos">
+                    <div class="datos_plato">
+                        <h3>{{ plato.nombre_platillo }}</h3>
+                        <span>{{ plato.detalles_adicionales }}</span><br>
+                        <div class="estado_plato">
+                            <span>Estado: </span><br>
+                            <span [ngClass]="plato.estado_detalle"> {{ plato.estado_detalle }}</span><br>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</section>

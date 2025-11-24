@@ -1,178 +1,65 @@
-<section>
-    <!-- Indicador de conexión WebSocket
-    <div class="ws-indicator" [class.connected]="conectadoWS" [class.disconnected]="!conectadoWS">
-        <span *ngIf="conectadoWS">🟢 Conectado</span>
-        <span *ngIf="!conectadoWS">🔴 Desconectado</span>
-    </div> -->
+<main>
+    <section>
+        <!-- SECCIÓN DE DIRECCIÓN -->
+        <div class="direccion">
+            <h1>Direcciones</h1>
+            <div class="direccion-options">
+                <button class="agregar-direccion" (click)="agregar_tarjeta_o_direccion('direccion')">
+                    <div class="icon"><i class="fa-solid fa-plus"></i></div>
+                    <div class="info">
+                        <h4>Agregar dirección</h4>
 
-    <!-- Indicador de carga -->
-    <div *ngIf="cargando" class="loading-spinner">
-        <p>⏳ Cargando pedidos...</p>
-    </div>
+                    </div>
+                </button>
 
-    <div class="container" *ngIf="!cargando">
-        <!-- Cola de pedidos disponibles -->
-        <div class="cola_preparar">
-            <div class="cabeza_cola">
-                <h3>Pedidos Disponibles ({{ pedidos_disponibles.length }})</h3>
+                <div class="direccion-usuario" *ngFor="let dicc of direcciones">
+                    <div class="direccionn">
 
-            </div>
-            <div class="cola">
-                <!-- Mensaje si no hay pedidos -->
-                <div *ngIf="pedidos_disponibles.length === 0" class="empty-state">
-                    <p>📭 No hay pedidos disponibles</p>
-                    <small>Los pedidos aparecerán aquí cuando estén listos para entrega</small>
-                </div>
-
-                <!-- Lista de pedidos disponibles -->
-                <div *ngFor="let pedido of pedidos_disponibles; let i = index">
-                    <div class="pedido_button" (click)="abrirModalPedido(pedido)"
-                        [class.pedido-seleccionado]="pedido.id_pedido === id_pedidoSeleccionado">
-
-                        <h3>{{ pedido.nombre_completo }}</h3>
-                        <h4>{{ pedido.direccion_completa }}</h4>
-
-                        <span>ID: {{ pedido.id_pedido.substring(0,8) }}...</span>
-                        <span>Total: ${{ pedido.total }} MXN</span>
-
-                        <div class="estado_pedido">
-                            <span>Estado: </span>
-                            <span [ngClass]="formatEstado(pedido.estado_pedido)">
-                                {{ pedido.estado_pedido }}
-                            </span>
+                        <div class="info">
+                            <h4>{{ dicc.alias }}, {{ dicc.CP }}, {{ dicc.Calle }}, {{ dicc.No_ext }}</h4>
+                            <button type="button" class="button_eliminar" title="Eliminar"
+                                (click)="eliminar_direccion(dicc.id_direccion!)">
+                                <i class="fa-solid fa-trash"></i>
+                                Eliminar
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Área de trabajo del repartidor -->
-        <div class="platillo_preparado">
-            <div class="cabeza_preparando">
-                <div class="nombre_usu">
-                    <h3>Repartidor: </h3>
-                    <h3>{{ repartidorInfo?.nombre_completo || 'Cargando...' }}</h3>
-                </div>
-                <div class="estado-repartidor" *ngIf="repartidorInfo">
-                    <span [ngClass]="repartidorInfo.estado === 'Repartiendo' ? 'en-ruta' : 'en-local'">
-                        {{ repartidorInfo.estado }}
-                    </span>
-                </div>
-            </div>
+        <!-- SECCIÓN DE PAGO -->
+        <div class="direccion">
+            <h1>Tarjetas</h1>
+            <div class="direccion-options">
+                <h2>Tarjeta</h2>
+                <button class="agregar-direccion" (click)="agregar_tarjeta_o_direccion('tarjeta')">
+                    <div class="icon"><i class="fa-solid fa-plus"></i></div>
+                    <div class="info">
+                        <h4>Agregar una tarjeta</h4>
+                        <i class="fa-solid fa-credit-card"></i>
+                    </div>
+                </button>
 
-            <div class="mapa_y_botones">
-                <!-- Botones de acción -->
-                <div class="botones_datos_pedido">
-                    <div class="datos_pedido">
-                        <h3 *ngIf="!pedido_actual" class="sin-seleccion">
-                            Selecciona un pedido de la lista
-                        </h3>
-                        <div *ngIf="pedido_actual">
-                            <h3>Destino: <br> {{ direccionSeleccionada }}</h3>
-                            <h3>Titular: {{ titularSeleccionado }}</h3>
-                            <h3>Total: ${{ pedido_actual.total }} MXN</h3>
-                            <h3>Pedidos</h3>
-                            <div class="plato" *ngFor="let plato of pedido_actual.platillos">
-                                <div class="datos_plato">
-                                    <h3>{{ plato.nombre_platillo }}</h3>
-                                    <span *ngIf="plato.detalles_adicionales">
-                                        {{ plato.detalles_adicionales }}
-                                    </span><br>
+                <div class="mis-tarjetas">
+                    <h4>Mis tarjetas</h4>
+                    <div class="direccion-usuario" *ngFor="let tarjet of tarjetas">
+                        <div class="direccionn">
 
-                                </div>
+                            <div class="info">
+                                <h4>{{ tarjet.titular }} - **** {{ tarjet.num_tarjeta }} ({{ tarjet.fecha_exp }})</h4>
+                                <button type="button" class="button_eliminar" title="Eliminar"
+                                    (click)="elimnar_tarjeta(tarjet.id_tarjeta!)">
+                                    <i class="fa-solid fa-trash"></i>
+                                    Eliminar
+                                </button>
                             </div>
                         </div>
                     </div>
-
-                    <div class="botones_accion">
-                        <button type="button" class="empezar_ruta" title="Empezar ruta"
-                            [disabled]="!pedido_actual || enRuta" (click)="iniciarEntrega()">
-                            {{ enRuta ? 'En ruta...' : 'Iniciar entrega' }}
-                        </button>
-
-                        <button type="button" class="marcar-entregado" *ngIf="enRuta" (click)="marcarComoEntregado()">
-                            Marcar entregado
-                        </button>
-
-                        <button type="button" class="cancelar_pedido" title="Cancelar" [disabled]="!pedido_actual"
-                            (click)="seleccionar_que_cancelar()">
-                            Cancelar
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Mapa (placeholder) -->
-                <!-- <div class="mapa">
-                    <div *ngIf="!pedido_actual" class="mapa-placeholder">
-                        <p>🗺️ Selecciona un pedido para ver el mapa</p>
-                    </div>
-                    <div *ngIf="pedido_actual" class="mapa-info">
-                        <h3>📍 Ruta hacia:</h3>
-                        <p>{{ direccionSeleccionada }}</p>
-                        <button class="abrir-maps" (click)="abrirGoogleMaps(direccionSeleccionada)">
-                            🗺️ Abrir en Google Maps
-                        </button>
-                    </div>
-                </div> -->
-                <div id="mapa" class="mapa">
-                    <app-mapa></app-mapa>
                 </div>
             </div>
         </div>
-    </div>
-</section>
 
-<!-- MODAL DE DETALLES DEL PEDIDO -->
-<div class="modal-backdrop" *ngIf="mostrarModal" (click)="cerrarModal()">
-    <div class="modal-container" (click)="$event.stopPropagation()">
-        <div>
-            <button class="cerrar" (click)="cerrarModal()">✖</button>
 
-            <h2>Pedido #{{ selectedPedido?.id_pedido }}</h2>
-            <h3>{{ selectedPedido?.nombre_completo }}</h3>
-            <h4>{{ selectedPedido?.direccion_completa }}</h4>
-            <h4>Total: ${{ selectedPedido?.total }} MXN</h4>
-
-            <hr>
-
-            <h3>Platillos:</h3>
-            <div class="plato" *ngFor="let plato of selectedPedido?.platillos">
-                <div class="datos_plato">
-                    <h3>{{ plato.nombre_platillo }}</h3>
-                    <span *ngIf="plato.detalles_adicionales">
-                        {{ plato.detalles_adicionales }}
-                    </span><br>
-                    <div class="estado_plato">
-                        <span>Estado: </span>
-                        <span [ngClass]="formatEstado(plato.estado_detalle)">
-                            {{ plato.estado_detalle }}
-                        </span>
-                    </div>
-                </div>
-                <div class="button_cancelar">
-                    <button type="button" title="Cancelar platillo"
-                        (click)="cancelar_pedido_entrega(plato.id_detalle, selectedPedido!.id_pedido, plato.nombre_platillo)">
-                        Cancelar
-                    </button>
-                </div>
-            </div>
-
-            <div class="cancelar_todo_pedido">
-                <h3>Cancelar todo el pedido: </h3>
-                <button class="cancelar-total"
-                    (click)="cancelar_todo_pedido_entrega(selectedPedido!.id_pedido, selectedPedido!.nombre_completo)">
-                    Cancelar Pedido
-                </button>
-            </div>
-        </div>
-
-        <div class="boton_seleccion">
-            <button type="button" class="seleccionar_ruta" title="Seleccionar este pedido"
-                [disabled]="selectedPedido?.id_pedido === id_pedidoSeleccionado"
-                (click)="pedido_seleccionado(selectedPedido!)">
-                {{ selectedPedido?.id_pedido === id_pedidoSeleccionado ? 'Pedido seleccionado' : 'Seleccionar y
-                comenzar entrega' }}
-            </button>
-        </div>
-    </div>
-</div>
+    </section>
+</main>

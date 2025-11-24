@@ -13,7 +13,8 @@ export interface Categoria {
   providedIn: 'root'
 })
 export class CategoriasService {
-  private apiUrl = 'http://127.0.0.1:8000/tipo_platillos/get_all_tipo_platillos';
+  // private apiUrl = 'http://127.0.0.1:8000/tipo_platillos/get_all_tipo_platillos';
+  private apiUrl = 'http://192.168.1.64:8000/tipo_platillos/get_all_tipo_platillos';
 
   constructor(private http: HttpClient) { }
 

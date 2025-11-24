@@ -117,7 +117,6 @@ export class Sidebar implements OnInit {
   }
 
   buscar_filtro(filtro: string) {
-    console.log("filtro aca usado", filtro)
 
     this.router.navigate(["/result"], { queryParams: { filtro_especial: filtro } });
   }
@@ -128,6 +127,15 @@ export class Sidebar implements OnInit {
     const token = localStorage.getItem('nvl_usuario');
     this.tokenSubject.next(token);
     return token;
+  }
+
+
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('nivel_usuario'); // si lo usas
+    sessionStorage.clear(); // opcional, por si guardas algo más
+
+    this.router.navigate(['/login']); // Redirige al login
   }
 
 }

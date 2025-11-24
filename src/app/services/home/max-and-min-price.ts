@@ -11,7 +11,8 @@ export interface maxandmin {
   providedIn: 'root'
 })
 export class MaxAndMinPrice {
-  private apiUrl = 'http://127.0.0.1:8000/home/get_max_and_min_price';
+  // private apiUrl = 'http://127.0.0.1:8000/home/get_max_and_min_price';
+  private apiUrl = 'http://192.168.1.64:8000/home/get_max_and_min_price';
 
   constructor(private http: HttpClient) { }
 

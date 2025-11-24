@@ -9,7 +9,7 @@ import { BehaviorSubject } from 'rxjs';
   selector: 'app-direccion-pago',
   imports: [CommonModule, FormsModule],
   templateUrl: './direccion-pago.html',
-  styleUrls: ['../../app.css', './direccion-pago.css']
+  styleUrls: ['./direccion-pago.css']
 })
 export class DireccionPago implements OnInit {
   direcciones: DireccionInterface[] = [];

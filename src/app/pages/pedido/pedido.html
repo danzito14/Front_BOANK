@@ -43,7 +43,7 @@
         </div>
     </div>
 
-    <div class="lista_pedidos_mesa" *ngIf="nvl_usuario === '4'">
+    <div class="lista_pedidos_mesa" *ngIf="nvl_usuario === '4' || nvl_usuario === '1'">
         <h2 class="titulos">Pedidos a domicilio</h2>
         <div class="pedido_mesa" *ngFor="let pedido of pedidos_absolute; let i = index">
 

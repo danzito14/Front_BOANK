@@ -132,6 +132,9 @@ export class PersonalizarPlatillo implements OnChanges, OnDestroy {
   }
 
 
+  regresar() {
+    window.history.back();
+  }
 
 
 }

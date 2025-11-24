@@ -65,12 +65,21 @@ export interface idsCombo {
   providedIn: 'root'
 })
 export class ProductosService {
-  private apiUrl = 'http://localhost:8000/platillo/get_all_platillos';
-  private apiUrlCombos = 'http://127.0.0.1:8000/combos/get_combo_cabeza';
-  private apiUrlidsCombos = 'http://127.0.0.1:8000/combos/id_platos?id_combo=';
-  private apiUrltipoplatillo = 'http://127.0.0.1:8000/tipo_platillos/get_all_tipo_platillos';
-  private apiUrlid = 'http://127.0.0.1:8000/platillo/get_platillo_id?id=';
-  private apiUrlopcion = 'http://127.0.0.1:8000/platillos/get_platillo_option?id_platillo=';
+  // private apiUrl = 'http://localhost:8000/platillo/get_all_platillos';
+  // private apiUrlCombos = 'http://127.0.0.1:8000/combos/get_combo_cabeza';
+  // private apiUrlidsCombos = 'http://127.0.0.1:8000/combos/id_platos?id_combo=';
+  // private apiUrltipoplatillo = 'http://127.0.0.1:8000/tipo_platillos/get_all_tipo_platillos';
+  // private apiUrlid = 'http://127.0.0.1:8000/platillo/get_platillo_id?id=';
+  // private apiUrlopcion = 'http://127.0.0.1:8000/platillos/get_platillo_option?id_platillo=';
+
+  private apiUrl = 'http://192.168.1.64:8000/platillo/get_all_platillos';
+  private apiUrlCombos = 'http://192.168.1.64:8000/combos/get_combo_cabeza';
+  private apiUrlidsCombos = 'http://192.168.1.64:8000/combos/id_platos?id_combo=';
+  private apiUrltipoplatillo = 'http://192.168.1.64:8000/tipo_platillos/get_all_tipo_platillos';
+  private apiUrlid = 'http://192.168.1.64:8000/platillo/get_platillo_id?id=';
+  private apiUrlopcion = 'http://192.168.1.64:8000/platillos/get_platillo_option?id_platillo=';
+
+
   constructor(private http: HttpClient) { }
 
   get_all_Productos(): Observable<Producto[]> {

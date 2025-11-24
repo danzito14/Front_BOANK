@@ -24,7 +24,8 @@ export interface ProductoConFavorito extends Oferta_home {
   providedIn: 'root'
 })
 export class OfertasService {
-  private apiUrl = 'http://127.0.0.1:8000/ofertas/get_ofertas_for_home';
+  // private apiUrl = 'http://127.0.0.1:8000/ofertas/get_ofertas_for_home';
+  private apiUrl = 'http://192.168.1.64:8000/ofertas/get_ofertas_for_home';
 
   constructor(private http: HttpClient) { }
 

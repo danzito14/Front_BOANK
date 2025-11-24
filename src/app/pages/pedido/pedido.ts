@@ -56,6 +56,9 @@ export class Pedido implements OnInit {
         this.get_pedido_mesa();
         this.get_pedido_mesa_absolute();
         break;
+      case '1':
+        this.get_pedido_usuario();
+        break;
       default:
         break;
     }
@@ -189,7 +192,8 @@ export class Pedido implements OnInit {
               iconColor: "#d6b45a"
             });
 
-            this.get_pedido_mesa_absolute(); // refrescar
+            this.get_pedido_mesa_absolute();
+            this.get_pedido_usuario(); // refrescar
           });
       }
     });
@@ -208,6 +212,14 @@ export class Pedido implements OnInit {
     this.meseroService.get_pedidos_mesa_absolute().subscribe(data => {
       // console.log(JSON.stringify(data, null, 2));
       this.pedidos_absolute = [...data]; // 👈 esto sí fuerza el render sin conflictos
+    });
+  }
+
+  get_pedido_usuario() {
+    this.meseroService.gets_pedidos_usuario().subscribe(data => {
+      this.pedidos_absolute = data.filter((p: any) =>
+        p.estado_pedido !== 'Cancelado' &&
+        p.estado_pedido !== 'Pagada');
     });
   }
 }

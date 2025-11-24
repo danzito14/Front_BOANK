@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CarritoService, DireccionInterface } from '../../../services/carrito/carrito';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SoloNumerosDirective } from "../../../directives/register/solo-numeros-code";
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-direccion',
@@ -11,6 +12,9 @@ import { SoloNumerosDirective } from "../../../directives/register/solo-numeros-
   styleUrl: './direccion.css'
 })
 export class Direccion {
+  @Input() origen = "";
+  @Output() cambiar_div = new EventEmitter<void>();
+
   form!: FormGroup;
   colonias: string[] = [];
 
@@ -58,13 +62,31 @@ export class Direccion {
     }
 
     this.carritoService.agregar_direccion(this.form.value).subscribe({
-      next: (res) => console.log('Dirección guardada:', res),
+      next: (res) => Swal.fire({
+        title: "¡Direccion guardada!",
+        text: "La Direccion ha sido guardada exitosamente.",
+        icon: "success",
+        iconColor: "#d6b45a",
+        confirmButtonColor: "#d6b45a"
+      }).then(() => {
+        if (this.origen === 'usuario') {
+          this.cambiar_div.emit();
+        } else {
+
+          window.history.back();
+        }
+      }),
       error: (err) => console.error('Error al guardar dirección:', err)
     });
   }
 
   regresar() {
-    window.history.back();
+    if (this.origen === 'usuario') {
+      this.cambiar_div.emit();
+    } else {
+
+      window.history.back();
+    }
   }
 
 }

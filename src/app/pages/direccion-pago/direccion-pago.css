@@ -92,6 +92,11 @@ section {
     align-items: center;
 }
 
+.info i {
+    color: #d6b45a;
+    font-size: 18px;
+}
+
 .info h4 {
     font-weight: 500;
     font-style: italic;

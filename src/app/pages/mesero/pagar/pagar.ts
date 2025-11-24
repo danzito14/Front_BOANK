@@ -101,8 +101,8 @@ export class Pagar implements OnInit {
         this.pedidoService.generar_pago(
           this.id_pedido,
           this.metodo_pago,
-          this.id_mesa,
-          this.referencia_pago
+          this.referencia_pago,
+          this.id_mesa
         ).subscribe({
           next: (res: any) => {
             Swal.fire({

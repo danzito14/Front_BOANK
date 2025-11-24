@@ -1,0 +1,65 @@
+<main>
+    <section>
+        <!-- SECCIÓN DE DIRECCIÓN -->
+        <div class="direccion" *ngIf="mostrar === 'direcciones'">
+            <h1>Direcciones</h1>
+            <div class="direccion-options">
+                <button class="agregar-direccion" (click)="agregar_tarjeta_o_direccion('direccion')">
+                    <div class="icon"><i class="fa-solid fa-plus"></i></div>
+                    <div class="info">
+                        <h4>Agregar dirección</h4>
+
+                    </div>
+                </button>
+
+                <div class="direccion-usuario" *ngFor="let dicc of direcciones">
+                    <div class="direccionn">
+
+                        <div class="info">
+                            <h4>{{ dicc.alias }}, {{ dicc.CP }}, {{ dicc.Calle }}, {{ dicc.No_ext }}</h4>
+                            <button type="button" class="button_eliminar" title="Eliminar"
+                                (click)="eliminar_direccion(dicc.id_direccion!)">
+                                <i class="fa-solid fa-trash"></i>
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE PAGO -->
+        <div class="direccion" *ngIf="mostrar === 'tarjetas'">
+            <h1>Tarjetas</h1>
+            <div class="direccion-options">
+                <h2>Tarjeta</h2>
+                <button class="agregar-direccion" (click)="agregar_tarjeta_o_direccion('tarjeta')">
+                    <div class="icon"><i class="fa-solid fa-plus"></i></div>
+                    <div class="info">
+                        <h4>Agregar una tarjeta</h4>
+                        <i class="fa-solid fa-credit-card"></i>
+                    </div>
+                </button>
+
+                <div class="mis-tarjetas">
+                    <h4>Mis tarjetas</h4>
+                    <div class="direccion-usuario" *ngFor="let tarjet of tarjetas">
+                        <div class="direccionn">
+
+                            <div class="info">
+                                <h4>{{ tarjet.titular }} - **** {{ tarjet.num_tarjeta }} ({{ tarjet.fecha_exp }})</h4>
+                                <button type="button" class="button_eliminar" title="Eliminar"
+                                    (click)="elimnar_tarjeta(tarjet.id_tarjeta!)">
+                                    <i class="fa-solid fa-trash"></i>
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+</main>

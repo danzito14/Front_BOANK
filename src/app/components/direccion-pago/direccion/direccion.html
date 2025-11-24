@@ -1,7 +1,14 @@
 <main>
 
     <!-- 🔙 Botón para regresar -->
-    <button class="btn-regresar" type="button" (click)="regresar()">← Volver</button>
+    <button class="btn-regresar" type="button" (click)="regresar()">
+        <span *ngIf="origen === 'usuario'">
+            Cancelar
+        </span>
+        <span *ngIf="origen !== 'usuario'">
+            ← Volver
+        </span>
+    </button>
 
     <section>
         <h2>Agregar dirección</h2>

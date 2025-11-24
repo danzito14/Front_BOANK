@@ -7,7 +7,8 @@ import { Observable } from 'rxjs';
 })
 export class AuthService {
   //creamos la url privada
-  private apiUrl = 'http://localhost:8000/BoaNK/login';
+  // private apiUrl = 'http://localhost:8000/BoaNK/login';
+  private apiUrl = 'http://192.168.1.64:8000/BoaNK/login';
 
   //hacemos el constructor
   constructor(private http: HttpClient) { }
