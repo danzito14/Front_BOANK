@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, of } from 'rxjs';
+import { environment } from '../../../environments/environments';
 
 // 🔥 Interfaz para la respuesta de asignar_plato
 interface AsignarPlatoResponse {
@@ -12,8 +13,9 @@ interface AsignarPlatoResponse {
 })
 export class Cocina {
   // private apiUrlCocina = 'http://localhost:8000/cocineros';
+  private apiUrlserve = environment.apiUrl;
 
-  private apiUrlCocina = 'http://192.168.1.64:8000/cocineros';
+  private apiUrlCocina = `${this.apiUrlserve}/cocineros`;
 
   constructor(private http: HttpClient) { }
 

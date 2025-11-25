@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { environment } from '../../../environments/environments';
 
 export interface WebSocketMessage {
   tipo: string;
@@ -39,8 +40,10 @@ export class WebSocketService {
 
   private maxReconnectAttempts = 5;
   private reconnectInterval = 3000;
+  private apiUrlserve = environment.apiUrl;
+
   // private wsUrl = 'ws://localhost:8000/ws/connect';
-  private wsUrl = 'ws://192.168.1.64:8000/ws/connect';
+  private wsUrl = `${this.apiUrlserve}/ws/connect`;
   messages$: any;
 
   constructor() {

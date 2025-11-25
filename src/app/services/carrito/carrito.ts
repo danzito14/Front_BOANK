@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { AuthStoreService } from '../auth/auth-store';
+import { environment } from '../../../environments/environments';
 
 export interface CarritoInterface {
   id_carrito: string;
@@ -61,6 +62,8 @@ export interface TarjetaInterface {
 
 @Injectable({ providedIn: 'root' })
 export class CarritoService {
+  private apiUrl = environment.apiUrl;
+
   // private apiUrlCarrito = 'http://127.0.0.1:8000/carrito';
   // private apiUrltemproal = 'http://127.0.0.1:8000/carrito_temporal';
 
@@ -70,13 +73,13 @@ export class CarritoService {
   // private apiRegistrar = 'http://127.0.0.1:8000/registrar_pedido';
 
 
-  private apiUrlCarrito = 'http://192.168.1.64:8000/carrito';
-  private apiUrltemproal = 'http://192.168.1.64:8000/carrito_temporal';
+  private apiUrlCarrito = `${this.apiUrl}/carrito`;
+  private apiUrltemproal = `${this.apiUrl}/carrito_temporal`;
 
-  private apiCP = 'http://192.168.1.64:8000/utils/buscar_cp?codigo=';
-  private apiUrlDireccion = 'http://192.168.1.64:8000/direcciones';
-  private apiUrlTarjeta = 'http://192.168.1.64:8000/tarjetas';
-  private apiRegistrar = 'http://192.168.1.64:8000/registrar_pedido';
+  private apiCP = `${this.apiUrl}/utils/buscar_cp?codigo=`;
+  private apiUrlDireccion = `${this.apiUrl}/direcciones`;
+  private apiUrlTarjeta = `${this.apiUrl}/tarjetas`;
+  private apiRegistrar = `${this.apiUrl}/registrar_pedido`;
 
 
   constructor(private http: HttpClient, private authStore: AuthStoreService) { }

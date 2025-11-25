@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environments';
 
 export interface InterfaceUsuario {
   id_nvl_usuario: number;
@@ -17,8 +18,10 @@ export interface InterfaceUsuario {
   providedIn: 'root'
 })
 export class RegisterService {
+  private apiUrlserve = environment.apiUrl;
+
   // private apiUrl = 'http://localhost:8000/user/create_user';
-  private apiUrl = 'http://192.168.1.64:8000/user/create_user';
+  private apiUrl = `${this.apiUrlserve}/user/create_user`;
 
   constructor(private http: HttpClient) { }
 

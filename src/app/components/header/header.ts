@@ -2,6 +2,7 @@ import { Component, OnInit, Output, EventEmitter, NgZone, ChangeDetectorRef } fr
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environments';
 
 @Component({
   selector: 'app-header',
@@ -12,6 +13,7 @@ import { CommonModule } from '@angular/common';
 })
 export class Header implements OnInit {
   @Output() toggleSidebarEvent = new EventEmitter<void>();
+  private apiUrl = environment.apiUrl;
 
   nicknameCorto: string = 'Mi perfil'; // valor inicial seguro
   usuario: any = null;
@@ -36,8 +38,9 @@ export class Header implements OnInit {
     const token = window.localStorage.getItem('token');
     if (!token) return;
 
+
     // this.http.get('http://localhost:8000/user/get_user_id', {
-    this.http.get('http://192.168.1.64:8000/user/get_user_id', {
+    this.http.get(`${this.apiUrl}/user/get_user_id`, {
       headers: { 'Authorization': `Bearer ${token}` }
     }).subscribe({
       next: (user: any) => {

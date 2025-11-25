@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, Observable, of } from 'rxjs';
+import { environment } from '../../../environments/environments';
 
 export interface RepartidorInfo {
   id_repartidor: string;
@@ -39,8 +40,10 @@ export interface AsignacionResponse {
   providedIn: 'root'
 })
 export class RepartidorService {
+  private apiUrlserve = environment.apiUrl;
+
   // private apiUrl = 'http://localhost:8000'; // Ajusta tu URL base
-  private apiUrl = 'http://192.168.1.64:8000'; // Ajusta tu URL base
+  private apiUrl = this.apiUrlserve; // Ajusta tu URL base
 
   constructor(private http: HttpClient) { }
 

@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, of } from 'rxjs';
 import { AuthStoreService } from '../auth/auth-store';
+import { environment } from '../../../environments/environments';
 
 export interface MesasInterface {
   id_mesa: string;
@@ -63,13 +64,14 @@ export class PedidoService {
   // private apiUrlPedidogets = 'http://localhost:8000/pedido_gets';
 
   // private apiUrlPagar = 'http://localhost:8000/pagar';
+  private apiUrlserve = environment.apiUrl;
 
 
-  private apiUrlMesas = 'http://192.168.1.64:8000/mesas';
-  private apiUrlUntilsEmpleados = 'http://192.168.1.64:8000/untils_empleados';
-  private apiUrlPedidogets = 'http://192.168.1.64:8000/pedido_gets';
+  private apiUrlMesas = `${this.apiUrlserve}/mesas`;
+  private apiUrlUntilsEmpleados = `${this.apiUrlserve}/untils_empleados`;
+  private apiUrlPedidogets = `${this.apiUrlserve}/pedido_gets`;
 
-  private apiUrlPagar = 'http://192.168.1.64:8000/pagar';
+  private apiUrlPagar = `${this.apiUrlserve}/pagar`;
 
   constructor(private http: HttpClient, private authStore: AuthStoreService) {
 

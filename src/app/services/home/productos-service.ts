@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environments';
 
 
 
@@ -71,13 +72,14 @@ export class ProductosService {
   // private apiUrltipoplatillo = 'http://127.0.0.1:8000/tipo_platillos/get_all_tipo_platillos';
   // private apiUrlid = 'http://127.0.0.1:8000/platillo/get_platillo_id?id=';
   // private apiUrlopcion = 'http://127.0.0.1:8000/platillos/get_platillo_option?id_platillo=';
+  private apiUrlserve = environment.apiUrl;
 
-  private apiUrl = 'http://192.168.1.64:8000/platillo/get_all_platillos';
-  private apiUrlCombos = 'http://192.168.1.64:8000/combos/get_combo_cabeza';
-  private apiUrlidsCombos = 'http://192.168.1.64:8000/combos/id_platos?id_combo=';
-  private apiUrltipoplatillo = 'http://192.168.1.64:8000/tipo_platillos/get_all_tipo_platillos';
-  private apiUrlid = 'http://192.168.1.64:8000/platillo/get_platillo_id?id=';
-  private apiUrlopcion = 'http://192.168.1.64:8000/platillos/get_platillo_option?id_platillo=';
+  private apiUrl = `${this.apiUrlserve}/platillo/get_all_platillos`;
+  private apiUrlCombos = `${this.apiUrlserve}/combos/get_combo_cabeza`;
+  private apiUrlidsCombos = `${this.apiUrlserve}/combos/id_platos?id_combo=`;
+  private apiUrltipoplatillo = `${this.apiUrlserve}/tipo_platillos/get_all_tipo_platillos`;
+  private apiUrlid = `${this.apiUrlserve}/platillo/get_platillo_id?id=`;
+  private apiUrlopcion = `${this.apiUrlserve}/platillos/get_platillo_option?id_platillo=`;
 
 
   constructor(private http: HttpClient) { }

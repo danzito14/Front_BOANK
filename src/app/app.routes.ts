@@ -21,6 +21,7 @@ import { CajeroInicio } from './pages/cajero/cajero-inicio/cajero-inicio';
 import { EstacionTrabajo } from './pages/cocinero/estacion-trabajo/estacion-trabajo';
 import { Historial } from './pages/historial/historial';
 import { Repartidor } from './pages/repartidor/repartidor';
+import { Administracion } from './pages/administracion/administracion';
 
 export const routes: Routes = [
     { path: '', component: Home, canActivate: [AuthGuard, RoleGuard], data: { roles: ['1'] } },
@@ -52,5 +53,8 @@ export const routes: Routes = [
     //Repartidor
     { path: 'repartidor', component: Repartidor, canActivate: [AuthGuard, RoleGuard], data: { roles: ['5'] } },
 
+
+    //Admin
+    { path: 'administracion', component: Administracion },
     { path: 'temporal', component: Temporal }
 ];

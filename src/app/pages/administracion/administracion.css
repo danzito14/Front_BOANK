@@ -1,0 +1,100 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 100vh;
+    overflow: visible;
+}
+
+/* Sidebar */
+.sidebar {
+    position: sticky;
+    top: 0;
+    /* Se pega justo debajo del header */
+    align-self: flex-start;
+    /* Necesario cuando el contenedor es flex */
+    width: 200px;
+    background: #f5f5f5;
+    padding: 30px 0;
+    height: calc(100vh - 0px);
+    /* Puedes ajustar si ocupas restar el header */
+    border-right: 2px solid #d6b45a;
+}
+
+.sidebar-header {
+    text-align: center;
+    padding: 0 20px 25px;
+    border-bottom: 1px solid #eee;
+}
+
+.sidebar-header h3 {
+    text-align: left;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.sidebar-header span {
+    color: #d6b45a;
+    font-size: 0.85rem;
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 20px 0;
+}
+
+.nav-item {
+    margin: 5px 15px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: #d4af37;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    background: #d6b45aa1;
+    color: white;
+    transform: translateX(5px);
+    border-left: #D0AF43 solid 10px;
+}
+
+.nav-link.active {
+    background: #d6b45aa1;
+    color: white;
+    box-shadow: 0 4px 15px rgba(201, 162, 39, 0.4);
+    border-left: #D0AF43 solid 10px;
+}
+
+.nav-link i {
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.conter-principal {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.95);
+
+    padding: 40px;
+}

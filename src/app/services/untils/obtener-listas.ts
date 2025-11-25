@@ -10,6 +10,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
+import { environment } from '../../../environments/environments';
 
 
 export interface ListaPlatoPendienteInterface {
@@ -30,8 +31,10 @@ export interface ListaPlatoPendienteInterface {
   providedIn: 'root',
 })
 export class ObtenerListas {
+  private apiUrlserve = environment.apiUrl;
+
   // apiUrlListas = 'http://localhost:8000/pedido_gets'
-  apiUrlListas = 'http://192.168.1.64:8000/pedido_gets'
+  apiUrlListas = `${this.apiUrlserve}/pedido_gets`;
 
   constructor(private http: HttpClient) { }
 

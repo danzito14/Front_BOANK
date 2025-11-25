@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Producto } from './productos-service';
+import { environment } from '../../../environments/environments';
 
 export interface FavoritoInterface extends Producto {
   id_favorito: string;
@@ -16,9 +17,10 @@ export interface FavoritoInterface extends Producto {
   providedIn: 'root'
 })
 export class FavoritosService {
+  private apiUrlserve = environment.apiUrl;
 
   // private apiUrl = 'http://127.0.0.1:8000/favoritos';
-  private apiUrl = 'http://192.168.1.64:8000/favoritos';
+  private apiUrl = `${this.apiUrlserve}/favoritos`;
 
   constructor(private http: HttpClient) { }
 
