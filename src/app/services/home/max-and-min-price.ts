@@ -14,7 +14,6 @@ export interface maxandmin {
 export class MaxAndMinPrice {
   private apiUrlserve = environment.apiUrl;
 
-  // private apiUrl = 'http://127.0.0.1:8000/home/get_max_and_min_price';
   private apiUrl = `${this.apiUrlserve}/home/get_max_and_min_price`;
 
   constructor(private http: HttpClient) { }

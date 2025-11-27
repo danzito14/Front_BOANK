@@ -80,7 +80,7 @@ export interface PlatilloRentableInterface {
 export class Reportes {
   private apiUrlserve = environment.apiUrl;
 
-  private apiUrl = `http://${this.apiUrlserve}/reportes`; // Ajusta tu URL
+  private apiUrl = `${this.apiUrlserve}/reportes`; // Ajusta tu URL
 
   constructor(private http: HttpClient) { }
 

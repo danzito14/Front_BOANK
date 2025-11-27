@@ -64,14 +64,6 @@ export interface TarjetaInterface {
 export class CarritoService {
   private apiUrl = environment.apiUrl;
 
-  // private apiUrlCarrito = 'http://127.0.0.1:8000/carrito';
-  // private apiUrltemproal = 'http://127.0.0.1:8000/carrito_temporal';
-
-  // private apiCP = 'http://127.0.0.1:8000/utils/buscar_cp?codigo=';
-  // private apiUrlDireccion = 'http://127.0.0.1:8000/direcciones';
-  // private apiUrlTarjeta = 'http://127.0.0.1:8000/tarjetas';
-  // private apiRegistrar = 'http://127.0.0.1:8000/registrar_pedido';
-
 
   private apiUrlCarrito = `${this.apiUrl}/carrito`;
   private apiUrltemproal = `${this.apiUrl}/carrito_temporal`;

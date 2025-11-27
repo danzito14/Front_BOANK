@@ -201,7 +201,7 @@ export class EditarEmpleado implements OnInit, OnDestroy {
 
     // Cargar imagen de perfil si existe
     if (empleado.Ruta_imagen) {
-      this.previsualizacionImagen = `http://${this.apiUrlserve}${empleado.Ruta_imagen}`;
+      this.previsualizacionImagen = `${this.apiUrlserve}${empleado.Ruta_imagen}`;
     }
 
     if (empleado.id_puesto) {
@@ -632,7 +632,7 @@ export class EditarEmpleado implements OnInit, OnDestroy {
 
       // Actualizar la previsualización con la ruta del servidor
       if (resultado?.ruta) {
-        this.previsualizacionImagen = `http://${this.apiUrlserve}${resultado.ruta}`;
+        this.previsualizacionImagen = `${this.apiUrlserve}${resultado.ruta}`;
       }
 
       this.imagenSeleccionada = null;
@@ -657,7 +657,7 @@ export class EditarEmpleado implements OnInit, OnDestroy {
 
     // Restaurar la imagen original si existe
     if (this.empleadoOriginal?.Ruta_imagen) {
-      this.previsualizacionImagen = `http://${this.apiUrlserve}${this.empleadoOriginal.Ruta_imagen}`;
+      this.previsualizacionImagen = `${this.apiUrlserve}${this.empleadoOriginal.Ruta_imagen}`;
     } else {
       this.previsualizacionImagen = null;
     }

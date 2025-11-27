@@ -26,8 +26,6 @@ export interface ProductoConFavorito extends Oferta_home {
 })
 export class OfertasService {
   private apiUrlserve = environment.apiUrl;
-
-  // private apiUrl = 'http://127.0.0.1:8000/ofertas/get_ofertas_for_home';
   private apiUrl = `${this.apiUrlserve}/ofertas/get_ofertas_for_home`;
 
   constructor(private http: HttpClient) { }

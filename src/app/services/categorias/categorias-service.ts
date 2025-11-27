@@ -15,8 +15,6 @@ export interface Categoria {
 })
 export class CategoriasService {
   private apiUrlserve = environment.apiUrl;
-
-  // private apiUrl = 'http://127.0.0.1:8000/tipo_platillos/get_all_tipo_platillos';
   private apiUrl = `${this.apiUrlserve}/tipo_platillos/get_all_tipo_platillos`;
 
   constructor(private http: HttpClient) { }

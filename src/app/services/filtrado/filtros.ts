@@ -11,9 +11,6 @@ export class Filtros {
   constructor(private http: HttpClient) { }
   private apiUrl = environment.apiUrl;
 
-  // apiUrltexto = 'http://127.0.0.1:8000/platillo';
-  // apiUrlCombo = 'http://127.0.0.1:8000/combos';
-
 
   apiUrltexto = `${this.apiUrl}/platillo`;
   apiUrlCombo = `${this.apiUrl}/combos`;
