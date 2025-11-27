@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 4200;
 app.use(express.static(path.join(__dirname, 'dist/Front_BOANK/browser')));
 
 // Todas las rutas redirigen al index.html para que Angular maneje el routing
-app.get('/*', (req, res) => {
+app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist/Front_BOANK/browser/index.html'));
 });
 
