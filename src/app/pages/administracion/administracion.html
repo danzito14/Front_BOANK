@@ -8,19 +8,19 @@
         </div>
         <ul class="nav-menu">
             <li class="nav-item">
-                <a class="nav-link">
+                <a class="nav-link" (click)="cambiar_div('ventas'); reiniciar_tab()">
                     <i class="fa-solid fa-chart-simple"></i>
                     Ventas
                 </a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" (click)="cambiar_div('empleados_general'); reiniciar_tab()">
                 <a class="nav-link">
                     <i class="fas fa-user"></i>
                     Empleados
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link">
+                <a class="nav-link" (click)="cambiar_div('platillos_general'); reiniciar_tab()">
                     <i class="fas fa-receipt"></i>
                     Platillos
                 </a>
@@ -43,19 +43,85 @@
                     Automoviles
                 </a>
             </li>
-            <!-- <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="fas fa-cog"></i>
-                        Configuración
-                    </a>
-                </li> -->
+            <li class="nav-item">
+                <a class="nav-link" (click)="cambiar_div('desarrollo'); reiniciar_tab()">
+                    <i class="fas fa-cog"></i>
+                    desarrollo
+                </a>
+            </li>
         </ul>
     </aside>
 
     <!-- Main Content -->
-    <main class="main-content">
-        <app-temporald></app-temporald>
+    <main class="main-content" [ngSwitch]="accion">
+        <!-- 
+        #######################################################################################
+        Reporte de ventas
+        #######################################################################################
+        -->
+        <div *ngSwitchCase="'ventas'">
+            <app-reporte-ventas></app-reporte-ventas>
+        </div>
 
+        <!-- 
+        #######################################################################################
+        Empleados
+        #######################################################################################
+        -->
+        <div *ngSwitchCase="'empleados_general'">
+            <app-empleados-general (id_empleado_seleccionado)="recibir_id($event)" (destino)="cambiar_div($event)"
+                [tab]="tab_destino_empleados"></app-empleados-general>
+        </div>
+        <div *ngSwitchCase="'agregar_empleados'">
+            <!-- <app-temporald></app-temporald> -->
+            <app-agregar-empleado (volver)="cambiar_div('empleados_general')"></app-agregar-empleado>
+        </div>
+        <div *ngSwitchCase="'empleados'">
+            <app-editar-empleado [id_empleado]="id_seleccionado"
+                (volver)="cambiar_div('empleados_general')"></app-editar-empleado>
+        </div>
+        <div *ngSwitchCase="'agregar_puestos'">
+            <app-agregar-puesto
+                (volver)="cambiar_div('empleados_general'); recibir_tab_empleado('puestos')"></app-agregar-puesto>
+        </div>
+
+        <div *ngSwitchCase="'puestos'">
+            <app-editar-puesto [id_puesto]="id_seleccionado"></app-editar-puesto>
+        </div>
+        <div *ngSwitchCase="'desarrollo'">
+            <app-editar-puesto [id_puesto]="1"></app-editar-puesto>
+        </div>
+
+        <div *ngSwitchCase="'agregar_uniformes'">
+            <app-agregar-uniforme
+                (volver)="cambiar_div('empleados_general'); recibir_tab_empleado('uniformes')"></app-agregar-uniforme>
+        </div>
+        <div *ngSwitchCase="'uniformes'">
+            <app-editar-uniforme [id_uniforme]="id_seleccionado"
+                (volver)="cambiar_div('empleados_general'); recibir_tab_empleado('uniformes')"></app-editar-uniforme>
+        </div>
+
+        <!-- 
+        #######################################################################################
+            Platillos
+        #######################################################################################
+        -->
+
+
+        <div *ngSwitchCase="'platillos_general'">
+            <app-platillos-general></app-platillos-general>
+        </div>
+
+        <!-- 
+        #######################################################################################
+            Default
+        #######################################################################################
+            -->
+        <div *ngSwitchDefault="">
+            <h2>Me lleva la verga como para andar con tus mamadas
+                al chile ya porfa, neta, neta we jala bien, al chile porfga, en fin, aaa, neta?
+            </h2>
+        </div>
 
     </main>
 

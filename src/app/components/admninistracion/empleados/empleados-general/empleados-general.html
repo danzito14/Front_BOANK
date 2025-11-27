@@ -1,0 +1,132 @@
+<div class="container">
+    <div class="main-content">
+        <div class="reportes_ventas">
+            <!-- Tabs -->
+            <div class="tabs-fechas">
+                <div class="tab" [class.active]="tab === 'empleados'" (click)="changeTab('empleados')">
+                    Todos los empleados
+                </div>
+                <div class="tab" [class.active]="tab === 'puestos'" (click)="changeTab('puestos')">
+                    Puestos de trabajo
+                </div>
+                <div class="tab" [class.active]="tab === 'uniformes'" (click)="changeTab('uniformes')">
+                    Uniformes
+                </div>
+            </div>
+
+            <!-- Barra de búsqueda -->
+            <div class="search-bar">
+                <div class="search-container">
+                    <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Buscar..."
+                        class="search-input">
+                    <button class="btn-search" (click)="onSearch()">
+                        🔍 Buscar
+                    </button>
+                </div>
+                <div class="search-results-info" *ngIf="searchTerm">
+                    Mostrando {{ filteredData.length }} resultado(s)
+                </div>
+            </div>
+
+            <!-- Tabla dinámica -->
+            <div class="tabla-empleados">
+                <!-- Loading spinner -->
+                <div *ngIf="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Cargando datos...</p>
+                </div>
+
+                <!-- Tabla -->
+                <div *ngIf="!loading" class="tabla-container">
+                    <div class="cabeza_tabla">
+                        <h3 class="tabla-titulo">
+                            {{ tab === 'empleados' ? 'Lista de Empleados' :
+                            tab === 'puestos' ? 'Puestos de Trabajo' :
+                            'Inventario de Uniformes' }}
+                        </h3>
+                        <div class="tab_agregar" (click)="onAgregar(tab)">
+                            Agregar {{ tab === 'empleados' ? 'Empleados' :
+                            tab === 'puestos' ? 'Puestos de Trabajo' :
+                            'Uniformes' }} {{tab}}
+                        </div>
+                    </div>
+                    <div class="tabla-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th *ngFor="let col of currentConfig.columns">
+                                        {{ col.label }}
+                                    </th>
+                                    <th *ngIf="currentConfig.showActions" class="text-center">
+                                        Acciones
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Filas de datos -->
+                                <tr *ngFor="let item of paginatedData; let i = index" [class.row-even]="i % 2 === 0">
+                                    <td *ngFor="let col of currentConfig.columns"
+                                        [class.text-center]="col.type === 'status'">
+                                        <span *ngIf="col.type !== 'status'">
+                                            {{ formatCellValue(item, col) }}
+                                        </span>
+                                        <span *ngIf="col.type === 'status'" class="badge"
+                                            [ngClass]="getStatusClass(item, col)">
+                                            {{ formatCellValue(item, col) }}
+                                        </span>
+                                    </td>
+                                    <td *ngIf="currentConfig.showActions" class="acciones-cell">
+                                        <div class="acciones-container">
+
+                                            <button *ngIf="currentConfig.actions?.edit" class="btn-accion btn-editar"
+                                                (click)="onEdit(getId(item, tab), tab)" title="Editar">
+                                                Editar
+                                            </button>
+
+
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Estado vacío -->
+                                <tr *ngIf="paginatedData.length === 0">
+                                    <td [attr.colspan]="currentConfig.columns.length + (currentConfig.showActions ? 1 : 0)"
+                                        class="empty-state">
+                                        {{ searchTerm ? 'No se encontraron resultados' : 'No hay datos disponibles'
+                                        }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginación -->
+                    <div class="paginacion" *ngIf="filteredData.length > 0">
+                        <div class="info-paginacion">
+                            Mostrando {{ showingFrom }} a {{ showingTo }} de {{ filteredData.length }} registros
+                        </div>
+
+                        <div class="controles-paginacion">
+                            <button class="btn-pagina" (click)="goToPage(currentPage - 1)"
+                                [disabled]="currentPage === 1">
+                                ← Anterior
+                            </button>
+
+                            <div class="numeros-pagina">
+                                <button *ngFor="let page of pageNumbers" class="btn-numero"
+                                    [class.active]="page === currentPage" (click)="goToPage(page)">
+                                    {{ page }}
+                                </button>
+                            </div>
+
+                            <button class="btn-pagina" (click)="goToPage(currentPage + 1)"
+                                [disabled]="currentPage === totalPages">
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -42,7 +42,6 @@ export class WebSocketService {
   private reconnectInterval = 3000;
   private apiUrlserve = environment.apiUrl;
 
-  // private wsUrl = 'ws://localhost:8000/ws/connect';
   private wsUrl = `${this.apiUrlserve}/ws/connect`;
   messages$: any;
 

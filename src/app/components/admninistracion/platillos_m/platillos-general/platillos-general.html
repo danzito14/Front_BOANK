@@ -1,0 +1,162 @@
+<div class="container">
+    <div class="main-content">
+        <div class="reportes_ventas">
+            <!-- Tabs -->
+            <div class="tabs-fechas">
+                <div class="tab" [class.active]="tab === 'platillos'" (click)="changeTab('platillos')">
+                    🍽️ Platillos
+                </div>
+                <div class="tab" [class.active]="tab === 'tipos'" (click)="changeTab('tipos')">
+                    📋 Tipos de Platillos
+                </div>
+                <div class="tab" [class.active]="tab === 'opciones'" (click)="changeTab('opciones')">
+                    ⚙️ Opciones
+                </div>
+            </div>
+
+            <!-- Barra de búsqueda -->
+            <div class="search-bar">
+                <div class="search-container">
+                    <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Buscar..."
+                        class="search-input">
+                    <button class="btn-search" (click)="onSearch()">
+                        🔍 Buscar
+                    </button>
+                </div>
+                <div class="search-results-info" *ngIf="searchTerm">
+                    Mostrando {{ filteredData.length }} resultado(s)
+                </div>
+            </div>
+
+            <!-- Tabla dinámica -->
+            <div class="tabla-empleados">
+                <!-- Loading spinner -->
+                <div *ngIf="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Cargando datos...</p>
+                </div>
+
+                <!-- Tabla -->
+                <div *ngIf="!loading" class="tabla-container">
+                    <div class="cabeza_tabla">
+                        <h3 class="tabla-titulo">
+                            {{ getTituloTabla() }}
+                        </h3>
+                        <div class="tab_agregar" (click)="onAgregar(tab)">
+                            {{ getTextoAgregar() }}
+                        </div>
+                    </div>
+                    <div class="tabla-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th *ngFor="let col of currentConfig.columns">
+                                        {{ col.label }}
+                                    </th>
+                                    <th *ngIf="currentConfig.showActions" class="text-center">
+                                        Acciones
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Filas de datos -->
+                                <tr *ngFor="let item of paginatedData; let i = index" [class.row-even]="i % 2 === 0">
+                                    <td *ngFor="let col of currentConfig.columns"
+                                        [class.text-center]="col.type === 'status' || col.type === 'badge'">
+
+                                        <!-- Columna de imagen -->
+                                        <div *ngIf="isImageColumn(col)" class="image-cell">
+                                            <!-- <img [src]="getImageUrl(item, col)" -->
+                                            <img [src]="'profiles/maquin_de_apoyo.jpeg'"
+                                                [alt]="item.Nombre_platillo || item.descripcion" class="table-image"
+                                                onerror="this.src='assets/images/no-image.png'" title="Platillo">
+                                        </div>
+
+                                        <!-- Columna de color (para tipos) -->
+                                        <div *ngIf="col.key === 'color' && !isImageColumn(col)" class="color-cell">
+                                            <div [ngStyle]="getColorStyle(item)"></div>
+                                            <span style="margin-left: 10px;">{{ item.color || '—' }}</span>
+                                        </div>
+
+                                        <!-- Columna de badge -->
+                                        <span *ngIf="col.type === 'badge' && col.key !== 'color'" class="badge"
+                                            [ngClass]="getStatusClass(item, col)">
+                                            {{ formatCellValue(item, col) }}
+                                        </span>
+
+                                        <!-- Columna de status -->
+                                        <span *ngIf="col.type === 'status'" class="badge"
+                                            [ngClass]="getStatusClass(item, col)">
+                                            {{ formatCellValue(item, col) }}
+                                        </span>
+
+                                        <!-- Columna normal -->
+                                        <span *ngIf="col.type !== 'status' && col.type !== 'badge' && 
+                                                     col.type !== 'image' && col.key !== 'color'">
+                                            {{ formatCellValue(item, col) }}
+                                        </span>
+                                    </td>
+
+                                    <!-- Acciones -->
+                                    <td *ngIf="currentConfig.showActions" class="acciones-cell">
+                                        <div class="acciones-container">
+                                            <button *ngIf="currentConfig.actions?.view" class="btn-accion btn-ver"
+                                                (click)="onView(getId(item, tab))" title="Ver detalles">
+                                                👁️
+                                            </button>
+
+                                            <button *ngIf="currentConfig.actions?.edit" class="btn-accion btn-editar"
+                                                (click)="onEdit(getId(item, tab), tab)" title="Editar">
+                                                ✏️ Editar
+                                            </button>
+
+                                            <button *ngIf="currentConfig.actions?.delete"
+                                                class="btn-accion btn-eliminar" (click)="onDelete(item)"
+                                                title="Eliminar">
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Estado vacío -->
+                                <tr *ngIf="paginatedData.length === 0">
+                                    <td [attr.colspan]="currentConfig.columns.length + (currentConfig.showActions ? 1 : 0)"
+                                        class="empty-state">
+                                        {{ searchTerm ? 'No se encontraron resultados' : 'No hay datos disponibles' }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginación -->
+                    <div class="paginacion" *ngIf="filteredData.length > 0">
+                        <div class="info-paginacion">
+                            Mostrando {{ showingFrom }} a {{ showingTo }} de {{ filteredData.length }} registros
+                        </div>
+
+                        <div class="controles-paginacion">
+                            <button class="btn-pagina" (click)="goToPage(currentPage - 1)"
+                                [disabled]="currentPage === 1">
+                                ← Anterior
+                            </button>
+
+                            <div class="numeros-pagina">
+                                <button *ngFor="let page of pageNumbers" class="btn-numero"
+                                    [class.active]="page === currentPage" (click)="goToPage(page)">
+                                    {{ page }}
+                                </button>
+                            </div>
+
+                            <button class="btn-pagina" (click)="goToPage(currentPage + 1)"
+                                [disabled]="currentPage === totalPages">
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -3,20 +3,20 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
-import { EmpleadosService, Empleado, Puesto, Uniforme } from '../../services/administrador/empleados';
+import { EmpleadosService, Empleado, Puesto, Uniforme } from '../../../../services/administrador/empleados';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { Telefononumeros } from "../../directives/inputs_usuario/telefononumeros";
-import { CorreoDirective } from "../../directives/inputs_usuario/correousuario";
+import { Telefononumeros } from "../../../../directives/inputs_usuario/telefononumeros";
+import { CorreoDirective } from "../../../../directives/inputs_usuario/correousuario";
 
 @Component({
-  selector: 'app-temporald',
-  standalone: true,
+
+  selector: 'app-agregar-empleado',
   imports: [CommonModule, ReactiveFormsModule, FormsModule, Telefononumeros, CorreoDirective],
-  templateUrl: './temporal.html',
-  styleUrls: ['./temporal.css'],
+  templateUrl: './agregar-empleado.html',
+  styleUrl: './agregar-empleado.css',
 })
-export class Temporald implements OnInit, OnDestroy {
+export class AgregarEmpleado implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   form!: FormGroup;

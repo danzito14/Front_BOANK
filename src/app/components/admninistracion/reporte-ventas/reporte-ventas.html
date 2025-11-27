@@ -1,1 +1,255 @@
-<p>reporte-ventas works!</p>
+<!-- temporal.html -->
+<div class="container">
+    <div class="main-content">
+        <div class="reportes_ventas">
+            <!-- Tabs -->
+            <div class="tabs-fechas">
+                <div class="tab" [class.active]="tab === 'hoy'" (click)="tab = 'hoy'; cargar_datos('hoy')">
+                    Hoy
+                </div>
+                <div class="tab" [class.active]="tab === 'semana'" (click)="tab = 'semana'; cargar_datos('semana')">
+                    Esta Semana
+                </div>
+                <div class="tab" [class.active]="tab === 'mes'" (click)="tab = 'mes'; cargar_datos('mes')">
+                    Este mes
+                </div>
+                <div class="tab" [class.active]="tab === 'fecha'" (click)="tab = 'fecha'">
+                    Seleccionar fecha
+                </div>
+            </div>
+
+            <!-- Panel de Selección de Fechas -->
+            <div class="fecha-selector" *ngIf="tab === 'fecha'">
+                <div class="fecha-inputs">
+                    <div class="input-group">
+                        <label for="fecha-inicio">Fecha Inicio</label>
+                        <input type="date" id="fecha-inicio" [(ngModel)]="fechaInicio" [max]="fechaFin || fechaMaxima"
+                            class="date-input">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="fecha-fin">Fecha Fin</label>
+                        <input type="date" id="fecha-fin" [(ngModel)]="fechaFin" [min]="fechaInicio" [max]="fechaMaxima"
+                            class="date-input">
+                    </div>
+
+                    <button class="btn-consultar" (click)="cargar_datos_por_fecha()"
+                        [disabled]="!fechaInicio || !fechaFin">
+                        Consultar
+                    </button>
+
+                    <button class="btn-limpiar" (click)="limpiar_fechas()">
+                        Limpiar
+                    </button>
+                </div>
+
+                <div class="fecha-info" *ngIf="fechaInicio && fechaFin">
+                    <p>
+                        Consultando del
+                        <strong>{{ formatearFechaLegible(fechaInicio) }}</strong>
+                        al
+                        <strong>{{ formatearFechaLegible(fechaFin) }}</strong>
+                        ({{ calcularDiasRango() }} días)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Cards de Resumen Principal -->
+            <div class="reporte">
+                <div class="reporte_platillos">
+                    <div class="platos-preparados">
+                        <h3>Platillos Preparados</h3>
+                        <h1>{{ animPrep }}</h1>
+                    </div>
+                    <div class="platos-cancelados">
+                        <h3>Platillos Cancelados</h3>
+                        <h1>{{ animCanc }}</h1>
+                    </div>
+                    <div class="total-platillos">
+                        <h3>Total de platillos</h3>
+                        <h1>{{ animTot }}</h1>
+                    </div>
+                </div>
+
+                <div class="reporte_ganancias">
+                    <div class="ingresos-estimados">
+                        <h3>Ingresos estimados:</h3>
+                        <h1>${{ animIng | number:'1.2-2' }}</h1>
+                    </div>
+                    <div class="egresos-estimados">
+                        <h3>Egresos estimados:</h3>
+                        <h1>${{ animEgr | number:'1.2-2' }}</h1>
+                    </div>
+                    <div class="ganancia-estimada">
+                        <h3>Ganancia estimada:</h3>
+                        <h1>${{ animGan | number:'1.2-2' }}</h1>
+                        <p class="margen" *ngIf="animNum?.margen_ganancia">
+                            Margen: {{ animNum?.margen_ganancia }}%
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nuevas Métricas - Fila 2 -->
+            <div class="reporte">
+                <div class="reporte_metricas">
+                    <div class="metrica-card ticket-promedio">
+                        <h3>Ticket Promedio</h3>
+                        <h1>${{ animTicket | number:'1.2-2' }}</h1>
+                        <p class="descripcion">Por pedido completado</p>
+                    </div>
+
+                    <div class="metrica-card tasa-cancelacion">
+                        <h3>Tasa de Cancelación</h3>
+                        <h1>{{ animTasaCanc | number:'1.1-1' }}%</h1>
+                        <p class="descripcion">{{ animPedidosCanc }} de {{ animPedidosTotal }} pedidos</p>
+                    </div>
+
+                    <div class="metrica-card platillos-pedido">
+                        <h3>Platillos por Pedido</h3>
+                        <h1>{{ animPlatPedido | number:'1.1-1' }}</h1>
+                        <p class="descripcion">Promedio de items</p>
+                    </div>
+                </div>
+
+                <div class="reporte_metricas">
+                    <div class="metrica-card perdidas">
+                        <h3>Pérdidas por Cancelación</h3>
+                        <h1>${{ animPerd | number:'1.2-2' }}</h1>
+                        <p class="descripcion">Costos de platillos cancelados</p>
+                    </div>
+
+                    <div class="metrica-card pedidos-completados">
+                        <h3>Pedidos Completados</h3>
+                        <h1>{{ animPedidosComp }}</h1>
+                        <p class="descripcion">De {{ animPedidosTotal }} totales</p>
+                    </div>
+
+                    <div class="metrica-card platillo-rentable" *ngIf="platilloRentable">
+                        <h3>Más Rentable</h3>
+                        <h2>{{ platilloRentable.nombre }}</h2>
+                        <p class="descripcion">
+                            ${{ platilloRentable.ganancia_total | number:'1.2-2' }}
+                            ({{ platilloRentable.margen_porcentaje }}% margen)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de Gráficas -->
+            <div class="graficas-container" *ngIf="!isLoadingCharts && chartData">
+                <div class="grafica-card">
+                    <h3>Ventas por Período</h3>
+                    <div class="chart-wrapper">
+                        <canvas #chartVentas></canvas>
+                    </div>
+                </div>
+
+                <div class="grafica-card">
+                    <h3>Distribución de Platillos</h3>
+                    <div class="chart-wrapper">
+                        <canvas #chartDistribucion></canvas>
+                    </div>
+                </div>
+
+                <div class="grafica-card grafica-wide">
+                    <h3>Top Platillos Vendidos</h3>
+                    <div class="chart-wrapper">
+                        <canvas #chartPlatillos></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading para gráficas -->
+            <div class="loading" *ngIf="isLoadingCharts">
+                <div class="spinner"></div>
+                <p>Cargando gráficas...</p>
+            </div>
+
+            <!-- Tabla de Pedidos -->
+            <div class="tabla-pedidos">
+                <h3>Historial de Pedidos</h3>
+
+                <!-- Loading Spinner -->
+                <div class="loading" *ngIf="isLoadingPedidos">
+                    <div class="spinner"></div>
+                    <p>Cargando pedidos...</p>
+                </div>
+
+                <!-- Tabla -->
+                <div class="tabla-wrapper" *ngIf="!isLoadingPedidos">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID Pedido</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th class="text-center">Platillos</th>
+                                <th class="text-right">Total</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Tipo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let pedido of pedidos; let i = index" [class.row-even]="i % 2 === 0">
+                                <td class="font-medium">{{ pedido.id_pedido }}</td>
+                                <td>{{ formatearFecha(pedido.Fecha) }}</td>
+                                <td>{{ formatearHora(pedido.Fecha) }}</td>
+                                <td class="text-center">{{ pedido.total_platillos }}</td>
+                                <td class="text-right font-medium">
+                                    ${{ pedido.total | number:'1.2-2' }}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge" [style.background-color]="getEstadoColor(pedido.Estado) + '20'"
+                                        [style.color]="getEstadoColor(pedido.Estado)">
+                                        {{ pedido.Estado }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge"
+                                        [style.background-color]="getTipoColor(pedido.Tipo_pedido) + '20'"
+                                        [style.color]="getTipoColor(pedido.Tipo_pedido)">
+                                        {{ pedido.Tipo_pedido }}
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr *ngIf="pedidos.length === 0">
+                                <td colspan="7" class="text-center empty-state">
+                                    No hay pedidos para mostrar
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                <div class="paginacion" *ngIf="!isLoadingPedidos && pedidos.length > 0">
+                    <div class="info-paginacion">
+                        {{ getRangoMostrado() }}
+                    </div>
+
+                    <div class="controles-paginacion">
+                        <button class="btn-pagina" (click)="cambiarPagina(currentPage - 1)"
+                            [disabled]="currentPage === 1">
+                            Anterior
+                        </button>
+
+                        <div class="numeros-pagina">
+                            <button *ngFor="let pagina of getPaginasVisibles()" class="btn-numero"
+                                [class.active]="pagina === currentPage" (click)="cambiarPagina(pagina)">
+                                {{ pagina }}
+                            </button>
+                        </div>
+
+                        <button class="btn-pagina" (click)="cambiarPagina(currentPage + 1)"
+                            [disabled]="currentPage === totalPages">
+                            Siguiente
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -42,7 +42,6 @@ export interface AsignacionResponse {
 export class RepartidorService {
   private apiUrlserve = environment.apiUrl;
 
-  // private apiUrl = 'http://localhost:8000'; // Ajusta tu URL base
   private apiUrl = this.apiUrlserve; // Ajusta tu URL base
 
   constructor(private http: HttpClient) { }

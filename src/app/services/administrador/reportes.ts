@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environments';
 
 export interface ReporteInterface {
   platillos_preparados: number;
@@ -77,7 +78,9 @@ export interface PlatilloRentableInterface {
   providedIn: 'root'
 })
 export class Reportes {
-  private apiUrl = 'http://localhost:8000/reportes'; // Ajusta tu URL
+  private apiUrlserve = environment.apiUrl;
+
+  private apiUrl = `http://${this.apiUrlserve}/reportes`; // Ajusta tu URL
 
   constructor(private http: HttpClient) { }
 

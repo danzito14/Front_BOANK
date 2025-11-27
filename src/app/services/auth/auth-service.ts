@@ -10,7 +10,6 @@ export class AuthService {
   private apiUrlserve = environment.apiUrl;
 
   //creamos la url privada
-  // private apiUrl = 'http://localhost:8000/BoaNK/login';
   private apiUrl = `${this.apiUrlserve}/BoaNK/login`;
 
   //hacemos el constructor

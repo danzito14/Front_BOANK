@@ -1,0 +1,70 @@
+<div class="container">
+    <div class="main-content">
+        <div class="reportes_ventas">
+            <!-- Tab única -->
+            <div class="tabs-fechas">
+                <div class="tab active">
+                    Agregar Nuevo Uniforme
+                </div>
+            </div>
+
+            <!-- Loading spinner -->
+            <div *ngIf="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Guardando uniforme...</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="formulario" *ngIf="!loading">
+                <section>
+                    <form [formGroup]="form" class="form" (ngSubmit)="create_uniforme()">
+
+                        <div class="inputs">
+                            <h2>Datos del Uniforme</h2>
+
+                            <!-- Puesto -->
+                            <label for="puesto">
+                                Puesto <span class="required">*</span>
+                            </label>
+                            <select id="puesto" class="input-style select-style" formControlName="id_puesto">
+                                <option value="">Selecciona un puesto</option>
+                                <option *ngFor="let puesto of puestos" [value]="puesto.id_puesto">
+                                    {{ puesto.Nombre_puesto }}
+                                </option>
+                            </select>
+
+                            <!-- Talla -->
+                            <label for="talla" style="margin-top: 15px;">
+                                Talla <span class="required">*</span>
+                            </label>
+                            <select id="talla" class="input-style select-style" formControlName="Talla">
+                                <option value="">Selecciona una talla</option>
+                                <option *ngFor="let talla of tallas" [value]="talla">
+                                    {{ talla }}
+                                </option>
+                            </select>
+
+                            <!-- Descripción -->
+                            <label for="descripcion" style="margin-top: 15px;">
+                                Descripción <span class="required">*</span>
+                            </label>
+                            <textarea id="descripcion" class="input-style textarea-style" formControlName="Descripcion"
+                                rows="4"
+                                placeholder="Ej: Camisa blanca, pantalón negro, zapatos formales..."></textarea>
+
+                            <!-- Botones -->
+                            <div class="botones">
+                                <button type="button" class="buton-style btn-cancelar" (click)="regresar()">
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="buton-style" [disabled]="loading || form.invalid">
+                                    {{ loading ? 'Creando...' : 'Crear Uniforme' }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>

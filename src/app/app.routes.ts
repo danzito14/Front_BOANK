@@ -6,7 +6,7 @@ import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
 import { AuthCode } from './pages/auth-code/auth-code';
 import { AuthError } from './pages/auth-error/auth-error';
-import { Temporal } from './pages/temporal/temporal';
+import { Temporald } from './pages/temporal/temporal';
 import { Result } from './pages/result/result';
 import { DireccionPago } from './pages/direccion-pago/direccion-pago';
 import { General } from './pages/general/general';
@@ -56,5 +56,5 @@ export const routes: Routes = [
 
     //Admin
     { path: 'administracion', component: Administracion },
-    { path: 'temporal', component: Temporal }
+    { path: 'temporal', component: Temporald }
 ];

@@ -33,7 +33,6 @@ export interface ListaPlatoPendienteInterface {
 export class ObtenerListas {
   private apiUrlserve = environment.apiUrl;
 
-  // apiUrlListas = 'http://localhost:8000/pedido_gets'
   apiUrlListas = `${this.apiUrlserve}/pedido_gets`;
 
   constructor(private http: HttpClient) { }

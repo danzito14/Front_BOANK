@@ -1,0 +1,80 @@
+<div class="container">
+    <div class="main-content">
+        <div class="reportes_ventas">
+
+            <!-- Tab única -->
+            <div class="tabs-fechas">
+                <div class="tab active">
+                    Editar Puesto
+                </div>
+            </div>
+
+            <!-- Loading spinner -->
+            <div *ngIf="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Guardando puesto...</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="formulario" *ngIf="!loading">
+                <section>
+                    <form [formGroup]="form" class="form" (ngSubmit)="editar_usuario()">
+
+                        <div class="inputs">
+                            <h2>Datos del Puesto {{Puesto?.Nombre_puesto}}</h2>
+
+                            <!-- Nombre del puesto -->
+                            <label for="nombre">
+                                Nombre del Puesto <span class="required">*</span>
+                            </label>
+                            <input id="nombre" type="text" class="input-style" formControlName="Nombre_puesto" />
+
+                            <!-- Sueldo -->
+                            <label for="sueldo" style="margin-top: 15px;">
+                                Sueldo <span class="required">*</span>
+                            </label>
+                            <div id="input_sueldo">
+                                <label for="">$</label>
+                                <input id="sueldo" type="text" class="input-style" formControlName="Sueldo"
+                                    appSolonumerosDinero />
+                            </div>
+
+                            <!-- Rol -->
+                            <div class="estado">
+                                <label>Rol de usuario</label>
+                                <select class="input-style select-style" formControlName="id_nvl_usuario">
+                                    <option value="">Selecciona un rol de usuario</option>
+                                    <option *ngFor="let nvl of nvl_usuario" [value]="nvl.id_nvl_usuario">
+                                        {{ nvl.descripcion }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Estatus -->
+                            <div class="estado">
+                                <label>Estatus</label>
+                                <select class="input-style select-style" formControlName="estatus">
+                                    <option value="">Selecciona un estatus</option>
+                                    <option [value]="true">Activo</option>
+                                    <option [value]="false">Inactivo</option>
+                                </select>
+                            </div>
+
+                            <!-- Botones -->
+                            <div class="botones">
+                                <button type="button" class="buton-style btn-cancelar" (click)="regresar()">
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="buton-style" [disabled]="loading || form.invalid">
+                                    {{ loading ? 'Guardando...' : 'Guardar Cambios' }}
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+        </div>
+    </div>
+</div>

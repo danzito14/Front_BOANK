@@ -39,7 +39,6 @@ export class Header implements OnInit {
     if (!token) return;
 
 
-    // this.http.get('http://localhost:8000/user/get_user_id', {
     this.http.get(`${this.apiUrl}/user/get_user_id`, {
       headers: { 'Authorization': `Bearer ${token}` }
     }).subscribe({

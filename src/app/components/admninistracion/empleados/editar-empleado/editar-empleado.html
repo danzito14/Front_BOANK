@@ -1,29 +1,48 @@
 <div class="container">
+    <!-- <button class="btn-regresar" (click)="regresar()">
+        ← Regresar
+    </button> -->
+
     <div class="main-content">
         <div class="reportes_ventas">
-            <!-- Tab única -->
+            <!-- Tabs de secciones -->
             <div class="tabs-fechas">
-                <div class="tab active">
-                    Agregar Nuevo Empleado
+                <div class="tab" [class.active]="tab === 'datos_personales'" (click)="tab = 'datos_personales'">
+                    Datos Personales
                 </div>
+                <div class="tab" [class.active]="tab === 'direccion'" (click)="tab = 'direccion'">
+                    Dirección
+                </div>
+                <div class="tab" [class.active]="tab === 'datos_laborales'" (click)="tab = 'datos_laborales'">
+                    Datos Laborales
+                </div>
+            </div>
+
+            <!-- Información del empleado -->
+            <div class="tabs-fechas2" *ngIf="empleadoOriginal">
+                <div class="tab_nombre">
+                    {{ empleadoOriginal.Nombre }} {{ empleadoOriginal.Apellido }}
+                </div>
+                <button type="button" class="tab_cancelar" (click)="cancelar()">
+                    Cancelar
+                </button>
             </div>
 
             <!-- Loading spinner -->
             <div *ngIf="loading" class="loading">
                 <div class="spinner"></div>
-                <p>Guardando empleado...</p>
+                <p>Cargando datos...</p>
             </div>
 
             <!-- Formulario -->
             <div class="formulario" *ngIf="!loading">
                 <section>
-                    <form [formGroup]="form" class="form" (ngSubmit)="create_usuario()">
+                    <form [formGroup]="form" class="form" (ngSubmit)="guardarCambios()">
 
-                        <!-- DATOS PERSONALES -->
-                        <div class="inputs">
+                        <!-- ========== DATOS PERSONALES ========== -->
+                        <div *ngIf="tab === 'datos_personales'" class="inputs">
                             <h2>Datos Personales</h2>
-
-                            <!-- Sección de imagen de perfil -->
+                            <!-- SECCIÓN DE IMAGEN DE PERFIL -->
                             <div class="imagen-perfil-section">
                                 <h3>Foto de Perfil</h3>
 
@@ -41,31 +60,31 @@
                                     <!-- Controles -->
                                     <div class="imagen-controls">
                                         <input type="file" id="imagen-perfil" accept="image/*"
-                                            (change)="onImagenSeleccionada($event)" style="display: none;" />
+                                            (change)="onImagenSeleccionada($event)" [disabled]="subiendoImagen"
+                                            style="display: none;" />
                                         <label for="imagen-perfil" class="btn-seleccionar-imagen">
                                             📷 Seleccionar Imagen
                                         </label>
 
                                         <div class="imagen-actions" *ngIf="imagenSeleccionada">
+                                            <button type="button" class="btn-subir-imagen" (click)="subirImagen()"
+                                                [disabled]="subiendoImagen">
+                                                {{ subiendoImagen ? '⏳ Subiendo...' : '✓ Subir Imagen' }}
+                                            </button>
                                             <button type="button" class="btn-cancelar-imagen"
-                                                (click)="eliminarImagenSeleccionada()">
-                                                ✕ Quitar Imagen
+                                                (click)="eliminarImagenSeleccionada()" [disabled]="subiendoImagen">
+                                                ✕ Cancelar
                                             </button>
                                         </div>
 
                                         <p class="helper-text-imagen">
                                             Formatos: JPG, PNG, GIF (máx. 5MB)
-                                            <br>
-                                            <span *ngIf="imagenSeleccionada" style="color: #28a745; font-weight: 600;">
-                                                ✓ Imagen seleccionada: {{ imagenSeleccionada.name }}
-                                            </span>
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
                             <hr style="margin: 30px 0; border: none; border-top: 1px solid #e0e0e0;" />
-
                             <div class="nombre_y_apellido">
                                 <label for="nombre">
                                     Nombre(s) <span class="required">*</span>
@@ -108,7 +127,10 @@
                                     <h4>{{ getMensajeError('Num_telefonico') }}</h4>
                                 </div>
                             </div>
+                        </div>
 
+                        <!-- ========== DIRECCIÓN ========== -->
+                        <div *ngIf="tab === 'direccion'" class="inputs">
                             <h2>Dirección</h2>
 
                             <div class="calle">
@@ -157,7 +179,10 @@
                                     </option>
                                 </select>
                             </div>
+                        </div>
 
+                        <!-- ========== DATOS LABORALES ========== -->
+                        <div *ngIf="tab === 'datos_laborales'" class="inputs">
                             <h2>Datos Laborales</h2>
 
                             <div class="puesto">
@@ -185,7 +210,8 @@
                                         {{ uniformesFiltrados.length === 0 ? 'No hay uniformes disponibles' :
                                         'Selecciona un uniforme' }}
                                     </option>
-                                    <option *ngFor="let uniforme of uniformes" [value]="getUniformeId(uniforme)">
+                                    <option *ngFor="let uniforme of uniformesFiltrados"
+                                        [value]="getUniformeId(uniforme)">
                                         {{ uniforme.Descripcion }} - Talla {{ uniforme.Talla }}
                                     </option>
                                 </select>
@@ -210,15 +236,46 @@
                                     <h4>{{ getMensajeError('Fecha_de_contratacion') }}</h4>
                                 </div>
                             </div>
+
+                            <div class="estatus">
+                                <label for="estatus">
+                                    Estado del Empleado <span class="required">*</span>
+                                </label>
+                                <select id="estatus" class="input-style select-style" formControlName="estatus">
+                                    <option [value]='true'>Activo</option>
+                                    <option [value]='false'>Inactivo</option>
+                                </select>
+                            </div>
+
+                            <!-- Campos opcionales de despido -->
+                            <div *ngIf="form.get('estatus')?.value === 0" class="despido-section">
+                                <h4 style="margin-top: 20px; color: #773832;">Información de Despido</h4>
+
+                                <div class="fecha_despido">
+                                    <label for="fecha_despido">Fecha de Despido</label>
+                                    <input id="fecha_despido" type="date" class="input-style"
+                                        formControlName="Fecha_de_despido" />
+                                </div>
+
+                                <div class="razon_despido">
+                                    <label for="razon_despido">Razón del Despido</label>
+                                    <textarea id="razon_despido" class="input-style textarea-style"
+                                        formControlName="Razon_despido" rows="4"
+                                        placeholder="Describe la razón del despido..."></textarea>
+                                </div>
+
+                                <div class="fecha_recontratacion">
+                                    <label for="fecha_recontratacion">Fecha de Recontratación (si aplica)</label>
+                                    <input id="fecha_recontratacion" type="date" class="input-style"
+                                        formControlName="Fecha_de_recontratacion" />
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Botones -->
+                        <!-- Botón de guardar -->
                         <div class="botones">
-                            <button type="button" class="buton-style btn-cancelar" (click)="regresar()">
-                                Cancelar
-                            </button>
                             <button type="submit" class="buton-style" [disabled]="loading || form.invalid">
-                                {{ loading ? 'Creando...' : 'Crear Empleado' }}
+                                {{ loading ? 'Guardando...' : 'Guardar Cambios' }}
                             </button>
                         </div>
                     </form>

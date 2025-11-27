@@ -12,7 +12,6 @@ interface AsignarPlatoResponse {
   providedIn: 'root',
 })
 export class Cocina {
-  // private apiUrlCocina = 'http://localhost:8000/cocineros';
   private apiUrlserve = environment.apiUrl;
 
   private apiUrlCocina = `${this.apiUrlserve}/cocineros`;

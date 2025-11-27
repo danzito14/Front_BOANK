@@ -58,12 +58,6 @@ export interface PedidoEntregaInterface {
   providedIn: 'root',
 })
 export class PedidoService {
-  // la verdad dudo usar mas de una funcion de mesas aqui
-  // private apiUrlMesas = 'http://127.0.0.1:8000/mesas';
-  // private apiUrlUntilsEmpleados = 'http://127.0.0.1:8000/untils_empleados';
-  // private apiUrlPedidogets = 'http://localhost:8000/pedido_gets';
-
-  // private apiUrlPagar = 'http://localhost:8000/pagar';
   private apiUrlserve = environment.apiUrl;
 
 

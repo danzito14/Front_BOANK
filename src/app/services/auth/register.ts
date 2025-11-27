@@ -20,7 +20,6 @@ export interface InterfaceUsuario {
 export class RegisterService {
   private apiUrlserve = environment.apiUrl;
 
-  // private apiUrl = 'http://localhost:8000/user/create_user';
   private apiUrl = `${this.apiUrlserve}/user/create_user`;
 
   constructor(private http: HttpClient) { }
