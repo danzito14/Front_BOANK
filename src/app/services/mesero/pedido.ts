@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, of } from 'rxjs';
 import { AuthStoreService } from '../auth/auth-store';
-import { environment } from '../../../environments/environments';
+import { environment } from '../../../environments/environment';
 
 export interface MesasInterface {
   id_mesa: string;

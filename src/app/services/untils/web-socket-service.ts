@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { environment } from '../../../environments/environments';
+import { environment } from '../../../environments/environment';
 
 export interface WebSocketMessage {
   tipo: string;

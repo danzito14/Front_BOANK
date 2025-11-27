@@ -8,7 +8,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Telefononumeros } from '../../../../directives/inputs_usuario/telefononumeros';
 import { CorreoDirective } from '../../../../directives/inputs_usuario/correousuario';
-import { environment } from '../../../../../environments/environments';
+import { environment } from '../../../../../environments/environment';
 @Component({
   selector: 'app-editar-empleado',
   standalone: true,

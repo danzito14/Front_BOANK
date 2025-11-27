@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Producto } from './productos-service';
-import { environment } from '../../../environments/environments';
+import { environment } from '../../../environments/environment';
 
 export interface FavoritoInterface extends Producto {
   id_favorito: string;

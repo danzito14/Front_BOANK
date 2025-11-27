@@ -2,7 +2,7 @@ import { Component, OnInit, Output, EventEmitter, NgZone, ChangeDetectorRef } fr
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { environment } from '../../../environments/environments';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-header',

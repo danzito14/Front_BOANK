@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { AuthStoreService } from '../auth/auth-store';
-import { environment } from '../../../environments/environments';
+import { environment } from '../../../environments/environment';
 
 export interface CarritoInterface {
   id_carrito: string;
