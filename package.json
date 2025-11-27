@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --port 4200",
+    "start": "node server.js",
     "build": "ng build --configuration production",
+    "dev": "ng serve --port 4200",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:Front_BOANK": "node dist/Front_BOANK/server/server.mjs"
