@@ -174,3 +174,13 @@ section {
     border: #d6b45a solid 2px;
     color: #d6b45a;
 }
+
+@media screen and (max-width: 768px) {
+    .card {
+        min-width: 250px;
+    }
+
+    .old-price {
+        display: none;
+    }
+}

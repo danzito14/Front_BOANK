@@ -2,14 +2,22 @@
     <div class="card" *ngFor="let producto of productos$ | async">
         <input type="hidden" name="id_platillo" [id]="producto.id_platillo">
         <div class=" card-image">
-            <img [src]="producto.Ruta_imagen" [alt]="producto.Nombre_platillo" title="foto producto">
+            <img [src]="getImageUrl(producto.Ruta_imagen)" [alt]="producto.Nombre_platillo" title="foto producto">
             <div class="etiquetas">
                 <span [ngStyle]="{'background-color': get_color_tipo(producto)}" class="discount">
                     {{ get_color_Categoria(producto) }}
                 </span>
-                <span *ngIf="producto.En_oferta" [ngStyle]="{'background-color': '#0CAF03'}" class="discount">
-                    {{producto.Porcentaje_oferta}} % Descuento
-                </span>
+                <div [ngStyle]="{'background-color': get_color_tipo(producto)}" class="discount2">
+
+                </div>
+                <div *ngIf="producto.En_oferta" [ngStyle]="{'background-color': '#0CAF03'}" class="discount">
+                    <span id="porcentaje_d">
+                        {{producto.Porcentaje_oferta}} %
+                    </span>
+                    <span id="texto_d">
+                        Descuento
+                    </span>
+                </div>
             </div>
             <div class="icons" *ngIf="userview">
                 <button class="icon-btn" title="Carrito"
@@ -29,7 +37,7 @@
 
         <div class="card-content">
             <h2 class="card-title">{{ producto.Nombre_platillo }}</h2>
-            <p class="card-desc">{{ producto.Descripcion }}</p>
+            <p class="card-desc">{{ producto.Descripcion | slice:0:37}}...</p>
         </div>
 
         <div class="card_bottom">

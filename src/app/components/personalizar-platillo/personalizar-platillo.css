@@ -194,6 +194,21 @@ h3 {
     color: #0CAF03;
 }
 
+.titlulo {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+}
+
+.titlulo h2 {
+    border-bottom: #333 solid 1px;
+    padding-bottom: 5px;
+}
+
+
 @media (max-width: 768px) {
 
     .section {
@@ -201,6 +216,7 @@ h3 {
         flex-direction: column;
         max-width: 100%;
         min-width: 100%;
+        margin-top: 50px;
     }
 
     .platillo-options-container {
@@ -244,5 +260,11 @@ h3 {
         max-width: 100% !important;
         border-left: none;
         border-top: #d6b45a 3px solid;
+    }
+
+    .titlulo {
+        padding: 0;
+        width: 70%;
+        padding: 10px;
     }
 }

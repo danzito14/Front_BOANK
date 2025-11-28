@@ -30,19 +30,7 @@ body {
     padding: 10px;
 }
 
-/* Pantallas medianas */
-@media (max-width: 1024px) {
-    .grid-container {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
 
-/* Pantallas pequeñas */
-@media (max-width: 768px) {
-    .grid-container {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
 
 
 .grid-combos .card {
@@ -114,6 +102,13 @@ body {
     border-radius: 20px;
     font-size: 13px;
     font-weight: 600;
+}
+
+.discount2 {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: none;
 }
 
 .icons {
@@ -220,4 +215,55 @@ body {
     background: transparent;
     border: #d6b45a solid 2px;
     color: #d6b45a;
+}
+
+/* Pantallas medianas */
+@media (max-width: 1024px) {
+    .grid-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Pantallas pequeñas */
+@media (max-width: 768px) {
+    .card {
+        height: 280px;
+    }
+
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .etiquetas {
+        display: flex;
+        flex-direction: column-reverse;
+        width: 40%;
+        overflow: hidden;
+    }
+
+    #texto_d {
+        display: none;
+    }
+
+    .discount:first-of-type {
+        display: none;
+    }
+
+    .discount2 {
+        display: block;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .card-desc {
+        height: 15px;
+        overflow: hidden;
+    }
+
+    .card_bottom {
+        display: flex;
+        flex-direction: column;
+    }
 }

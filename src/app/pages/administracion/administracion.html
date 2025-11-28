@@ -88,9 +88,7 @@
         <div *ngSwitchCase="'puestos'">
             <app-editar-puesto [id_puesto]="id_seleccionado"></app-editar-puesto>
         </div>
-        <div *ngSwitchCase="'desarrollo'">
-            <app-editar-puesto [id_puesto]="1"></app-editar-puesto>
-        </div>
+
 
         <div *ngSwitchCase="'agregar_uniformes'">
             <app-agregar-uniforme
@@ -109,9 +107,31 @@
 
 
         <div *ngSwitchCase="'platillos_general'">
-            <app-platillos-general></app-platillos-general>
+            <app-platillos-general (id_item_seleccionado)="recibir_id($event)" (destino)="cambiar_div($event)"
+                [tab]="tab_destino_platillos"></app-platillos-general>
         </div>
 
+        <div *ngSwitchCase="'agregar_platillos'">
+            <app-agregar-platillo (volver)="cambiar_div('platillos_general')"></app-agregar-platillo>
+
+        </div>
+
+        <div *ngSwitchCase="'platillos'">
+            <app-editar-platillo [id_platillo]="id_seleccionado"
+                (volver)="cambiar_div('platillos_general')"></app-editar-platillo>
+        </div>
+
+
+        <div *ngSwitchCase="'agregar_tipos'">
+            <app-agregar-tipo-platillo
+                (volver)="cambiar_div('platillos_general'); recibir_tab_platillo('tipos')"></app-agregar-tipo-platillo>
+
+        </div>
+
+        <div *ngSwitchCase="'tipos'">
+            <app-editar-tipo-platillo [id_tipo_platillo]="id_seleccionado"
+                (volver)="cambiar_div('platillos_general'); recibir_tab_platillo('tipos')"></app-editar-tipo-platillo>
+        </div>
         <!-- 
         #######################################################################################
             Default
@@ -121,6 +141,9 @@
             <h2>Me lleva la verga como para andar con tus mamadas
                 al chile ya porfa, neta, neta we jala bien, al chile porfga, en fin, aaa, neta?
             </h2>
+        </div>
+        <div *ngSwitchCase="'desarrollo'">
+
         </div>
 
     </main>

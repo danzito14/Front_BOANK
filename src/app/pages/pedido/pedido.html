@@ -67,8 +67,11 @@
                         </div>
                     </div>
                     <div class="button_cancelar">
-                        <button type="button" title="Cancelar"
-                            (click)="cancelar_pedido_entrega(plato.id_detalle, pedido.id_pedido, plato.nombre_platillo)">Cancelar</button>
+                        <button type="button" title="Cancelar" class="cancelar"
+                            (click)="cancelar_pedido_entrega(plato.id_detalle, pedido.id_pedido, plato.nombre_platillo)">Cancelar</button><button
+                            type="button" title="Cancelar2" class="cancelar2"
+                            (click)="cancelar_todo_pedido_entrega(pedido.id_pedido, pedido.nombre_completo)"><i
+                                class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
 
@@ -77,8 +80,12 @@
                         <h4>Cancelar todo el pedido</h4>
                     </div>
                     <div class="button_cancelar">
-                        <button type="button" title="Cancelar"
+                        <button type="button" title="Cancelar" class="cancelar"
                             (click)="cancelar_todo_pedido_entrega(pedido.id_pedido, pedido.nombre_completo)">Cancelar</button>
+
+                        <button type="button" title="Cancelar2" class="cancelar2"
+                            (click)="cancelar_todo_pedido_entrega(pedido.id_pedido, pedido.nombre_completo)"><i
+                                class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             </div>

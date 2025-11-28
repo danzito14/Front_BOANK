@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth/auth-service';
 import { AuthStoreService } from '../../services/auth/auth-store';
 import { Cocina } from '../../services/untils/cocina';
 import { RepartidorService } from '../../services/repartidor/repartidor';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
@@ -56,7 +57,14 @@ export class Login {
       },
       error: (error) => {
         console.error('Error al iniciar sesión', error);
-        alert('Usuario o contraseña incorrectos');
+        Swal.fire({
+          title: 'Error',
+          text: 'Usuario o contraseña incorrectos',
+          icon: "error",
+          iconColor: "#773832",
+          confirmButtonColor: "#D0AF43",
+          confirmButtonText: 'Ok'
+        });
       }
     });
   }

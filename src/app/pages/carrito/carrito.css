@@ -173,3 +173,22 @@ section {
     transform: scale(1.05);
     color: white;
 }
+
+/* Pantallas pequeñas */
+@media screen and (max-width: 768px) {
+    .cuerpo {
+        flex-direction: column !important;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .tarjetas-productos {
+        width: 90%;
+        border: none;
+        border-bottom: #D0AF43 solid 5px;
+    }
+
+    .total-carrito {
+        width: 90%;
+    }
+}

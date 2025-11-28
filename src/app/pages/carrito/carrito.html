@@ -5,7 +5,7 @@
             <div class="header-pedido">
                 <h1>Carrito</h1>
 
-                <h3>Mesa seleccionada: {{nombre_mesa}}</h3>
+                <h3 *ngIf="nvl_usu !== '1' ">Mesa seleccionada: {{nombre_mesa}}</h3>
                 <div *ngIf="id_pedido">
                     <h3>Pedido: {{id_pedido}}</h3>
                 </div>

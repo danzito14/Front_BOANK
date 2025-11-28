@@ -2,7 +2,7 @@
     <div class="card" *ngFor="let producto of combos$ | async">
         <input type="hidden" name="id_platillo" [id]="producto.id_combo">
         <div class=" card-image">
-            <img [src]="producto.Ruta_imagen" [alt]="producto.Nombre_combo" title="foto producto">
+            <img [src]="getImageUrl(producto.Ruta_imagen)" [alt]="producto.Nombre_combo" title="foto producto">
             <span class="discount">
                 Combo </span>
 

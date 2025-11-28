@@ -132,6 +132,28 @@ export class PersonalizarPlatillo implements OnChanges, OnDestroy {
   }
 
 
+  getImageUrl(rutaImagen: string): string {
+
+    const defaultImg = 'profiles/maquin_de_apoyo.jpeg';
+    // Si no viene nada
+    if (!rutaImagen) return defaultImg;
+
+    // Si ya es una URL completa
+    const url = rutaImagen.startsWith('http')
+      ? rutaImagen
+      : `${this.productoService['apiUrlserve']}/${rutaImagen}`;
+
+    // Verificar si la imagen existe cargándola en memoria
+    const img = new Image();
+    img.src = url;
+
+    // Si falla, devuelve default
+    img.onerror = () => img.src = defaultImg;
+
+    return img.src;
+  }
+
+
   regresar() {
     window.history.back();
   }

@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
 export interface Platillo {
   __id_platillo__?: string;
   id_platillo?: string;
-  id_tipo_platillo?: string;
+  id_tipo_platillo?: number;
   Nombre_platillo: string;
   Ruta_imagen?: string;
   precio_produccion: number;
@@ -84,6 +84,25 @@ export class PlatillosService {
     );
   }
 
+
+  getPlatilloByIdADIM(id: string): Observable<Platillo> {
+    return this.http.get<any>(`${this.API_BASE}/platillo/get_platillo_id_adm`, {
+      params: { id }
+    }).pipe(
+      map(response => {
+        if (Array.isArray(response) && response.length > 0) {
+          return response[0]._mapping || response[0];
+        }
+        if (response._mapping) {
+          return response._mapping;
+        }
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+
   /**
    * Busca platillos por nombre
    */
@@ -136,7 +155,7 @@ export class PlatillosService {
    * Actualiza un platillo existente
    */
   updatePlatillo(id: string, platillo: Partial<Platillo>): Observable<any> {
-    return this.http.put(`${this.API_BASE}/platillo/update_platillo/${id}`, platillo).pipe(
+    return this.http.put(`${this.API_BASE}/platillo/update_platillo`, { id, platillo }).pipe(
       catchError(this.handleError)
     );
   }
@@ -339,4 +358,90 @@ export class PlatillosService {
     const mins = minutos % 60;
     return mins > 0 ? `${horas}h ${mins}min` : `${horas}h`;
   }
+
+
+  // Agregar estos métodos al PlatillosService existente
+
+  // ============================================
+  // GESTIÓN DE IMÁGENES
+  // ============================================
+
+  /**
+   * Sube una imagen para un platillo
+   */
+  uploadImagenPlatillo(formData: FormData): Observable<any> {
+    return this.http.post(`${this.API_BASE}/platillo/upload_image`, formData).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Obtiene la URL de una imagen de platillo
+   */
+  getImagenUrl(filename: string): string {
+    return `${this.API_BASE}/platillo/image/${filename}`;
+  }
+
+  /**
+   * Elimina una imagen de platillo
+   */
+  deleteImagenPlatillo(filename: string): Observable<any> {
+    return this.http.delete(`${this.API_BASE}/platillo/delete_image/${filename}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Actualiza la imagen de un platillo existente
+   */
+  updateImagenPlatillo(idPlatillo: string, formData: FormData): Observable<any> {
+    return this.http.put(`${this.API_BASE}/platillo/update_image/${idPlatillo}`, formData).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Extrae el nombre del archivo de una ruta
+   */
+  extractFilenameFromPath(rutaImagen: string): string {
+    if (!rutaImagen) return '';
+    return rutaImagen.split('/').pop() || '';
+  }
+
+  // ==============================
+  // ÍCONOS DE TIPO DE PLATILLO
+  // ==============================
+
+  /**
+   * Sube el ícono de un tipo de platillo
+   */
+  uploadIconTipoPlatillo(idTipo: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post(
+      `${this.API_BASE}/tipo_platillos/upload_icon/${idTipo}`,
+      formData
+    );
+  }
+  updateIconTipoPlatillo(idTipo: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return this.http.put(
+      `${this.API_BASE}/tipo_platillos/update_icon/${idTipo}`,
+      formData
+    ).pipe(catchError(this.handleError));
+  }
+
+  deleteIconTipoPlatillo(filename: string): Observable<any> {
+    return this.http.delete(
+      `${this.API_BASE}/tipo_platillos/delete_icon/${filename}`
+    ).pipe(catchError(this.handleError));
+  }
+
+  getIconTipoPlatilloUrl(filename: string): string {
+    return `${this.API_BASE}/tipo_platillos/icon/${filename}`;
+  }
+
 }

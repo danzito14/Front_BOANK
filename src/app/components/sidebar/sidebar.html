@@ -21,7 +21,7 @@
                     <div>
                         <button type="button" class="button-style"
                             (click)="filtrarCategoria(filtro.id_tipo_platillo, filtro.descripcion)">
-                            <img [src]="filtro.ruta_icono" alt="">
+                            <img [src]="getImageUrl(filtro.ruta_icono)" alt="">
                             <h4>{{filtro.descripcion}}</h4>
                         </button>
 

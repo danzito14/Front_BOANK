@@ -8,6 +8,7 @@ import { WebSocketService, WebSocketMessage } from '../../../services/untils/web
 import { ListaPlatoPendienteInterface, ObtenerListas } from '../../../services/untils/obtener-listas';
 import { Cocina } from '../../../services/untils/cocina';
 import { PedidoService } from '../../../services/mesero/pedido';
+import { ProductosService } from '../../../services/home/productos-service';
 
 @Component({
   selector: 'app-temporal',
@@ -34,7 +35,8 @@ export class EstacionTrabajo implements OnInit, OnDestroy {
     private meseroService: PedidoService,
     public webSocketService: WebSocketService,
     private zone: NgZone,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private productosServices: ProductosService
 
   ) { }
 
@@ -442,5 +444,26 @@ export class EstacionTrabajo implements OnInit, OnDestroy {
         this.cd.detectChanges();
       });
     });
+  }
+
+  getImageUrl(rutaImagen: string): string {
+
+    const defaultImg = 'profiles/maquin_de_apoyo.jpeg';
+    // Si no viene nada
+    if (!rutaImagen) return defaultImg;
+
+    // Si ya es una URL completa
+    const url = rutaImagen.startsWith('http')
+      ? rutaImagen
+      : `${this.productosServices['apiUrlserve']}/${rutaImagen}`;
+
+    // Verificar si la imagen existe cargándola en memoria
+    const img = new Image();
+    img.src = url;
+
+    // Si falla, devuelve default
+    img.onerror = () => img.src = defaultImg;
+
+    return img.src;
   }
 }

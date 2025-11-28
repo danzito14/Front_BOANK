@@ -7,7 +7,7 @@
         <div class="section" *ngFor="let producto of resultados$ | async">
             <div class="platillo-tarjeta">
                 <div class="imagen">
-                    <img [src]="producto.Ruta_imagen" alt="">
+                    <img [src]="getImageUrl(producto.Ruta_imagen)" alt="">
                     <div class="etiquetas">
                         <span [ngStyle]="{'background-color': producto.color}">
                             {{ producto.descripcion }}
@@ -19,6 +19,8 @@
                 </div>
                 <div class="titlulo">
                     <h2>{{ producto.Nombre_platillo }}</h2>
+                    <h3>{{producto.Descripcion}}</h3>
+
                 </div>
             </div>
 
@@ -64,5 +66,7 @@
                 </div>
             </div>
         </div>
+
+
     </section>
 </main>

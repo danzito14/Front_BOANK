@@ -115,6 +115,10 @@ h1 {
 
 }
 
+.cancelar2 {
+    display: none;
+}
+
 .button_cancelar button {
     width: 100%;
     height: 100%;
@@ -170,4 +174,24 @@ h1 {
     border-bottom-right-radius: 0px;
     border-bottom: none;
 
+}
+
+@media screen and (max-width: 768px) {
+    section {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+
+    .lista_pedidos_mesa {
+        width: 100%;
+    }
+
+    .cancelar {
+        display: none;
+    }
+
+    .cancelar2 {
+        display: block;
+    }
 }

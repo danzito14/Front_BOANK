@@ -68,5 +68,27 @@ export class TarjetaCombos implements OnInit, OnChanges, OnDestroy {
     });
   }
 
+  getImageUrl(rutaImagen: string): string {
+
+    const defaultImg = 'profiles/maquin_de_apoyo.jpeg';
+    // Si no viene nada
+    if (!rutaImagen) return defaultImg;
+
+    // Si ya es una URL completa
+    const url = rutaImagen.startsWith('http')
+      ? rutaImagen
+      : `${this.productosService['apiUrlserve']}/${rutaImagen}`;
+
+    // Verificar si la imagen existe cargándola en memoria
+    const img = new Image();
+    img.src = url;
+    console.log(`${this.productosService['apiUrlserve']}/${rutaImagen}`);
+    // Si falla, devuelve default
+    img.onerror = () => img.src = defaultImg;
+
+    return img.src;
+  }
+
+
 
 }

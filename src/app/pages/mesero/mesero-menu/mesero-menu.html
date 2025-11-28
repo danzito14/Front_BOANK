@@ -2,45 +2,43 @@
     <section>
         <div class="header-pedido">
             <button class="btn-regresar" type="button" (click)="regresar()">← Volver</button>
-
             <h3>Mesa seleccionada: {{nombre_mesa}}</h3>
             <div *ngIf="id_pedido">
                 <h3>Pedido: {{id_pedido}}</h3>
             </div>
-
         </div>
+
         <div class="filtros-header">
-            <!-- Contenedor de filtros -->
-            <div>
+            <!-- Botón Home -->
+            <div class="home_option">
                 <button type="button" class="button-style" (click)="buscar_filtro('inicio')">
                     <img src="icons/icons-sidebar/Home.svg" alt="Inicio" />
                     <h4>Inicio</h4>
                 </button>
             </div>
+
+            <!-- Filtros dinámicos de categorías -->
             <div class="filtros-class">
-                <button *ngFor="let filtro of categoria" type="button" class="button-style"
+                <button *ngFor="let filtro of categoria" type="button" class="button-style-filtro"
                     (click)="filtrarCategoria(filtro.id_tipo_platillo, filtro.descripcion); buscar_filtro('normal')">
-                    <img [src]="filtro.ruta_icono" alt="" />
+                    <img [src]="getImageUrl(filtro.ruta_icono)" [alt]="filtro.descripcion" alt="" />
                     <h4>{{ filtro.descripcion }}</h4>
                 </button>
             </div>
 
-            <!-- Contenedor de otros botones -->
+            <!-- Botones adicionales (Combos, Ofertas) -->
             <div class="Others">
-                <a (click)="buscar_filtro('combo')" id="Combos-option" title="Combos-page" class="button-style">
+                <button type="button" (click)="buscar_filtro('combo')" class="button-style" title="Combos">
                     <img src="icons/icons-sidebar/Gift.svg" alt="Combos">
                     <h4>Combos</h4>
-                </a>
-                <a (click)="buscar_filtro('oferta')" id="Ofertas-option" class="button-style" title="Ofertas-page">
-                    <img src="icons/icons-sidebar/Tag.svg" alt="Ofertas-page">
+                </button>
+                <button type="button" (click)="buscar_filtro('oferta')" class="button-style" title="Ofertas">
+                    <img src="icons/icons-sidebar/Tag.svg" alt="Ofertas">
                     <h4>Ofertas</h4>
-                </a>
-                <!-- <a href="/recomendaciones" id="Recomendacion-option" class="button-style" title="Recomendacion-option">
-                    <img src="icons/icons-sidebar/star_filled.svg" alt="">
-                    <h4>Recomendaciones</h4>
-                </a> -->
+                </button>
             </div>
         </div>
+
         <div class="productos" [ngSwitch]="filtro_especial">
             <h1>Nuestros platillos</h1>
             <div *ngSwitchCase="'normal'">

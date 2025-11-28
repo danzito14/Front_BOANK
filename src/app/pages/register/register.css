@@ -158,3 +158,14 @@ main {
     font-size: 20px;
     font-weight: 200;
 }
+
+@media screen and (max-width: 768px) {
+    .img_cont {
+        display: none;
+    }
+
+    .formulario-cont {
+        width: 80%;
+        height: 100vh;
+    }
+}

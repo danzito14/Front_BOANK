@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { RegisterService } from '../../services/auth/register';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-register',
@@ -48,7 +49,14 @@ export class Register {
       },
       error: (error) => {
         console.error('Error al registrar', error);
-        alert('Error al intentar registrar');
+        Swal.fire({
+          title: 'Error al intentar registrarse',
+          text: error.error.detail,
+          icon: "error",
+          iconColor: "#773832",
+          confirmButtonColor: "#D0AF43",
+          confirmButtonText: 'Ok'
+        })
       }
     });
   }

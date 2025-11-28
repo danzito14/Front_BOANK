@@ -9,16 +9,36 @@ import { Pedido } from "../pedido/pedido";
 import { TarjetasYDireccion } from "../../components/usuario/tarjetas-y-direccion/tarjetas-y-direccion";
 import { Direccion } from "../../components/direccion-pago/direccion/direccion";
 import { Tarjeta } from "../../components/direccion-pago/tarjeta/tarjeta";
+import { animate, state, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector: 'app-user',
   imports: [CommonModule, EditarInfoPersonal, Result, Pedido, TarjetasYDireccion, Direccion, Tarjeta],
   templateUrl: './user.html',
   styleUrl: './user.css',
+  animations: [
+    trigger('slideToggle', [
+      state('closed', style({
+        height: '0px',
+        opacity: 0,
+        overflow: 'hidden',
+        padding: '0'
+      })),
+      state('open', style({
+        height: '*',
+        opacity: 1,
+        overflow: 'hidden',
+        padding: '*'
+      })),
+      transition('closed <=> open', animate('250ms ease-in-out'))
+    ])
+  ]
 })
 export class User implements OnInit {
   cargado = false;
   accion = "main";
+
+  menuOpen = false;
   // Datos del usuario
   usuarios_data: UsuarioInterface | null = null;
   nvl_usuario = "";
@@ -35,7 +55,16 @@ export class User implements OnInit {
   ngOnInit(): void {
     this.cargar_datos_usuario();
 
+  } // inicia abierto
+
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
   }
+
+  cerrarmenu() {
+    this.menuOpen = false;
+  }
+
 
 
   cambiar_div(accion: string) {

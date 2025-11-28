@@ -9,6 +9,7 @@ import { UntilsPedido } from '../../../services/untils/untils-pedido';
 import { CarritoService } from '../../../services/carrito/carrito';
 import { ListaPlatoPendienteInterface, ObtenerListas } from '../../../services/untils/obtener-listas';
 import { WebSocketService, WebSocketMessage } from '../../../services/untils/web-socket-service';
+import { ProductosService } from '../../../services/home/productos-service';
 
 @Component({
   selector: 'app-mesero-inicio',
@@ -44,7 +45,9 @@ export class MeseroInicio implements OnInit, OnDestroy {
     private untils_pedido: UntilsPedido,
     private carritoService: CarritoService,
     private listasservice: ObtenerListas,
-    public wsService: WebSocketService
+    public wsService: WebSocketService,
+    private productoService: ProductosService
+
   ) { }
 
   ngOnInit(): void {
@@ -342,4 +345,28 @@ export class MeseroInicio implements OnInit, OnDestroy {
       error: (err) => console.error('Error al actualizar estado del platillo:', err),
     });
   }
+
+
+
+  getImageUrl(rutaImagen: string): string {
+
+    const defaultImg = 'profiles/maquin_de_apoyo.jpeg';
+    // Si no viene nada
+    if (!rutaImagen) return defaultImg;
+
+    // Si ya es una URL completa
+    const url = rutaImagen.startsWith('http')
+      ? rutaImagen
+      : `${this.productoService['apiUrlserve']}/${rutaImagen}`;
+
+    // Verificar si la imagen existe cargándola en memoria
+    const img = new Image();
+    img.src = url;
+
+    // Si falla, devuelve default
+    img.onerror = () => img.src = defaultImg;
+
+    return img.src;
+  }
+
 }

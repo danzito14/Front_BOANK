@@ -1,0 +1,151 @@
+<div class="container">
+    <div class="main-content">
+        <div class="reportes_ventas">
+            <!-- Tab única -->
+            <div class="tabs-fechas">
+                <div class="tab active">
+                    Agregar Nuevo Tipo de Platillo
+                </div>
+            </div>
+
+            <!-- Loading spinner -->
+            <div *ngIf="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Guardando tipo de platillo...</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="formulario" *ngIf="!loading">
+                <section>
+                    <form [formGroup]="form" class="form" (ngSubmit)="create_tipo_platillo()">
+
+                        <div class="inputs">
+                            <h2>Información del Tipo</h2>
+
+                            <!-- Previsualización del tipo -->
+                            <div class="preview-tipo">
+                                <h3>Vista Previa</h3>
+                                <div class="preview-card" [style.border-color]="getColorFinal()">
+                                    <div class="preview-icon" [style.background]="getColorFinal()">
+                                        <img *ngIf="previsualizacionIcono" [src]="previsualizacionIcono" alt="Ícono"
+                                            class="icono-preview-img" />
+                                        <span *ngIf="!previsualizacionIcono" class="preview-iniciales">
+                                            {{ getInicialesTipo() }}
+                                        </span>
+                                    </div>
+                                    <span class="preview-nombre">
+                                        {{ form.get('descripcion')?.value || 'Nombre del tipo' }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <hr style="margin: 30px 0; border: none; border-top: 1px solid #e0e0e0;" />
+
+                            <!-- Descripción -->
+                            <div class="descripcion">
+                                <label for="descripcion">
+                                    Descripción <span class="required">*</span>
+                                </label>
+                                <input id="descripcion" type="text" class="input-style" formControlName="descripcion"
+                                    placeholder="Ej: Entradas, Platos Fuertes, Postres"
+                                    [class.input-error]="esCampoInvalido('descripcion')" />
+                                <div class="error" *ngIf="esCampoInvalido('descripcion')">
+                                    <h4>{{ getMensajeError('descripcion') }}</h4>
+                                </div>
+                            </div>
+
+                            <!-- Selector de color -->
+                            <div class="selector-color">
+                                <label>Color del Tipo <span class="required">*</span></label>
+                                <p class="helper-text" style="margin-bottom: 15px;">
+                                    Selecciona un color de la paleta o elige uno personalizado
+                                </p>
+
+                                <!-- Paleta de colores predefinidos -->
+                                <div class="colores-grid">
+                                    <div *ngFor="let color of coloresDisponibles" class="color-option"
+                                        [class.color-seleccionado]="colorSeleccionado === color && !usarColorPersonalizado"
+                                        [style.background]="color" (click)="seleccionarColor(color)" [title]="color">
+                                        <span *ngIf="colorSeleccionado === color && !usarColorPersonalizado"
+                                            class="check-icon">✓</span>
+                                    </div>
+                                </div>
+
+                                <!-- Selector de color personalizado -->
+                                <div class="color-personalizado">
+                                    <label for="color-picker" class="label-color-personalizado">
+                                        🎨 Color Personalizado:
+                                    </label>
+                                    <div class="color-picker-wrapper">
+                                        <input type="color" id="color-picker" [value]="colorPersonalizado"
+                                            (input)="onColorPersonalizadoChange($event)" class="input-color-picker" />
+                                        <input type="text" [value]="colorPersonalizado"
+                                            (input)="onColorHexInput($event)" placeholder="#FF6B6B" maxlength="7"
+                                            class="input-color-hex" />
+                                        <button type="button" class="btn-aplicar-personalizado"
+                                            (click)="aplicarColorPersonalizado()"
+                                            [disabled]="!esColorHexValido(colorPersonalizado)">
+                                            Aplicar
+                                        </button>
+                                    </div>
+                                    <p class="helper-text-color" *ngIf="!esColorHexValido(colorPersonalizado)">
+                                        ⚠️ Formato hexadecimal inválido (ejemplo: #FF6B6B)
+                                    </p>
+                                </div>
+
+                                <!-- Indicador de color actual -->
+                                <div class="color-info">
+                                    <span>Color actual:</span>
+                                    <div class="color-preview" [style.background]="getColorFinal()"></div>
+                                    <span class="color-code">{{ getColorFinal() }}</span>
+                                    <span class="color-tipo" *ngIf="usarColorPersonalizado">(Personalizado)</span>
+                                    <span class="color-tipo" *ngIf="!usarColorPersonalizado">(Paleta)</span>
+                                </div>
+                            </div>
+
+                            <!-- Ícono (opcional) -->
+                            <div class="icono-section">
+                                <label>Ícono (Opcional)</label>
+                                <p class="helper-text" style="margin-bottom: 15px;">
+                                    Puedes agregar un ícono personalizado para este tipo (PNG, SVG, JPG, GIF)
+                                </p>
+
+                                <div class="icono-controls">
+                                    <input type="file" id="icono-tipo"
+                                        accept="image/png,image/svg+xml,image/jpeg,image/gif"
+                                        (change)="onIconoSeleccionado($event)" style="display: none;" />
+                                    <label for="icono-tipo" class="btn-seleccionar-icono">
+                                        🖼️ Seleccionar Ícono
+                                    </label>
+
+                                    <div class="icono-actions" *ngIf="iconoSeleccionado">
+                                        <button type="button" class="btn-cancelar-icono"
+                                            (click)="eliminarIconoSeleccionado()">
+                                            ✕ Quitar Ícono
+                                        </button>
+                                    </div>
+
+                                    <p class="helper-text-icono" *ngIf="iconoSeleccionado">
+                                        <span style="color: #28a745; font-weight: 600;">
+                                            ✓ Ícono seleccionado: {{ iconoSeleccionado.name }}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="botones">
+                            <button type="button" class="btn-cancelar" (click)="regresar()">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="buton-style" [disabled]="loading || form.invalid">
+                                {{ loading ? 'Creando...' : 'Crear Tipo' }}
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>

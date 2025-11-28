@@ -19,6 +19,11 @@
     border-right: 2px solid #d6b45a
 }
 
+.sidebar2 {
+    display: none;
+    width: 100%;
+}
+
 .sidebar-header {
     text-align: center;
     padding: 0 20px 25px;
@@ -58,7 +63,8 @@
     font-weight: 500;
 }
 
-.nav-link:hover {
+.nav-link:hover,
+.tooglemenu {
     background: #d6b45aa1;
     color: white;
     transform: translateX(5px);
@@ -265,10 +271,35 @@
     .container {
         flex-direction: column;
         padding: 20px;
+        min-height: 100vh;
+        margin-bottom: 70px;
     }
 
     .sidebar {
+        display: none;
+    }
+
+    .sidebar2 {
+        display: block;
         width: 100%;
+    }
+
+    .sidebar-header2 {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .tooglemenu {
+        display: block;
+        width: 100%;
+        height: 50px;
+        background-color: #c0c0c0;
+        color: #ffffff;
+        border: none;
+        font-size: 1rem;
+        border-radius: 10px;
     }
 
     .profile-header {
@@ -276,7 +307,10 @@
         text-align: center;
     }
 
-    .main-content {
-        padding: 25px;
+
+
+    .info-section {
+        justify-content: center;
+        align-items: center;
     }
 }

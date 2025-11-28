@@ -52,7 +52,8 @@
                 <div class="plato_y_botones">
                     <!-- Platillo actual -->
                     <div class="plato_en_curso" *ngIf="primerPlatillo; else sinPlatillo">
-                        <img [src]="primerPlatillo.Ruta_imagen" [alt]="primerPlatillo.Nombre_platillo" title="Producto">
+                        <img [src]="getImageUrl(primerPlatillo.Ruta_imagen)" [alt]="primerPlatillo.Nombre_platillo"
+                            title="Producto">
                         <h1>{{ primerPlatillo.Nombre_platillo }}</h1>
                         <h2 class="p_mesa" *ngIf="primerPlatillo.Nombre_mesa">{{primerPlatillo.Nombre_mesa}}</h2>
                         <h2 class="p_domicilio" *ngIf="primerPlatillo.Tipo_pedido == 'Entrega'">Pedido a domicilio

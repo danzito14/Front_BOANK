@@ -7,6 +7,7 @@ import { MaxAndMinPrice, maxandmin } from '../../services/home/max-and-min-price
 import { FormsModule } from '@angular/forms';
 import { BehaviorSubject, debounceTime, Subject } from 'rxjs';
 import { AuthStoreService } from '../../services/auth/auth-store';
+import { PlatillosService } from '../../services/administrador/platillos';
 
 
 @Component({
@@ -57,6 +58,7 @@ export class Sidebar implements OnInit {
     private zone: NgZone,
     private maxandmin: MaxAndMinPrice,
     private router: Router,
+    private productosService: PlatillosService,
     private authstore: AuthStoreService
   ) {
     this.precioSubject.pipe(debounceTime(1000)).subscribe(valor => this.filtrarPorPrecio(this.prices.min_price, valor))
@@ -93,32 +95,67 @@ export class Sidebar implements OnInit {
     }
   }
 
+  closeSidebar() {
+    this.isVisible = false;
+  }
+
+
   // 🔍 Buscar texto libre
   buscarTexto(texto: string) {
     const filtro = { texto };
     this.router.navigate(['/result'], { queryParams: { search: texto } });
     console.log(filtro)
+    this.closeSidebar();
   }
 
   // 🏷️ Filtrar por categoría
   filtrarCategoria(categoria: number, descripcion_cat: string) {
     this.router.navigate(["/result"], { queryParams: { categoria: categoria, descripcion_cat: descripcion_cat } });
     console.log(descripcion_cat);
+    this.closeSidebar();
+
   }
   onSliderChange(valor: number) {
     this.rangoActual = valor;
     this.precioSubject.next(valor); // manda el valor al "debounce"
+    this.closeSidebar();
+
   }
 
   filtrarPorPrecio(min: number, max: number) {
     console.log('Llamada al backend con rango:', min, max);
 
     this.router.navigate(["/result"], { queryParams: { minprice: min, maxprice: max } });
+    this.closeSidebar();
+
   }
 
   buscar_filtro(filtro: string) {
 
     this.router.navigate(["/result"], { queryParams: { filtro_especial: filtro } });
+    this.closeSidebar();
+
+  }
+
+  getImageUrl(rutaImagen: string): string {
+
+    const defaultImg = 'profiles/maquin_de_apoyo.jpeg';
+    // Si no viene nada
+    if (!rutaImagen) return defaultImg;
+
+    // Si ya es una URL completa
+    const url = rutaImagen.startsWith('http')
+      ? rutaImagen
+      : `${this.productosService['API_BASE']}/${rutaImagen}`;
+
+    // Verificar si la imagen existe cargándola en memoria
+    const img = new Image();
+    img.src = url;
+
+    // Si falla, devuelve default
+    img.onerror = () => img.src = defaultImg;
+
+    return img.src;
   }
 
 
@@ -130,12 +167,16 @@ export class Sidebar implements OnInit {
   }
 
 
+
+
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('nivel_usuario'); // si lo usas
     sessionStorage.clear(); // opcional, por si guardas algo más
 
     this.router.navigate(['/login']); // Redirige al login
+    this.closeSidebar();
+
   }
 
 }

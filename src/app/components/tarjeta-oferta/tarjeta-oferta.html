@@ -4,7 +4,7 @@
         <input type="hidden" [name]="oferta.id_oferta_platillo">
         <input type="hidden" [name]="oferta.id_oferta">
         <div class="card-image">
-            <img [src]="oferta.Ruta_imagen" [alt]="oferta.Nombre_platillo" title="foto oferta">
+            <img [src]="getImageUrl(oferta.Ruta_imagen)" [alt]="oferta.Nombre_platillo" title="foto oferta">
             <span class="discount">{{oferta.porcentaje_descuento}}% Descuento</span>
             <div class="icons">
                 <button class="icon-btn" title="Carrito"

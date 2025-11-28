@@ -3,8 +3,8 @@
     <aside class="sidebar">
         <div class="sidebar-header">
             <h3>Mi Cuenta</h3>
-
         </div>
+
         <ul class="nav-menu">
             <li class="nav-item">
                 <a class="nav-link" (click)="cambiar_div('main')">
@@ -43,6 +43,51 @@
                     Configuración
                 </a>
             </li> -->
+        </ul>
+    </aside>
+    <aside class="sidebar2">
+        <div class="sidebar-header2">
+            <button class="tooglemenu" (click)="toggleMenu()"> Mi cuenta</button>
+        </div>
+
+        <ul class="nav-menu" [@slideToggle]="menuOpen ? 'open' : 'closed'">
+            <li class="nav-item">
+                <a class="nav-link" (click)="cambiar_div('main'); cerrarmenu()">
+                    <i class="fas fa-user"></i>
+                    Datos personales
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" (click)="cambiar_div('direcciones'); cerrarmenu()">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Direcciones
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" (click)="cambiar_div('tarjetas'); cerrarmenu()">
+                    <i class="fas fa-credit-card"></i>
+                    Tarjetas de pago
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" (click)="cambiar_div('pedidos'); cerrarmenu()">
+
+                    <i class="fas fa-receipt"></i>
+                    Mis pedidos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" (click)="cambiar_div('favoritos'); cerrarmenu()">
+                    <i class="fas fa-heart"></i>
+                    Favoritos
+                </a>
+            </li>
+            <!-- <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        Configuración
+                    </a>
+                </li> -->
         </ul>
     </aside>
 

@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UntilsPedido } from '../../services/untils/untils-pedido';
 import { BehaviorSubject } from 'rxjs';
+import { ProductosService } from '../../services/home/productos-service';
 
 @Component({
   selector: 'app-carrito',
@@ -19,7 +20,7 @@ export class Carrito implements OnInit {
   productosSeleccionados: CarritoInterface[] = [];
   total: number = 0;
   cargar: string = "carrito";
-
+  nvl_usu: string | null = null;
   // Lista con cantidad por id_platillo
   resumenSeleccion: {
     subtotal: number; platillo: CarritoInterface, cantidad: number
@@ -38,12 +39,14 @@ export class Carrito implements OnInit {
   constructor(
     private carritoService: CarritoService,
     private router: Router,
-    private untilsService: UntilsPedido
+    private untilsService: UntilsPedido,
+    private productoService: ProductosService
   ) { }
 
   ngOnInit() {
     this.cargarPlatillos();
     this.get_datos_pedido();
+    this.get_nvl_usuario();
   }
 
   cargarPlatillos() {
@@ -118,8 +121,8 @@ export class Carrito implements OnInit {
     this.carritoService.agregar_temporal(data).subscribe({
       next: (res) => {
         // console.log('Carrito temporal guardado:', res);
-        let nvl_usuario = this.get_nvl_usuario();
-        switch (nvl_usuario) {
+
+        switch (this.nvl_usu) {
           case '1':
             this.router.navigate(['/direccion-pago']);
             break;
@@ -157,7 +160,29 @@ export class Carrito implements OnInit {
     if (typeof window === 'undefined') return null;
     const token = localStorage.getItem('nvl_usuario');
     this.tokenSubject.next(token);
+    this.nvl_usu = token;
     return token;
+  }
+
+  getImageUrl(rutaImagen: string): string {
+
+    const defaultImg = 'profiles/maquin_de_apoyo.jpeg';
+    // Si no viene nada
+    if (!rutaImagen) return defaultImg;
+
+    // Si ya es una URL completa
+    const url = rutaImagen.startsWith('http')
+      ? rutaImagen
+      : `${this.productoService['apiUrlserve']}/${rutaImagen}`;
+
+    // Verificar si la imagen existe cargándola en memoria
+    const img = new Image();
+    img.src = url;
+
+    // Si falla, devuelve default
+    img.onerror = () => img.src = defaultImg;
+
+    return img.src;
   }
 
   regresar() {

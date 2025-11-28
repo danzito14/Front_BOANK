@@ -1,0 +1,253 @@
+<div class="container">
+    <div class="main-content">
+        <div class="reportes_ventas">
+            <!-- Tab única -->
+            <div class="tabs-fechas">
+                <div class="tab active">
+                    Agregar Nuevo Platillo
+                </div>
+            </div>
+
+            <!-- Loading spinner -->
+            <div *ngIf="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Guardando platillo...</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="formulario" *ngIf="!loading">
+                <section>
+                    <form [formGroup]="form" class="form" (ngSubmit)="create_platillo()">
+
+                        <!-- INFORMACIÓN DEL PLATILLO -->
+                        <div class="inputs">
+                            <h2>Información del Platillo</h2>
+
+                            <!-- Sección de imagen del platillo -->
+                            <div class="imagen-platillo-section">
+                                <h3>Imagen del Platillo</h3>
+
+                                <div class="imagen-platillo-container">
+                                    <!-- Previsualización -->
+                                    <div class="imagen-preview">
+                                        <div class="imagen-wrapper" *ngIf="previsualizacionImagen">
+                                            <img [src]="previsualizacionImagen" alt="Imagen del platillo" />
+                                        </div>
+                                        <div class="imagen-placeholder" *ngIf="!previsualizacionImagen">
+                                            <span class="iniciales">{{ getInicialesPlatillo() }}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Controles -->
+                                    <div class="imagen-controls">
+                                        <input type="file" id="imagen-platillo" accept="image/*"
+                                            (change)="onImagenSeleccionada($event)" style="display: none;" />
+                                        <label for="imagen-platillo" class="btn-seleccionar-imagen">
+                                            📷 Seleccionar Imagen
+                                        </label>
+
+                                        <div class="imagen-actions" *ngIf="imagenSeleccionada">
+                                            <button type="button" class="btn-cancelar-imagen"
+                                                (click)="eliminarImagenSeleccionada()">
+                                                ✕ Quitar Imagen
+                                            </button>
+                                        </div>
+
+                                        <p class="helper-text-imagen">
+                                            Formatos: JPG, PNG, GIF (máx. 5MB)
+                                            <br>
+                                            <span *ngIf="imagenSeleccionada" style="color: #28a745; font-weight: 600;">
+                                                ✓ Imagen seleccionada: {{ imagenSeleccionada.name }}
+                                            </span>
+                                            <span *ngIf="!imagenSeleccionada" style="color: #773832; font-weight: 600;">
+                                                ⚠ La imagen es requerida
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr style="margin: 30px 0; border: none; border-top: 1px solid #e0e0e0;" />
+
+                            <div class="nombre-platillo">
+                                <label for="nombre">
+                                    Nombre del Platillo <span class="required">*</span>
+                                </label>
+                                <input id="nombre" type="text" class="input-style" formControlName="Nombre_platillo"
+                                    placeholder="Ej: Tacos al Pastor"
+                                    [class.input-error]="esCampoInvalido('Nombre_platillo')" />
+                                <div class="error" *ngIf="esCampoInvalido('Nombre_platillo')">
+                                    <h4>{{ getMensajeError('Nombre_platillo') }}</h4>
+                                </div>
+                            </div>
+
+                            <div class="tipo-platillo">
+                                <label for="tipo">
+                                    Tipo de Platillo <span class="required">*</span>
+                                </label>
+                                <select id="tipo" class="input-style select-style" formControlName="id_tipo_platillo"
+                                    [class.input-error]="esCampoInvalido('id_tipo_platillo')">
+                                    <option [value]="null">Selecciona un tipo</option>
+                                    <option *ngFor="let tipo of tiposPlatillo" [value]="getTipoPlatilloId(tipo)">
+                                        {{ tipo.descripcion }}
+                                    </option>
+                                </select>
+                                <div class="error" *ngIf="esCampoInvalido('id_tipo_platillo')">
+                                    <h4>{{ getMensajeError('id_tipo_platillo') }}</h4>
+                                </div>
+                            </div>
+
+                            <div class="descripcion">
+                                <label for="descripcion">
+                                    Descripción <span class="required">*</span>
+                                </label>
+                                <textarea id="descripcion" class="input-style textarea-style"
+                                    formControlName="Descripcion" rows="4"
+                                    placeholder="Describe los ingredientes y características del platillo..."
+                                    [class.input-error]="esCampoInvalido('Descripcion')"></textarea>
+                                <div class="error" *ngIf="esCampoInvalido('Descripcion')">
+                                    <h4>{{ getMensajeError('Descripcion') }}</h4>
+                                </div>
+                            </div>
+
+                            <h2>Precios y Tiempos</h2>
+
+                            <div class="precios-container">
+                                <div class="precio-produccion">
+                                    <label for="precio_produccion">
+                                        Precio de Producción <span class="required">*</span>
+                                    </label>
+                                    <div class="input-with-prefix">
+                                        <span class="prefix">$</span>
+                                        <input id="precio_produccion" type="number" class="input-style"
+                                            formControlName="precio_produccion" step="0.01" min="0" placeholder="0.00"
+                                            [class.input-error]="esCampoInvalido('precio_produccion')" />
+                                    </div>
+                                    <div class="error" *ngIf="esCampoInvalido('precio_produccion')">
+                                        <h4>{{ getMensajeError('precio_produccion') }}</h4>
+                                    </div>
+                                </div>
+
+                                <div class="precio-venta">
+                                    <label for="precio_venta">
+                                        Precio de Venta <span class="required">*</span>
+                                    </label>
+                                    <div class="input-with-prefix">
+                                        <span class="prefix">$</span>
+                                        <input id="precio_venta" type="number" class="input-style"
+                                            formControlName="precio_venta" step="0.01" min="0" placeholder="0.00"
+                                            [class.input-error]="esCampoInvalido('precio_venta')" />
+                                    </div>
+                                    <div class="error" *ngIf="esCampoInvalido('precio_venta')">
+                                        <h4>{{ getMensajeError('precio_venta') }}</h4>
+                                    </div>
+                                    <p class="helper-text" *ngIf="form.get('precio_produccion')?.value > 0">
+                                        Margen de ganancia:
+                                        <strong>{{ ((form.get('precio_venta')?.value -
+                                            form.get('precio_produccion')?.value) / form.get('precio_produccion')?.value
+                                            * 100 || 0).toFixed(2) }}%</strong>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="tiempo-preparacion">
+                                <label for="tiempo">
+                                    Tiempo de Preparación (minutos)
+                                </label>
+                                <input id="tiempo" type="number" class="input-style"
+                                    formControlName="tiempo_preparacion" min="0" placeholder="Ej: 15"
+                                    [class.input-error]="esCampoInvalido('tiempo_preparacion')" />
+                                <div class="error" *ngIf="esCampoInvalido('tiempo_preparacion')">
+                                    <h4>{{ getMensajeError('tiempo_preparacion') }}</h4>
+                                </div>
+                                <p class="helper-text">Tiempo estimado en preparar el platillo</p>
+                            </div>
+
+                            <h2>Opciones de Personalización</h2>
+                            <p class="helper-text" style="margin-bottom: 15px;">
+                                Agrega opciones que los clientes puedan elegir para personalizar este platillo (extras,
+                                tamaños, etc.)
+                            </p>
+
+                            <!-- Lista de opciones agregadas -->
+                            <div class="opciones-lista" *ngIf="opciones.length > 0">
+                                <div class="opcion-item" *ngFor="let opcion of opciones; let i = index">
+                                    <div class="opcion-info">
+                                        <span class="opcion-nombre">{{ opcion.opcion }}</span>
+                                        <span class="opcion-precio">+ ${{ opcion.precio.toFixed(2) }}</span>
+                                    </div>
+                                    <div class="opcion-acciones">
+                                        <button type="button" class="btn-icon btn-editar" (click)="editarOpcion(i)"
+                                            title="Editar">
+                                            ✏️
+                                        </button>
+                                        <button type="button" class="btn-icon btn-eliminar" (click)="eliminarOpcion(i)"
+                                            title="Eliminar">
+                                            🗑️
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="opciones-vacia" *ngIf="opciones.length === 0 && !mostrarFormOpcion">
+                                <p>No hay opciones agregadas</p>
+                            </div>
+
+                            <!-- Formulario para agregar/editar opción -->
+                            <div class="form-opcion" *ngIf="mostrarFormOpcion">
+                                <h4>{{ editandoOpcionIndex !== null ? 'Editar Opción' : 'Nueva Opción' }}</h4>
+
+                                <div class="form-opcion-campos">
+                                    <div class="campo-opcion">
+                                        <label for="opcion-nombre">Nombre de la opción</label>
+                                        <input id="opcion-nombre" type="text" class="input-style"
+                                            [(ngModel)]="opcionNombre" [ngModelOptions]="{standalone: true}"
+                                            placeholder="Ej: Extra queso, Tamaño grande" />
+                                    </div>
+
+                                    <div class="campo-opcion">
+                                        <label for="opcion-precio">Precio adicional</label>
+                                        <div class="input-with-prefix">
+                                            <span class="prefix">$</span>
+                                            <input id="opcion-precio" type="number" class="input-style"
+                                                [(ngModel)]="opcionPrecio" [ngModelOptions]="{standalone: true}"
+                                                step="0.01" min="0" placeholder="0.00" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-opcion-botones">
+                                    <button type="button" class="btn-opcion btn-cancelar-opcion"
+                                        (click)="cancelarOpcion()">
+                                        Cancelar
+                                    </button>
+                                    <button type="button" class="btn-opcion btn-guardar-opcion"
+                                        (click)="agregarOpcion()">
+                                        {{ editandoOpcionIndex !== null ? 'Actualizar' : 'Agregar' }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Botón para mostrar formulario -->
+                            <button type="button" class="btn-agregar-opcion" *ngIf="!mostrarFormOpcion"
+                                (click)="mostrarFormularioOpcion()">
+                                ➕ Agregar Opción
+                            </button>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="botones">
+                            <button type="button" class="buton-style btn-cancelar" (click)="regresar()">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="buton-style"
+                                [disabled]="loading || form.invalid || !imagenSeleccionada">
+                                {{ loading ? 'Creando...' : 'Crear Platillo' }}
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>

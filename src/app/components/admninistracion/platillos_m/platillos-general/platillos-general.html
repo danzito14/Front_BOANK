@@ -4,14 +4,14 @@
             <!-- Tabs -->
             <div class="tabs-fechas">
                 <div class="tab" [class.active]="tab === 'platillos'" (click)="changeTab('platillos')">
-                    🍽️ Platillos
+                    Platillos
                 </div>
                 <div class="tab" [class.active]="tab === 'tipos'" (click)="changeTab('tipos')">
-                    📋 Tipos de Platillos
+                    Tipos de Platillos
                 </div>
-                <div class="tab" [class.active]="tab === 'opciones'" (click)="changeTab('opciones')">
-                    ⚙️ Opciones
-                </div>
+                <!-- <div class="tab" [class.active]="tab === 'opciones'" (click)="changeTab('opciones')">
+                    Opciones
+                </div> -->
             </div>
 
             <!-- Barra de búsqueda -->
@@ -20,7 +20,7 @@
                     <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Buscar..."
                         class="search-input">
                     <button class="btn-search" (click)="onSearch()">
-                        🔍 Buscar
+                        Buscar
                     </button>
                 </div>
                 <div class="search-results-info" *ngIf="searchTerm">
@@ -66,8 +66,8 @@
 
                                         <!-- Columna de imagen -->
                                         <div *ngIf="isImageColumn(col)" class="image-cell">
-                                            <!-- <img [src]="getImageUrl(item, col)" -->
-                                            <img [src]="'profiles/maquin_de_apoyo.jpeg'"
+                                            <!-- <img [src]="'profiles/maquin_de_apoyo.jpeg'" -->
+                                            <img [src]="getImageUrl(item, col)"
                                                 [alt]="item.Nombre_platillo || item.descripcion" class="table-image"
                                                 onerror="this.src='assets/images/no-image.png'" title="Platillo">
                                         </div>
@@ -100,20 +100,9 @@
                                     <!-- Acciones -->
                                     <td *ngIf="currentConfig.showActions" class="acciones-cell">
                                         <div class="acciones-container">
-                                            <button *ngIf="currentConfig.actions?.view" class="btn-accion btn-ver"
-                                                (click)="onView(getId(item, tab))" title="Ver detalles">
-                                                👁️
-                                            </button>
-
                                             <button *ngIf="currentConfig.actions?.edit" class="btn-accion btn-editar"
                                                 (click)="onEdit(getId(item, tab), tab)" title="Editar">
-                                                ✏️ Editar
-                                            </button>
-
-                                            <button *ngIf="currentConfig.actions?.delete"
-                                                class="btn-accion btn-eliminar" (click)="onDelete(item)"
-                                                title="Eliminar">
-                                                🗑️
+                                                Editar
                                             </button>
                                         </div>
                                     </td>

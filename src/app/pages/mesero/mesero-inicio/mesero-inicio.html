@@ -61,7 +61,7 @@
                     </div>
                     <div class="cola">
                         <div class="platillo_item" *ngFor="let platillo of listasListos">
-                            <img [src]="platillo.Ruta_imagen" alt="">
+                            <img [src]="getImageUrl(platillo.Ruta_imagen)" alt="">
                             <h3>{{ platillo.Nombre_platillo }}</h3>
                             <h3 class="p_mesa" *ngIf="platillo.Nombre_mesa">{{platillo.Nombre_mesa}}</h3>
                             <button (click)="terminar_plato('servido', platillo.id_detalle)">Servido</button>
