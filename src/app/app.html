@@ -7,7 +7,7 @@
 </ng-container>
 
 <!-- Sidebar -->
-<app-sidebar [isVisible]="sidebarVisible"></app-sidebar>
+<app-sidebar [isVisible]="sidebarVisible" (sidebarClose)="toggleSidebar()"></app-sidebar>
 
 <!-- Contenido principal -->
 <router-outlet></router-outlet>

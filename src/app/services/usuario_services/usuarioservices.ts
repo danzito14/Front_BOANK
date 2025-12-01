@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, Observable, of } from 'rxjs';
+import { catchError, Observable, of, throwError } from 'rxjs';
 
 export interface UsuarioInterface {
   id_usuario?: string;
@@ -62,7 +62,7 @@ export class Usuarioservices {
 
   update_usuario_by_id(data: UsuarioInterface): Observable<any> {
     const headers = this.getHeaders();
-    if (!headers) return of(null as any);
+    if (!headers) return throwError(() => new Error('No headers'));
 
     return this.http.put<any>(
       `${this.apiUrl}/user/update_user_by_id`,
@@ -71,7 +71,23 @@ export class Usuarioservices {
     ).pipe(
       catchError(err => {
         console.error('Error al actualizar el usuario:', err);
-        return of(null as any);
+        return throwError(() => err);  // ⬅ DEVUELVE EL ERROR REAL AL SUBSCRIBE
+      })
+    );
+  }
+
+  enviar_correo_de_cambio(correo: string): Observable<any> {
+    const headers = this.getHeaders();
+    if (!headers) return of(null);
+
+    return this.http.put(
+      `${this.apiUrl}/untils_empleados/cambio_correo`,
+      { correo },                // <- CORREGIDO
+      { headers }
+    ).pipe(
+      catchError(err => {
+        console.error('Error al enviar correo:', err);
+        return throwError(() => err);
       })
     );
   }
@@ -87,7 +103,7 @@ export class Usuarioservices {
     ).pipe(
       catchError(err => {
         console.error('Error al enviar correo:', err);
-        return of(null);
+        return throwError(() => err);
       })
     );
   }

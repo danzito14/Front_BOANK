@@ -33,6 +33,8 @@ export class RoleGuard implements CanActivate {
       return this.router.parseUrl('/cajero-inicio');
     } else if (nivelUsuario === '5' && !rolesPermitidos.includes('5')) {
       return this.router.parseUrl('/repartidor');
+    } else if (nivelUsuario === '6' && !rolesPermitidos.includes('6')) {
+      return this.router.parseUrl('/administracion');
     }
 
     if (!rolesPermitidos.includes(nivelUsuario)) {

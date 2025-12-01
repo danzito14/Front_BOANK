@@ -61,7 +61,12 @@ export class EditarInfoPersonal {
     }
 
     this.usuarioservices.update_usuario_by_id(this.form.value).subscribe({
-      next: (res) =>
+      next: (res) => {
+        let cambio_nick = this.usuarios_data?.Nickname !== this.form.value.Nickname ? true : false
+        let correo_cambio =
+          this.usuarios_data?.Correo_electronico !== this.form.value.Correo_electronico
+            ? true
+            : false;
         Swal.fire({
           title: "¡Cambios guardados!",
           text: "Los cambios han sido guardados exitosamente.",
@@ -69,9 +74,47 @@ export class EditarInfoPersonal {
           iconColor: "#d6b45a",
           confirmButtonColor: "#d6b45a"
         }).then(() => {
-          window.location.reload();
-        }),
-      error: (err) => console.error('Error al guardar dirección:', err)
+          if (correo_cambio) {
+            this.usuarioservices.enviar_correo_cambio_contra(this.form.value.Correo_electronico).subscribe({
+              next: (res) => {
+                Swal.fire({
+                  title: "Acaba de cambiar su correo electronico",
+                  text: "Para asegurarnos que realmente es usted le hemos enviado un correo de confirmacion de cambio de correo",
+                  icon: "warning",
+                  iconColor: "#d6b45a",
+                  confirmButtonColor: "#d6b45a"
+                }).then(() => {
+                  this.regresar();
+                })
+              },
+              error: (err) => {
+                Swal.fire({
+                  title: "Error al editar usuario",
+                  text: err?.error?.detail || "No se pudo completar la operación.",
+                  icon: "error",
+                  iconColor: "#773832",
+                  confirmButtonColor: "#d6b45a"
+                });
+              }
+            })
+
+          } else {
+            cambio_nick ? window.location.reload() : this.regresar()
+          }
+        })
+      },
+      error: (err) => {
+        console.error('Error al guardar dirección:', err);
+
+        Swal.fire({
+          title: "Error al editar usuario",
+          text: err?.error?.detail || "No se pudo completar la operación.",
+          icon: "error",
+          iconColor: "#773832",
+          confirmButtonColor: "#d6b45a"
+        });
+      }
+
     });
 
   }

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnInit, NgZone, ChangeDetectorRef, EventEmitter, Output } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -8,7 +8,8 @@ import { FormsModule } from '@angular/forms';
 import { BehaviorSubject, debounceTime, Subject } from 'rxjs';
 import { AuthStoreService } from '../../services/auth/auth-store';
 import { PlatillosService } from '../../services/administrador/platillos';
-
+import Swal from 'sweetalert2';
+import { Logout } from '../../services/administrador/logout';
 
 @Component({
   selector: 'app-sidebar',
@@ -36,22 +37,23 @@ import { PlatillosService } from '../../services/administrador/platillos';
   ]
 })
 export class Sidebar implements OnInit {
-  @Input() isVisible = false;
 
+  @Input() isVisible = false;
+  @Output() sidebarClose = new EventEmitter<void>();
+
+  token: string | null = null;
   categoria: Categoria[] = [];
   prices: maxandmin = { min_price: 0, max_price: 0 };
 
-  // valores actuales del rango de precio
   precioMin: number = 0;
   precioMax: number = 0;
 
   private precioSubject = new Subject<number>();
-
-
   private tokenSubject = new BehaviorSubject<string | null>(null);
+
   token$ = this.tokenSubject.asObservable();
-  //varaible para actualizar el input range en tiempo real
   rangoActual: number = this.precioMax / 2;
+
   constructor(
     private categoriaservice: CategoriasService,
     private cd: ChangeDetectorRef,
@@ -59,16 +61,18 @@ export class Sidebar implements OnInit {
     private maxandmin: MaxAndMinPrice,
     private router: Router,
     private productosService: PlatillosService,
-    private authstore: AuthStoreService
+    private authstore: AuthStoreService,
+    private logoutService: Logout
   ) {
-    this.precioSubject.pipe(debounceTime(1000)).subscribe(valor => this.filtrarPorPrecio(this.prices.min_price, valor))
+    this.precioSubject.pipe(debounceTime(1000))
+      .subscribe(valor => this.filtrarPorPrecio(this.prices.min_price, valor));
   }
 
   ngOnInit(): void {
-    let token = this.get_nvl_usuario();
-    if (token === '1') {
+    this.token = this.get_nvl_usuario();
 
-      // cargar categorías
+    if (this.token === '1') {
+
       this.categoriaservice.get_all_categorias().subscribe({
         next: (data) => {
           this.zone.run(() => {
@@ -76,10 +80,9 @@ export class Sidebar implements OnInit {
             this.cd.detectChanges();
           });
         },
-        error: (err) => console.log("Error al llamar al servidor", err)
+        error: (err) => console.log("Error al cargar categorías", err)
       });
 
-      // obtener precios máximo y mínimo
       this.maxandmin.get_min_and_max_price().subscribe({
         next: (dataprice) => {
           this.zone.run(() => {
@@ -89,7 +92,7 @@ export class Sidebar implements OnInit {
             this.cd.detectChanges();
           });
         },
-        error: (err) => console.log("Error al llamar al servicio", err)
+        error: (err) => console.log("Error al cargar precios", err)
       });
 
     }
@@ -97,67 +100,54 @@ export class Sidebar implements OnInit {
 
   closeSidebar() {
     this.isVisible = false;
+    this.sidebarClose.emit();
   }
 
-
-  // 🔍 Buscar texto libre
   buscarTexto(texto: string) {
-    const filtro = { texto };
     this.router.navigate(['/result'], { queryParams: { search: texto } });
-    console.log(filtro)
     this.closeSidebar();
   }
 
-  // 🏷️ Filtrar por categoría
   filtrarCategoria(categoria: number, descripcion_cat: string) {
-    this.router.navigate(["/result"], { queryParams: { categoria: categoria, descripcion_cat: descripcion_cat } });
-    console.log(descripcion_cat);
+    this.router.navigate(['/result'], {
+      queryParams: {
+        categoria,
+        descripcion_cat
+      }
+    });
     this.closeSidebar();
-
   }
+
   onSliderChange(valor: number) {
     this.rangoActual = valor;
-    this.precioSubject.next(valor); // manda el valor al "debounce"
+    this.precioSubject.next(valor);
     this.closeSidebar();
-
   }
 
   filtrarPorPrecio(min: number, max: number) {
-    console.log('Llamada al backend con rango:', min, max);
-
-    this.router.navigate(["/result"], { queryParams: { minprice: min, maxprice: max } });
+    this.router.navigate(['/result'], { queryParams: { minprice: min, maxprice: max } });
     this.closeSidebar();
-
   }
 
   buscar_filtro(filtro: string) {
-
-    this.router.navigate(["/result"], { queryParams: { filtro_especial: filtro } });
+    this.router.navigate(['/result'], { queryParams: { filtro_especial: filtro } });
     this.closeSidebar();
-
   }
 
   getImageUrl(rutaImagen: string): string {
-
     const defaultImg = 'profiles/maquin_de_apoyo.jpeg';
-    // Si no viene nada
     if (!rutaImagen) return defaultImg;
 
-    // Si ya es una URL completa
     const url = rutaImagen.startsWith('http')
       ? rutaImagen
       : `${this.productosService['API_BASE']}/${rutaImagen}`;
 
-    // Verificar si la imagen existe cargándola en memoria
     const img = new Image();
     img.src = url;
-
-    // Si falla, devuelve default
     img.onerror = () => img.src = defaultImg;
 
     return img.src;
   }
-
 
   get_nvl_usuario() {
     if (typeof window === 'undefined') return null;
@@ -166,17 +156,61 @@ export class Sidebar implements OnInit {
     return token;
   }
 
-
-
-
   logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('nivel_usuario'); // si lo usas
-    sessionStorage.clear(); // opcional, por si guardas algo más
 
-    this.router.navigate(['/login']); // Redirige al login
-    this.closeSidebar();
+    Swal.fire({
+      title: '¿Está seguro de que quiere cerrar sesión?',
+      showCancelButton: true,
+      confirmButtonColor: '#D0AF43',
+      cancelButtonColor: '#773832',
+      icon: 'question',
+      iconColor: '#D0AF43',
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar'
+    }).then(result => {
 
+      if (!result.isConfirmed) return;
+
+      this.logoutService.cerrar_sesion(this.token).subscribe((puedeSalir) => {
+
+        if (puedeSalir) {
+          Swal.fire({
+            title: 'Puedes salir sin problemas',
+            text: 'No queda nada por hacer pude cerrar sesión sin problemas',
+            confirmButtonColor: '#D0AF43',
+            icon: 'warning',
+            iconColor: '#D0AF43',
+            confirmButtonText: 'Entendido',
+          }).then(() => {
+
+            localStorage.removeItem('token');
+            localStorage.removeItem('nvl_usuario');
+            localStorage.removeItem('datos_pedido');
+            sessionStorage.clear();
+
+            this.router.navigate(['/login']);
+            this.closeSidebar();
+          })
+
+        } else {
+
+          Swal.fire({
+            title: 'No se puede cerrar sesión aún',
+            text: 'Hay cosas por hacer aún',
+            confirmButtonColor: '#D0AF43',
+            icon: 'success',
+            iconColor: '#D0AF43',
+            confirmButtonText: 'Entendido',
+          }).then(() => {
+
+            this.closeSidebar();
+          })
+
+        }
+
+      });
+
+    });
   }
 
 }

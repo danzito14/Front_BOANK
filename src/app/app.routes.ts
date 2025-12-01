@@ -55,6 +55,6 @@ export const routes: Routes = [
 
 
     //Admin
-    { path: 'administracion', component: Administracion },
-    { path: 'temporal', component: Temporald }
+    { path: 'administracion', component: Administracion, canActivate: [AuthGuard, RoleGuard], data: { roles: ['6'] } },
+    // { path: 'temporal', component: Temporald }
 ];
