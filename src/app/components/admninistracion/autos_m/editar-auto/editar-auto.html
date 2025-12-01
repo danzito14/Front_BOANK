@@ -1,0 +1,202 @@
+<div class="container">
+    <div class="main-content">
+        <div class="reportes_ventas">
+            <!-- Encabezado -->
+            <div class="tabs-fechas2">
+                <div class="tab_nombre">
+                    Editar Automóvil
+                </div>
+                <button type="button" class="tab_cancelar" (click)="cancelar()">
+                    Cancelar
+                </button>
+            </div>
+
+            <!-- Loading spinner -->
+            <div *ngIf="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Cargando datos...</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="formulario" *ngIf="!loading">
+                <section>
+                    <form [formGroup]="form" class="form" (ngSubmit)="guardarAutomovil()">
+                        <div class="inputs">
+                            <h2>Información del Automóvil</h2>
+
+                            <!-- Apodo del automóvil -->
+                            <div class="form-group">
+                                <label for="apodo">
+                                    Apodo del Automóvil <span class="required">*</span>
+                                </label>
+                                <input id="apodo" type="text" class="input-style" formControlName="apodo"
+                                    placeholder="Ej: El Rayo, La Nave, Unidad 1" (blur)="formatearApodo()"
+                                    [class.input-error]="esCampoInvalido('apodo')" />
+                                <p class="helper-text">Nombre identificador único del vehículo</p>
+                                <div class="error" *ngIf="esCampoInvalido('apodo')">
+                                    <h4>{{ getMensajeError('apodo') }}</h4>
+                                </div>
+                            </div>
+
+                            <!-- Marca -->
+                            <div class="form-group">
+                                <label for="marca">
+                                    Marca <span class="required">*</span>
+                                </label>
+                                <select id="marca" class="input-style select-style" formControlName="Marca"
+                                    [class.input-error]="esCampoInvalido('Marca')">
+                                    <option value="" disabled>Selecciona una marca</option>
+                                    <option *ngFor="let marca of marcasPopulares" [value]="marca">
+                                        {{ marca }}
+                                    </option>
+                                </select>
+                                <div class="error" *ngIf="esCampoInvalido('Marca')">
+                                    <h4>{{ getMensajeError('Marca') }}</h4>
+                                </div>
+                            </div>
+
+                            <!-- Modelo -->
+                            <div class="form-group">
+                                <label for="modelo">
+                                    Modelo <span class="required">*</span>
+                                </label>
+                                <input id="modelo" type="text" class="input-style" formControlName="Modelo"
+                                    placeholder="Ej: Corolla, Civic, Versa"
+                                    [class.input-error]="esCampoInvalido('Modelo')" />
+                                <div class="error" *ngIf="esCampoInvalido('Modelo')">
+                                    <h4>{{ getMensajeError('Modelo') }}</h4>
+                                </div>
+                            </div>
+
+                            <!-- Año y Color en grid -->
+                            <div class="grid-2-cols">
+                                <div class="form-group">
+                                    <label for="año">
+                                        Año <span class="required">*</span>
+                                    </label>
+                                    <input id="año" type="number" class="input-style" formControlName="Año"
+                                        [min]="anioMinimo" [max]="anioMaximo" (blur)="validarAnio()"
+                                        [class.input-error]="esCampoInvalido('Año')" />
+                                    <p class="helper-text" *ngIf="mostrarAntiguedad()">
+                                        {{ mostrarAntiguedad() }}
+                                    </p>
+                                    <div class="error" *ngIf="esCampoInvalido('Año')">
+                                        <h4>{{ getMensajeError('Año') }}</h4>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="color">
+                                        Color <span class="required">*</span>
+                                    </label>
+                                    <input id="color" type="text" class="input-style" formControlName="Color"
+                                        placeholder="Ej: Blanco, Negro, Rojo"
+                                        [class.input-error]="esCampoInvalido('Color')" />
+                                    <div class="error" *ngIf="esCampoInvalido('Color')">
+                                        <h4>{{ getMensajeError('Color') }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Placas -->
+                            <div class="form-group">
+                                <label for="placas">
+                                    Placas <span class="required">*</span>
+                                </label>
+                                <input id="placas" type="text" class="input-style" formControlName="Placas"
+                                    placeholder="Ej: ABC1234" maxlength="10" (blur)="formatearPlacas(); validarPlacas()"
+                                    [class.input-error]="esCampoInvalido('Placas')" />
+                                <p class="helper-text">Las placas se convertirán automáticamente a mayúsculas</p>
+                                <div class="error" *ngIf="esCampoInvalido('Placas')">
+                                    <h4>{{ getMensajeError('Placas') }}</h4>
+                                </div>
+                            </div>
+
+                            <!-- Fecha de compra y Estado en grid -->
+                            <div class="grid-2-cols">
+                                <div class="form-group">
+                                    <label for="fecha_compra">
+                                        Fecha de Compra <span class="required">*</span>
+                                    </label>
+                                    <input id="fecha_compra" type="date" class="input-style"
+                                        formControlName="Fecha_compra" [min]="fechaMinima" [max]="fechaMaxima"
+                                        [class.input-error]="esCampoInvalido('Fecha_compra')" />
+                                    <div class="error" *ngIf="esCampoInvalido('Fecha_compra')">
+                                        <h4>{{ getMensajeError('Fecha_compra') }}</h4>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="estado">
+                                        Estado del Automóvil <span class="required">*</span>
+                                    </label>
+                                    <select id="estado" class="input-style select-style" formControlName="Estado"
+                                        [class.input-error]="esCampoInvalido('Estado')">
+                                        <option *ngFor="let estado of estadosAutomovil" [value]="estado">
+                                            {{ estado }}
+                                        </option>
+                                    </select>
+                                    <div class="error" *ngIf="esCampoInvalido('Estado')">
+                                        <h4>{{ getMensajeError('Estado') }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Alerta de cambios -->
+                            <div class="cambios-alert" *ngIf="hayCambios()">
+                                <i class="fa-solid fa-exclamation-circle"></i>
+                                <div>
+                                    <strong>Hay cambios pendientes</strong>
+                                    <p>Has modificado algunos datos del automóvil. No olvides guardar los cambios.</p>
+                                </div>
+                            </div>
+
+                            <!-- Preview card si hay datos -->
+                            <div class="preview-card" *ngIf="form.get('apodo')?.value && form.get('Marca')?.value">
+                                <div class="preview-header">
+                                    <i class="fa-solid fa-car"></i>
+                                    <h3>Vista Previa</h3>
+                                </div>
+                                <div class="preview-content">
+                                    <div class="preview-item">
+                                        <strong>Identificación:</strong>
+                                        <span>{{ form.get('apodo')?.value }}</span>
+                                    </div>
+                                    <div class="preview-item">
+                                        <strong>Vehículo:</strong>
+                                        <span>{{ form.get('Marca')?.value }} {{ form.get('Modelo')?.value || '...' }}
+                                            ({{ form.get('Año')?.value }})</span>
+                                    </div>
+                                    <div class="preview-item" *ngIf="form.get('Placas')?.value">
+                                        <strong>Placas:</strong>
+                                        <span>{{ form.get('Placas')?.value.toUpperCase() }}</span>
+                                    </div>
+                                    <div class="preview-item" *ngIf="form.get('Color')?.value">
+                                        <strong>Color:</strong>
+                                        <span>{{ form.get('Color')?.value }}</span>
+                                    </div>
+                                    <div class="preview-item" *ngIf="form.get('Estado')?.value">
+                                        <strong>Estado:</strong>
+                                        <span class="badge"
+                                            [ngClass]="'badge-' + form.get('Estado')?.value.toLowerCase().replace(' ', '-')">
+                                            {{ form.get('Estado')?.value }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón de guardar -->
+                        <div class="botones">
+                            <button type="submit" class="buton-style" [disabled]="guardando || form.invalid">
+                                <i class="fa-solid fa-save" *ngIf="!guardando"></i>
+                                <i class="fa-solid fa-spinner fa-spin" *ngIf="guardando"></i>
+                                {{ guardando ? 'Guardando...' : 'Guardar Cambios' }}
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>

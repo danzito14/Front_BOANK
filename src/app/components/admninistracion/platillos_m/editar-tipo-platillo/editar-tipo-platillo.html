@@ -119,7 +119,8 @@
                                         (change)="onIconoSeleccionado($event)" style="display: none;" />
 
                                     <label for="icono-tipo" class="btn-seleccionar-icono">
-                                        🖼️ {{ iconoSeleccionado ? 'Cambiar Ícono' : 'Seleccionar Nuevo Ícono' }}
+                                        <i class="fa-solid fa-camera"></i> {{ iconoSeleccionado ? 'Cambiar Ícono' :
+                                        'Seleccionar Nuevo Ícono' }}
                                     </label>
 
                                     <div class="icono-actions" *ngIf="iconoSeleccionado">

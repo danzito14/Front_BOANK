@@ -1,0 +1,170 @@
+<div class="container">
+    <div class="main-content">
+        <div class="reportes_ventas">
+            <!-- Tab única -->
+            <div class="tabs-fechas">
+                <div class="tab active">
+                    Agregar Nuevo Usuario
+                </div>
+            </div>
+
+            <!-- Loading spinner -->
+            <div *ngIf="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Guardando usuario...</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="formulario" *ngIf="!loading">
+                <section>
+                    <form [formGroup]="form" class="form" (ngSubmit)="create_usuario()">
+
+                        <!-- DATOS DEL USUARIO -->
+                        <div class="inputs">
+                            <h2>Información del Usuario</h2>
+
+                            <!-- Sección de imagen de perfil -->
+                            <div class="imagen-perfil-section">
+                                <h3>Foto de Perfil</h3>
+
+                                <div class="imagen-perfil-container">
+                                    <!-- Previsualización -->
+                                    <div class="imagen-preview">
+                                        <div class="imagen-wrapper" *ngIf="previsualizacionImagen">
+                                            <img [src]="previsualizacionImagen" alt="Foto de perfil" />
+                                        </div>
+                                        <div class="imagen-placeholder" *ngIf="!previsualizacionImagen">
+                                            <span class="iniciales">{{ getInicialesUsuario() }}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Controles -->
+                                    <div class="imagen-controls">
+                                        <input type="file" id="imagen-perfil" accept="image/*"
+                                            (change)="onImagenSeleccionada($event)" style="display: none;" />
+                                        <label for="imagen-perfil" class="btn-seleccionar-imagen">
+                                            <i class="fa-solid fa-camera"></i> Seleccionar Imagen
+                                        </label>
+
+                                        <div class="imagen-actions" *ngIf="imagenSeleccionada">
+                                            <button type="button" class="btn-cancelar-imagen"
+                                                (click)="eliminarImagenSeleccionada()">
+                                                ✕ Quitar Imagen
+                                            </button>
+                                        </div>
+
+                                        <p class="helper-text-imagen">
+                                            Formatos: JPG, PNG, GIF (máx. 5MB)
+                                            <br>
+                                            <span *ngIf="imagenSeleccionada" style="color: #28a745; font-weight: 600;">
+                                                ✓ Imagen seleccionada: {{ imagenSeleccionada.name }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr style="margin: 30px 0; border: none; border-top: 1px solid #e0e0e0;" />
+
+                            <div class="nickname">
+                                <label for="nickname">
+                                    Nombre de Usuario <span class="required">*</span>
+                                </label>
+                                <input id="nickname" type="text" class="input-style" formControlName="Nickname"
+                                    placeholder="Mínimo 3 caracteres"
+                                    [class.input-error]="esCampoInvalido('Nickname')" />
+                                <div class="error" *ngIf="esCampoInvalido('Nickname')">
+                                    <h4>{{ getMensajeError('Nickname') }}</h4>
+                                </div>
+                            </div>
+
+                            <div class="password">
+                                <label for="password">
+                                    Contraseña <span class="required">*</span>
+                                </label>
+                                <input id="password" type="password" class="input-style" formControlName="Contraseña"
+                                    placeholder="Mínimo 6 caracteres"
+                                    [class.input-error]="esCampoInvalido('Contraseña')" />
+                                <div class="error" *ngIf="esCampoInvalido('Contraseña')">
+                                    <h4>{{ getMensajeError('Contraseña') }}</h4>
+                                </div>
+                            </div>
+
+                            <h2>Datos Personales</h2>
+
+                            <div class="nombre">
+                                <label for="nombre">
+                                    Nombre(s) <span class="required">*</span>
+                                </label>
+                                <input id="nombre" type="text" class="input-style" formControlName="Nombre"
+                                    [class.input-error]="esCampoInvalido('Nombre')" />
+                                <div class="error" *ngIf="esCampoInvalido('Nombre')">
+                                    <h4>{{ getMensajeError('Nombre') }}</h4>
+                                </div>
+                            </div>
+
+                            <div class="apellido">
+                                <label for="apellido">Apellido(s)</label>
+                                <input id="apellido" type="text" class="input-style" formControlName="Apellido" />
+                            </div>
+
+                            <div class="correo">
+                                <label for="correo">
+                                    Correo Electrónico <span class="required">*</span>
+                                </label>
+                                <input id="correo" type="email" class="input-style" formControlName="Correo_electronico"
+                                    [class.input-error]="esCampoInvalido('Correo_electronico')" appCorreo />
+                                <div class="error" *ngIf="esCampoInvalido('Correo_electronico')">
+                                    <h4>{{ getMensajeError('Correo_electronico') }}</h4>
+                                </div>
+                            </div>
+
+                            <div class="telefono">
+                                <label for="telefono">
+                                    Teléfono <span class="required">*</span>
+                                </label>
+                                <input id="telefono" type="tel" class="input-style" formControlName="Num_telefonico"
+                                    placeholder="10 dígitos" maxlength="12"
+                                    [class.input-error]="esCampoInvalido('Num_telefonico')" appTelefononumeros />
+                                <div class="error" *ngIf="esCampoInvalido('Num_telefonico')">
+                                    <h4>{{ getMensajeError('Num_telefonico') }}</h4>
+                                </div>
+                            </div>
+
+                            <h2>Nivel de Usuario</h2>
+
+                            <div class="nivel">
+                                <label for="nivel">
+                                    Nivel de Usuario <span class="required">*</span>
+                                </label>
+                                <select id="nivel" class="input-style select-style" formControlName="id_nvl_usuario"
+                                    [class.input-error]="esCampoInvalido('id_nvl_usuario')">
+                                    <option [value]="null">Selecciona un nivel</option>
+                                    <option *ngFor="let nivel of nivelesUsuario" [value]="nivel.id_nvl_usuario">
+                                        {{ nivel.descripcion }}
+                                    </option>
+                                </select>
+                                <div class="error" *ngIf="esCampoInvalido('id_nvl_usuario')">
+                                    <h4>{{ getMensajeError('id_nvl_usuario') }}</h4>
+                                </div>
+                                <p class="helper-text">
+                                    El nivel determina los permisos y accesos del usuario en el sistema
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="botones">
+                            <button type="button" class="buton-style btn-cancelar" (click)="regresar()">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="buton-style" [disabled]="loading || form.invalid">
+                                {{ loading ? 'Creando...' : 'Crear Usuario' }}
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>

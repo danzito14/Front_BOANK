@@ -44,20 +44,24 @@ export class PersonalizarPlatillo implements OnChanges, OnDestroy {
         .subscribe({
           next: (productos) => {
             if (productos.length) {
-              const producto = productos[0];
 
-              // Cargar opciones de cada producto
-              this.productoService.get_opciones_platillo(producto.id_platillo)
-                .pipe(takeUntil(this.destroy$))
-                .subscribe({
-                  next: (opciones: OpcionesPlatillo[]) => {
-                    producto.opciones = opciones;
-                    productosCargados.push(producto);
-                    this.resultadoSubject.next([...productosCargados]);
-                    this.cd.detectChanges(); // 🔹 fuerza actualización de la vista
-                  },
-                  error: (err) => console.error('Error cargando opciones', err)
-                });
+              if (productos[0].estatus !== false) {
+                const producto = productos[0];
+
+
+                // Cargar opciones de cada producto
+                this.productoService.get_opciones_platillo(producto.id_platillo)
+                  .pipe(takeUntil(this.destroy$))
+                  .subscribe({
+                    next: (opciones: OpcionesPlatillo[]) => {
+                      producto.opciones = opciones;
+                      productosCargados.push(producto);
+                      this.resultadoSubject.next([...productosCargados]);
+                      this.cd.detectChanges(); // 🔹 fuerza actualización de la vista
+                    },
+                    error: (err) => console.error('Error cargando opciones', err)
+                  });
+              }
             }
           },
           error: (err) => console.error('Error cargando platillo', id, err)
@@ -94,20 +98,19 @@ export class PersonalizarPlatillo implements OnChanges, OnDestroy {
     console.log("algo no se")
   }
 
-
-  agregar_carrito(id_platillo: string, precio_final: number, detalles_adicionales: string) {
+  agregar_carrito(id_platillo: string, precio_final: number, detalles_adicionales: string, index: number) {
     this.carritoservice.add_Carrito_by_User(id_platillo, precio_final, detalles_adicionales)
       .subscribe({
-        next: (data) => {
-          console.log('Carrito actualizado:', data);
+        next: () => {
+          const lista = [...this.resultadoSubject.value];
 
-          // 🔹 Eliminar producto del listado
-          const productosActuales = this.resultadoSubject.value.filter(p => p.id_platillo !== id_platillo);
-          this.resultadoSubject.next([...productosActuales]);
+          // 🔥 eliminar solo el elemento exacto del arreglo
+          lista.splice(index, 1);
+
+          this.resultadoSubject.next(lista);
           this.cd.detectChanges();
 
-          // 🔹 Si no quedan productos, redirigir a carrito
-          if (productosActuales.length === 0) {
+          if (lista.length === 0) {
             Swal.fire({
               title: `Platillos listos`,
               text: "¿Desea ir al carrito?",

@@ -1,0 +1,155 @@
+<div class="container">
+    <div class="main-content">
+        <div class="reportes_ventas">
+            <!-- Encabezado -->
+            <div class="tabs-fechas2">
+                <div class="tab_nombre">
+                    Editar Mesa
+                </div>
+                <button type="button" class="tab_cancelar" (click)="cancelar()" [disabled]="guardando">
+                    Cancelar
+                </button>
+            </div>
+
+            <!-- Loading spinner -->
+            <div *ngIf="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Cargando datos de la mesa...</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="formulario" *ngIf="!loading">
+                <section>
+                    <form [formGroup]="form" class="form">
+                        <div class="inputs">
+                            <h2>Información de la Mesa</h2>
+
+                            <!-- Info de mesa actual -->
+                            <div class="info-box info-mesa">
+                                <div class="info-icon">🪑</div>
+                                <div class="info-content">
+                                    <strong>Editando:</strong> {{ mesaOriginal?.Nombre_mesa }}
+                                    <br>
+                                    <small>El nombre de la mesa no puede ser modificado</small>
+                                </div>
+                            </div>
+
+                            <!-- Nombre de la mesa (solo lectura) -->
+                            <div class="form-group">
+                                <label for="nombre_mesa">
+                                    Nombre de la Mesa
+                                </label>
+                                <input id="nombre_mesa" type="text" class="input-style input-disabled"
+                                    formControlName="Nombre_mesa" readonly />
+                                <p class="helper-text">Este campo no puede ser modificado</p>
+                            </div>
+
+                            <!-- Capacidad -->
+                            <div class="form-group">
+                                <label for="capacidad">
+                                    Capacidad (Personas) <span class="required">*</span>
+                                </label>
+                                <input id="capacidad" type="number" class="input-style" formControlName="Capacidad"
+                                    min="1" max="20" (blur)="validarCapacidad()"
+                                    [class.input-error]="esCampoInvalido('Capacidad')"
+                                    [class.input-changed]="cambioCapacidad" />
+                                <p class="helper-text" *ngIf="mostrarInfoCapacidad()">
+                                    {{ mostrarInfoCapacidad() }}
+                                </p>
+                                <p class="helper-text cambio-detectado" *ngIf="cambioCapacidad">
+                                    ⚠️ Capacidad modificada: {{ mesaOriginal?.Capacidad }} → {{
+                                    form.get('Capacidad')?.value }}
+                                </p>
+                                <div class="error" *ngIf="esCampoInvalido('Capacidad')">
+                                    <h4>{{ getMensajeError('Capacidad') }}</h4>
+                                </div>
+                            </div>
+
+                            <!-- Capacidades sugeridas -->
+                            <div class="capacidades-sugeridas">
+                                <label class="sugerencias-label">Capacidades sugeridas:</label>
+                                <div class="chips-container">
+                                    <button type="button" *ngFor="let cap of capacidadesSugeridas" class="chip-btn"
+                                        [class.chip-active]="form.get('Capacidad')?.value === cap"
+                                        (click)="form.patchValue({Capacidad: cap})">
+                                        {{ cap }} personas
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Estado -->
+                            <div class="form-group">
+                                <label for="estado">
+                                    Estado de la Mesa <span class="required">*</span>
+                                </label>
+                                <select id="estado" class="input-style select-style" formControlName="Estado"
+                                    [class.input-error]="esCampoInvalido('Estado')"
+                                    [class.input-changed]="cambioEstado">
+                                    <option *ngFor="let estado of estadosMesa" [value]="estado">
+                                        {{ estado }}
+                                    </option>
+                                </select>
+                                <label for="estado">
+                                    Mesa activa <span class="required">*</span>
+                                </label>
+                                <select id="estado_bool" class="input-style select-style"
+                                    formControlName="estatus_bool">
+
+                                    <option [ngValue]="true">Activo</option>
+                                    <option [ngValue]="false">Inactivo</option>
+                                </select>
+                                <p class="helper-text cambio-detectado" *ngIf="cambioEstado">
+                                    ⚠️ Estado modificado: {{ mesaOriginal?.Estado }} → {{ form.get('Estado')?.value }}
+                                </p>
+                                <div class="error" *ngIf="esCampoInvalido('Estado')">
+                                    <h4>{{ getMensajeError('Estado') }}</h4>
+                                </div>
+                            </div>
+
+                            <!-- Advertencia si la mesa tiene pedido activo -->
+                            <div class="warning-box"
+                                *ngIf="mesaOriginal?.id_pedido && form.get('Estado')?.value === 'Libre'">
+                                <div class="warning-icon">⚠️</div>
+                                <div class="warning-content">
+                                    <strong>¡Atención!</strong> Esta mesa tiene un pedido activo.
+                                    Asegúrate de que el pedido esté finalizado antes de cambiar el estado a "Libre".
+                                </div>
+                            </div>
+
+
+
+
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="botones-container">
+                            <button type="button" class="buton-actualizar" (click)="actualizarMesa()"
+                                [disabled]="guardando || form.invalid || !hayCambios()">
+                                <span class="btn-icon" *ngIf="!guardando"></span>
+                                <span class="btn-icon spinner-icon" *ngIf="guardando">⏳</span>
+                                {{ guardando ? 'Guardando...' : 'Actualizar Mesa' }}
+                            </button>
+
+                            <button type="button" class="buton-eliminar" (click)="eliminarMesa()"
+                                [disabled]="guardando">
+                                Eliminar Mesa
+                            </button>
+                        </div>
+
+                        <!-- Indicador de estado del formulario
+                        <div class="form-status" *ngIf="!hayCambios() && !loading">
+                            <p class="status-info">
+                                ℹ️ No hay cambios pendientes
+                            </p>
+                        </div> -->
+                        <!-- <div class="form-status" *ngIf="hayCambios()">
+                            <p class="status-success">
+                                ✓ Hay cambios pendientes por guardar
+                            </p>
+                        </div> -->
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>

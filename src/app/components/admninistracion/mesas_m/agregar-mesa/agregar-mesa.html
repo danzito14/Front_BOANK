@@ -1,0 +1,106 @@
+<div class="container">
+    <div class="main-content">
+        <div class="reportes_ventas">
+            <!-- Encabezado -->
+            <div class="tabs-fechas2">
+                <div class="tab_nombre">
+                    Agregar Nueva Mesa
+                </div>
+                <button type="button" class="tab_cancelar" (click)="cancelar()">
+                    Cancelar
+                </button>
+            </div>
+
+            <!-- Loading spinner -->
+            <div *ngIf="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Cargando datos...</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="formulario" *ngIf="!loading">
+                <section>
+                    <form [formGroup]="form" class="form" (ngSubmit)="guardarMesa()">
+                        <div class="inputs">
+                            <h2>Información de la Mesa</h2>
+
+                            <!-- Información importante -->
+                            <div class="info-box">
+                                <div class="info-icon">ℹ️</div>
+                                <div class="info-content">
+                                    <strong>Nota:</strong> El nombre de la mesa se asignará automáticamente
+                                    (Mesa 1, Mesa 2, etc.) según el orden de creación.
+                                </div>
+                            </div>
+
+                            <!-- Capacidad -->
+                            <div class="form-group">
+                                <label for="capacidad">
+                                    Capacidad (Personas) <span class="required">*</span>
+                                </label>
+                                <input id="capacidad" type="number" class="input-style" formControlName="Capacidad"
+                                    min="1" max="20" (blur)="validarCapacidad()"
+                                    [class.input-error]="esCampoInvalido('Capacidad')" />
+                                <p class="helper-text" *ngIf="mostrarInfoCapacidad()">
+                                    {{ mostrarInfoCapacidad() }}
+                                </p>
+                                <div class="error" *ngIf="esCampoInvalido('Capacidad')">
+                                    <h4>{{ getMensajeError('Capacidad') }}</h4>
+                                </div>
+                            </div>
+
+                            <!-- Capacidades sugeridas -->
+                            <div class="capacidades-sugeridas">
+                                <label class="sugerencias-label">Capacidades sugeridas:</label>
+                                <div class="chips-container">
+                                    <button type="button" *ngFor="let cap of capacidadesSugeridas" class="chip-btn"
+                                        [class.chip-active]="form.get('Capacidad')?.value === cap"
+                                        (click)="form.patchValue({Capacidad: cap})">
+                                        {{ cap }} personas
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Estado -->
+                            <div class="form-group">
+                                <label for="estado">
+                                    Estado Inicial <span class="required">*</span>
+                                </label>
+                                <select id="estado" class="input-style select-style" formControlName="Estado"
+                                    [class.input-error]="esCampoInvalido('Estado')">
+                                    <option *ngFor="let estado of estadosMesa" [value]="estado">
+                                        {{ estado }}
+                                    </option>
+                                </select>
+                                <p class="helper-text">
+                                    Normalmente las mesas nuevas comienzan en estado "Libre"
+                                </p>
+                                <div class="error" *ngIf="esCampoInvalido('Estado')">
+                                    <h4>{{ getMensajeError('Estado') }}</h4>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                        <!-- Botón de guardar -->
+                        <div class="botones">
+                            <button type="submit" class="buton-style" [disabled]="guardando || form.invalid">
+
+                                <span class="btn-icon spinner-icon" *ngIf="guardando">⏳</span>
+                                {{ guardando ? 'Guardando...' : 'Crear Mesa' }}
+                            </button>
+                        </div>
+
+                        <!-- Indicador de estado del formulario -->
+                        <div class="form-status" *ngIf="form.invalid && form.dirty">
+                            <p class="status-warning">
+                                ⚠️ Por favor, completa todos los campos requeridos antes de guardar
+                            </p>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>

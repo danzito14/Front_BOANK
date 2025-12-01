@@ -557,12 +557,21 @@ section h4 {
     background: #e9ecef;
 }
 
+.btn-editar {
+    color: #877129;
+}
+
 .btn-editar:hover {
     background: #fff3cd;
 }
 
+.btn-eliminar {
+    color: #773832;
+}
+
 .btn-eliminar:hover {
     background: #f8d7da;
+    color: #773832;
 }
 
 /* Opciones vacía */

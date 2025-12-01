@@ -17,6 +17,8 @@ export interface CarritoInterface {
 
   detalle_adicional?: string;
   cantidad_plato?: number;
+
+  estatus_platillo: number;
 }
 
 export interface TemporalInterface {

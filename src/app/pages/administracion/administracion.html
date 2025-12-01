@@ -15,8 +15,14 @@
             </li>
             <li class="nav-item" (click)="cambiar_div('empleados_general'); reiniciar_tab()">
                 <a class="nav-link">
-                    <i class="fas fa-user"></i>
+                    <i class="fa-solid fa-address-card"></i>
                     Empleados
+                </a>
+            </li>
+            <li class="nav-item" (click)="cambiar_div('usuarios_general'); reiniciar_tab()">
+                <a class="nav-link">
+                    <i class="fas fa-user"></i>
+                    Usuarios
                 </a>
             </li>
             <li class="nav-item">
@@ -26,29 +32,30 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link">
+                <a class="nav-link" (click)="cambiar_div('combos_general'); reiniciar_tab()">
                     <i class="fa-solid fa-gift"></i>
                     Combos
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link">
+                <a class="nav-link" (click)="cambiar_div('ofertas_general'); reiniciar_tab()">
                     <i class="fa-solid fa-tag"></i>
                     Ofertas
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link">
+                <a class="nav-link" (click)="cambiar_div('automovil-general'); reiniciar_tab()">
                     <i class="fa-solid fa-car-side"></i>
                     Automoviles
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" (click)="cambiar_div('desarrollo'); reiniciar_tab()">
-                    <i class="fas fa-cog"></i>
-                    desarrollo
+                <a class="nav-link" (click)="cambiar_div('mesas-general'); reiniciar_tab()">
+                    <i class="fa-solid fa-chess-board"></i>
+                    Mesas
                 </a>
             </li>
+
         </ul>
     </aside>
 
@@ -132,14 +139,110 @@
             <app-editar-tipo-platillo [id_tipo_platillo]="id_seleccionado"
                 (volver)="cambiar_div('platillos_general'); recibir_tab_platillo('tipos')"></app-editar-tipo-platillo>
         </div>
+
         <!-- 
         #######################################################################################
-            Default
+            Usuarios
+        #######################################################################################
+        -->
+
+        <div *ngSwitchCase="'usuarios_general'">
+            <app-usuarios-general (id_usuario_seleccionado)="recibir_id($event)"
+                (destino)="cambiar_div($event)"></app-usuarios-general>
+        </div>
+
+        <div *ngSwitchCase="'agregar_usuarios'">
+            <app-agregar-usuario (volver)="cambiar_div('usuarios_general')"></app-agregar-usuario>
+        </div>
+
+        <div *ngSwitchCase="'usuarios'">
+            <app-editar-usuario [id_usuario]="id_seleccionado"
+                (volver)="cambiar_div('usuarios_general')"></app-editar-usuario>
+        </div>
+
+        <!-- 
+        #######################################################################################
+            Combos
         #######################################################################################
             -->
+
+        <div *ngSwitchCase="'combos_general'">
+            <app-combos-general (id_item_seleccionado)="recibir_id($event)"
+                (destino)="cambiar_div($event)"></app-combos-general>
+        </div>
+
+        <div *ngSwitchCase="'agregar_combo'">
+            <app-agregar-combo (volver)="cambiar_div('combos_general')"></app-agregar-combo>
+        </div>
+
+        <div *ngSwitchCase="'editar_combo'">
+            <app-editar-combo [idCombo]="id_seleccionado" (volver)="cambiar_div('combos_general')"></app-editar-combo>
+        </div>
+        <!-- 
+        #######################################################################################
+            Ofertas
+        #######################################################################################
+            -->
+
+        <div *ngSwitchCase="'ofertas_general'">
+            <app-ofertas-general (id_item_seleccionado)="recibir_id($event)"
+                (destino)="cambiar_div($event)"></app-ofertas-general>
+        </div>
+
+        <div *ngSwitchCase="'agregar_oferta'">
+            <app-agregar-oferta (volver)="cambiar_div('ofertas_general')"></app-agregar-oferta>
+        </div>
+
+        <div *ngSwitchCase="'editar_oferta'">
+            <app-editar-oferta [idOferta]="id_seleccionado"
+                (volver)="cambiar_div('ofertas_general')"></app-editar-oferta>
+        </div>
+        <!-- 
+        #######################################################################################
+            Automoviles
+        #######################################################################################
+            -->
+        <div *ngSwitchCase="'automovil-general'">
+            <app-automoviles-general (destino)="cambiar_div($event)" (id_automovil_seleccionado)="recibir_id($event)">
+            </app-automoviles-general>
+        </div>
+
+        <div *ngSwitchCase="'agregar_automovil'">
+            <app-agregar-automovil (volver)="cambiar_div('automovil-general')"></app-agregar-automovil>
+        </div>
+
+        <div *ngSwitchCase="'editar_automovil'">
+            <app-editar-automovil [idAutomovil]="id_seleccionado"
+                (volver)="cambiar_div('automovil-general')"></app-editar-automovil>
+        </div>
+        <!-- 
+        #######################################################################################
+        Mesas
+        #######################################################################################
+        -->
+
+        <div *ngSwitchCase="'mesas-general'">
+            <app-mesas-general (destino)="cambiar_div($event)"
+                (id_mesa_seleccionada)="recibir_id($event)"></app-mesas-general>
+        </div>
+
+        <div *ngSwitchCase="'agregar_mesa'">
+            <app-agregar-mesa (destino)="cambiar_div('mesas-general')"></app-agregar-mesa>
+        </div>
+
+        <div *ngSwitchCase="'editar_mesa'">
+            <app-editar-mesa [id_mesa]="id_seleccionado" (destino)="cambiar_div('mesas-general')"></app-editar-mesa>
+        </div>
+        <!-- 
+        #######################################################################################
+        Default
+        #######################################################################################
+        -->
+
         <div *ngSwitchDefault="">
             <h2>Me lleva la verga como para andar con tus mamadas
                 al chile ya porfa, neta, neta we jala bien, al chile porfga, en fin, aaa, neta?
+                porfa jala ya
             </h2>
         </div>
         <div *ngSwitchCase="'desarrollo'">

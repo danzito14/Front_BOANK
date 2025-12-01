@@ -230,7 +230,7 @@ export class MeseroInicio implements OnInit, OnDestroy {
   obtener_mesas() {
     this.meseroService.get_all_mesas().subscribe(tmesas => {
       this.zone.run(() => {
-        this.mesas$ = tmesas;
+        this.mesas$ = tmesas.filter(m => m.estatus_bool !== false);
         this.cd.detectChanges();
       });
     });

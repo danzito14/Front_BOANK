@@ -289,15 +289,15 @@ td {
 }
 
 .badge-activo {
-    background: #d4f4dd;
-    color: #155724;
-    border: 1px solid #28a745;
+    background: #d1ecf1;
+    color: #0833a2;
+    border: 1px solid #0833a2;
 }
 
 .badge-inactivo {
     background: #f8d7da;
     color: #721c24;
-    border: 1px solid #dc3545;
+    border: 1px solid #773832;
 }
 
 .badge-oferta {

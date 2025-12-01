@@ -1,0 +1,243 @@
+<div class="container">
+    <div class="main-content">
+        <div class="reportes_ventas">
+            <!-- Tabs de secciones -->
+            <div class="tabs-fechas">
+                <div class="tab" [class.active]="tab === 'informacion_basica'" (click)="tab = 'informacion_basica'">
+                    Información del Combo
+                </div>
+                <div class="tab" [class.active]="tab === 'platillos'" (click)="tab = 'platillos'">
+                    Platillos del Combo
+                </div>
+            </div>
+
+            <!-- Encabezado -->
+            <div class="tabs-fechas2">
+                <div class="tab_nombre">
+                    Crear Nuevo Combo
+                </div>
+                <button type="button" class="tab_cancelar" (click)="cancelar()">
+                    Cancelar
+                </button>
+            </div>
+
+            <!-- Loading spinner -->
+            <div *ngIf="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Cargando datos...</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="formulario" *ngIf="!loading">
+                <section>
+                    <form [formGroup]="form" class="form" (ngSubmit)="guardarCombo()">
+
+                        <!-- ========== INFORMACIÓN DEL COMBO ========== -->
+                        <div *ngIf="tab === 'informacion_basica'" class="inputs">
+                            <h2>Información del Combo</h2>
+
+                            <!-- SECCIÓN DE IMAGEN DEL COMBO -->
+                            <div class="imagen-combo-section">
+                                <h3>Imagen del Combo</h3>
+
+                                <div class="imagen-combo-container">
+                                    <!-- Previsualización -->
+                                    <div class="imagen-preview">
+                                        <div class="imagen-wrapper" *ngIf="previsualizacionImagen">
+                                            <img [src]="previsualizacionImagen" alt="Imagen del combo" />
+                                        </div>
+                                        <div class="imagen-placeholder" *ngIf="!previsualizacionImagen">
+                                            <span class="iniciales">{{ getInicialesCombo() }}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Controles -->
+                                    <div class="imagen-controls">
+                                        <input type="file" id="imagen-combo" accept="image/*"
+                                            (change)="onImagenSeleccionada($event)" style="display: none;" />
+                                        <label for="imagen-combo" class="btn-seleccionar-imagen">
+                                            <i class="fa-solid fa-camera"></i> Seleccionar Imagen
+                                        </label>
+
+                                        <button type="button" class="btn-cancelar-imagen" *ngIf="imagenSeleccionada"
+                                            (click)="eliminarImagenSeleccionada()">
+                                            ✕ Quitar Imagen
+                                        </button>
+
+                                        <p class="helper-text-imagen">
+                                            Formatos: JPG, PNG, GIF, WEBP (máx. 5MB)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr style="margin: 30px 0; border: none; border-top: 1px solid #e0e0e0;" />
+
+                            <div class="nombre-combo">
+                                <label for="nombre">
+                                    Nombre del Combo <span class="required">*</span>
+                                </label>
+                                <input id="nombre" type="text" class="input-style" formControlName="Nombre_combo"
+                                    placeholder="Ej: Combo Familiar, Combo Ejecutivo"
+                                    [class.input-error]="esCampoInvalido('Nombre_combo')" />
+                                <div class="error" *ngIf="esCampoInvalido('Nombre_combo')">
+                                    <h4>{{ getMensajeError('Nombre_combo') }}</h4>
+                                </div>
+                            </div>
+
+                            <div class="descripcion">
+                                <label for="descripcion">
+                                    Descripción <span class="required">*</span>
+                                </label>
+                                <textarea id="descripcion" class="input-style textarea-style"
+                                    formControlName="Descripcion" rows="4"
+                                    placeholder="Describe el combo y lo que incluye..."
+                                    [class.input-error]="esCampoInvalido('Descripcion')"></textarea>
+                                <div class="error" *ngIf="esCampoInvalido('Descripcion')">
+                                    <h4>{{ getMensajeError('Descripcion') }}</h4>
+                                </div>
+                            </div>
+
+                            <div class="precio-combo">
+                                <label for="precio_combo">
+                                    Precio del Combo <span class="required">*</span>
+                                </label>
+                                <div class="input-with-prefix">
+                                    <span class="prefix">$</span>
+                                    <input id="precio_combo" type="number" class="input-style"
+                                        formControlName="precio_combo" step="0.01" min="0"
+                                        [class.input-error]="esCampoInvalido('precio_combo')" />
+                                </div>
+                                <div class="error" *ngIf="esCampoInvalido('precio_combo')">
+                                    <h4>{{ getMensajeError('precio_combo') }}</h4>
+                                </div>
+                                <p class="helper-text" *ngIf="platillosSeleccionados.length > 0">
+                                    Precio calculado de platillos: <strong>${{ getPrecioTotalCalculado().toFixed(2)
+                                        }}</strong>
+                                </p>
+                            </div>
+
+                            <div class="estatus">
+                                <label for="estatus">
+                                    Estado del Combo <span class="required">*</span>
+                                </label>
+                                <select id="estatus" class="input-style select-style" formControlName="estatus">
+                                    <option [value]="1">Activo</option>
+                                    <option [value]="0">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- ========== PLATILLOS DEL COMBO ========== -->
+                        <div *ngIf="tab === 'platillos'" class="inputs">
+                            <h2>Platillos del Combo</h2>
+
+                            <!-- Resumen de platillos seleccionados -->
+                            <div class="platillos-seleccionados-resumen" *ngIf="platillosSeleccionados.length > 0">
+                                <h3>Platillos Agregados ({{ platillosSeleccionados.length }})</h3>
+
+                                <div class="lista-platillos-seleccionados">
+                                    <div class="platillo-seleccionado-item"
+                                        *ngFor="let platillo of platillosSeleccionados; let i = index">
+                                        <div class="platillo-imagen-mini">
+                                            <img [src]="getImagenPlatillo(platillo.Ruta_imagen)"
+                                                [alt]="platillo.Nombre_platillo" *ngIf="platillo.Ruta_imagen"
+                                                title="Platillo" />
+                                            <div class="platillo-placeholder-mini" *ngIf="!platillo.Ruta_imagen">
+                                                <span>{{ getInicialesPlatillo(platillo.Nombre_platillo) }}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="platillo-info-seleccionado">
+                                            <h4>{{ platillo.Nombre_platillo }}</h4>
+                                            <p>${{ platillo.precio_platillo.toFixed(2) }} c/u</p>
+                                        </div>
+
+                                        <div class="platillo-cantidad">
+                                            <label>Cantidad:</label>
+                                            <input type="number" [value]="platillo.cantidad" min="1"
+                                                (change)="actualizarCantidad(i, $event)" class="input-cantidad"
+                                                title="Cantidad" />
+                                        </div>
+
+                                        <div class="platillo-subtotal">
+                                            <strong>${{ getSubtotalPlatillo(platillo).toFixed(2) }}</strong>
+                                        </div>
+
+                                        <button type="button" class="btn-quitar-platillo" (click)="quitarPlatillo(i)"
+                                            title="Quitar platillo">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="total-platillos">
+                                    <strong>Total calculado:</strong>
+                                    <span>${{ getPrecioTotalCalculado().toFixed(2) }}</span>
+                                </div>
+                            </div>
+
+                            <div class="platillos-vacio" *ngIf="platillosSeleccionados.length === 0">
+                                <p>No has agregado platillos al combo</p>
+                            </div>
+
+                            <hr style="margin: 30px 0; border: none; border-top: 2px solid #d4af37;" />
+
+                            <!-- Búsqueda de platillos -->
+                            <div class="busqueda-platillos">
+                                <h3>Agregar Platillos</h3>
+                                <div class="search-container">
+                                    <input type="text" [(ngModel)]="busquedaPlatillo"
+                                        [ngModelOptions]="{standalone: true}" (input)="buscarPlatillo()"
+                                        placeholder="Buscar platillos..." class="search-input" />
+                                    <i class="fa-solid fa-search search-icon"></i>
+                                </div>
+                            </div>
+
+                            <!-- Loading platillos -->
+                            <div *ngIf="cargandoPlatillos" class="loading-platillos">
+                                <div class="spinner-small"></div>
+                                <p>Cargando platillos...</p>
+                            </div>
+
+                            <!-- Grid de platillos disponibles -->
+                            <div class="platillos-grid" *ngIf="!cargandoPlatillos">
+                                <div class="platillo-card" *ngFor="let platillo of platillosFiltrados"
+                                    [class.platillo-seleccionado]="esPlatilloSeleccionado(platillo.id_platillo!)"
+                                    (click)="agregarPlatillo(platillo)">
+                                    <div class="platillo-imagen">
+                                        <img [src]="getImagenPlatillo(platillo.Ruta_imagen)"
+                                            [alt]="platillo.Nombre_platillo" *ngIf="platillo.Ruta_imagen" alt="" />
+                                        <div class="platillo-placeholder" *ngIf="!platillo.Ruta_imagen">
+                                            <span>{{ getInicialesPlatillo(platillo.Nombre_platillo) }}</span>
+                                        </div>
+                                        <div class="check-overlay"
+                                            *ngIf="esPlatilloSeleccionado(platillo.id_platillo!)">
+                                            <i class="fa-solid fa-check"></i>
+                                        </div>
+                                    </div>
+                                    <div class="platillo-info">
+                                        <h4>{{ platillo.Nombre_platillo }}</h4>
+                                        <p class="platillo-precio">${{ platillo.precio_venta?.toFixed(2) }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="platillos-vacio" *ngIf="platillosFiltrados.length === 0">
+                                    <p>No se encontraron platillos</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón de guardar -->
+                        <div class="botones">
+                            <button type="submit" class="buton-style"
+                                [disabled]="guardando || form.invalid || platillosSeleccionados.length === 0">
+                                {{ guardando ? 'Guardando...' : 'Crear Combo' }}
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>

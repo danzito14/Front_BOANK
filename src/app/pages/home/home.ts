@@ -31,7 +31,7 @@ export class Home implements OnInit {
     this.productosService.get_all_Productos().subscribe({
       next: (data) => {
         this.zone.run(() => {
-          this.productos = data;
+          this.productos = data.filter(d => d.estatus !== false);
           this.cd.markForCheck();
         });
       },
@@ -44,7 +44,7 @@ export class Home implements OnInit {
       next: (data) => {
         // Ejecutar dentro de NgZone pero sin forzar detección manual
         this.zone.run(() => {
-          this.combos = data;
+          this.combos = data.filter(d => d.estatus !== false);
           // Marca para verificación en el siguiente ciclo
           this.cd.markForCheck();
         });

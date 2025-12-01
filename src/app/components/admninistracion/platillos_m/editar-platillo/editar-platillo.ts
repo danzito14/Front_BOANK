@@ -576,6 +576,7 @@ export class EditarPlatillo implements OnInit, OnDestroy {
     this.loading = true;
 
     try {
+
       // 1. Actualizar platillo si hay cambios
       if (Object.keys(camposModificados).length > 0) {
         await this.platillosService.updatePlatillo(this.id_platillo, camposModificados).toPromise();

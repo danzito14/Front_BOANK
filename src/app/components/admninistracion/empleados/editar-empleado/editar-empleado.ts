@@ -384,7 +384,7 @@ export class EditarEmpleado implements OnInit, OnDestroy {
         this.form.patchValue({
           Fecha_de_despido: fechaActual,
           Razon_despido: result.value,
-          Fecha_de_recontratacion: ''
+          Fecha_de_recontratacion: null
         }, { emitEvent: false });
 
         console.log('Datos de despido agregados:', {
@@ -462,8 +462,8 @@ export class EditarEmpleado implements OnInit, OnDestroy {
       camposModificados.estatus = camposModificados.estatus === 'true';
     }
 
+    camposModificados.Fecha_de_recontratacion = null;
     console.log('Enviando actualización con campos modificados:', camposModificados);
-
     this.empleadosService.updateEmpleado(this.id_empleado, camposModificados)
       .pipe(takeUntil(this.destroy$))
       .subscribe({

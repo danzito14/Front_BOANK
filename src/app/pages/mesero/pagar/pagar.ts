@@ -111,7 +111,9 @@ export class Pagar implements OnInit {
               text: `Referencia: ${this.referencia_pago}`,
               confirmButtonColor: '#D0AF43',
               iconColor: '#D0AF43'
-            });
+            }).then(() => {
+              this.regresar();
+            })
           },
           error: (err) => {
             Swal.fire({

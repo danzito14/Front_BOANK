@@ -1,0 +1,146 @@
+<div class="container">
+    <div class="main-content">
+        <div class="tabs-fechas">
+            <div class="tab">
+                Gestión de Ofertas
+            </div>
+        </div>
+        <div class="reportes_ventas">
+
+            <!-- Barra de búsqueda -->
+            <div class="search-bar">
+                <div class="search-container">
+                    <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Buscar ofertas..."
+                        class="search-input">
+                    <button class="btn-search" (click)="onSearch()">
+                        <i class="fa-solid fa-search"></i> Buscar
+                    </button>
+                </div>
+                <div class="search-results-info" *ngIf="searchTerm">
+                    Mostrando {{ filteredData.length }} resultado(s)
+                </div>
+            </div>
+
+            <!-- Tabla de ofertas -->
+            <div class="tabla-empleados">
+                <!-- Loading spinner -->
+                <div *ngIf="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Cargando ofertas...</p>
+                </div>
+
+                <!-- Error state -->
+                <div *ngIf="error && !loading" class="error-state">
+                    <i class="fa-solid fa-exclamation-triangle"></i>
+                    <p>{{ error }}</p>
+                    <button class="btn-retry" (click)="loadTableData()">
+                        Reintentar
+                    </button>
+                </div>
+
+                <!-- Tabla -->
+                <div *ngIf="!loading && !error" class="tabla-container">
+                    <div class="cabeza_tabla">
+                        <h3 class="tabla-titulo">
+                            {{ getTituloTabla() }}
+                        </h3>
+                        <div class="tab_agregar" (click)="onAgregar()">
+                            <i class="fa-solid fa-plus"></i> {{ getTextoAgregar() }}
+                        </div>
+                    </div>
+                    <div class="tabla-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th *ngFor="let col of tableConfig.columns">
+                                        {{ col.label }}
+                                    </th>
+                                    <th *ngIf="tableConfig.showActions" class="text-center">
+                                        Acciones
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Filas de datos -->
+                                <tr *ngFor="let item of paginatedData; let i = index" [class.row-even]="i % 2 === 0"
+                                    [class.row-vigente]="isOfertaVigente(item)">
+                                    <td *ngFor="let col of tableConfig.columns">
+                                        <!-- Columna de badge (estado) -->
+                                        <span *ngIf="col.type === 'badge'" [class]="'badge ' + getEstatusClass(item)">
+                                            {{ getEstatusTexto(item) }}
+                                        </span>
+
+                                        <!-- Columna de platillos -->
+                                        <span *ngIf="col.key === 'total_platillos'" class="platillos-count">
+                                            <i class="fa-solid fa-utensils"></i>
+                                            {{ item.total_platillos || 0 }}
+                                        </span>
+
+                                        <!-- Columna de descuento -->
+                                        <span *ngIf="col.key === 'porcentaje_descuento'" class="descuento-badge">
+                                            {{ formatCellValue(item, col) }}
+                                        </span>
+
+                                        <!-- Columna normal -->
+                                        <span
+                                            *ngIf="col.type !== 'badge' && col.key !== 'total_platillos' && col.key !== 'porcentaje_descuento'">
+                                            {{ formatCellValue(item, col) }}
+                                        </span>
+                                    </td>
+
+                                    <!-- Acciones -->
+                                    <td *ngIf="tableConfig.showActions" class="acciones-cell">
+                                        <div class="acciones-container">
+                                            <button *ngIf="tableConfig.actions?.edit" class="btn-accion btn-editar"
+                                                (click)="onEdit(getItemId(item))" title="Editar">
+                                                Editar
+                                            </button>
+
+
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Estado vacío -->
+                                <tr *ngIf="paginatedData.length === 0">
+                                    <td [attr.colspan]="tableConfig.columns.length + (tableConfig.showActions ? 1 : 0)"
+                                        class="empty-state">
+                                        <i class="fa-solid fa-inbox"></i>
+                                        <p>{{ searchTerm ? 'No se encontraron resultados' : 'No hay ofertas disponibles'
+                                            }}</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginación -->
+                    <div class="paginacion" *ngIf="filteredData.length > 0">
+                        <div class="info-paginacion">
+                            Mostrando {{ showingFrom }} a {{ showingTo }} de {{ filteredData.length }} registros
+                        </div>
+
+                        <div class="controles-paginacion">
+                            <button class="btn-pagina" (click)="goToPage(currentPage - 1)"
+                                [disabled]="currentPage === 1">
+                                <i class="fa-solid fa-chevron-left"></i> Anterior
+                            </button>
+
+                            <div class="numeros-pagina">
+                                <button *ngFor="let page of pageNumbers" class="btn-numero"
+                                    [class.active]="page === currentPage" (click)="goToPage(page)">
+                                    {{ page }}
+                                </button>
+                            </div>
+
+                            <button class="btn-pagina" (click)="goToPage(currentPage + 1)"
+                                [disabled]="currentPage === totalPages">
+                                Siguiente <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

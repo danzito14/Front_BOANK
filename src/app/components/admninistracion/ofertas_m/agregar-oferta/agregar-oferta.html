@@ -1,0 +1,258 @@
+<div class="container">
+    <div class="main-content">
+        <div class="reportes_ventas">
+            <!-- Tabs de secciones -->
+            <div class="tabs-fechas">
+                <div class="tab" [class.active]="tab === 'informacion_basica'" (click)="tab = 'informacion_basica'">
+                    Información de la Oferta
+                </div>
+                <div class="tab" [class.active]="tab === 'platillos'" (click)="tab = 'platillos'">
+                    Platillos en Oferta
+                </div>
+            </div>
+
+            <!-- Encabezado -->
+            <div class="tabs-fechas2">
+                <div class="tab_nombre">
+                    Crear Nueva Oferta
+                </div>
+                <button type="button" class="tab_cancelar" (click)="cancelar()">
+                    Cancelar
+                </button>
+            </div>
+
+            <!-- Loading spinner -->
+            <div *ngIf="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Cargando datos...</p>
+            </div>
+
+            <!-- Formulario -->
+            <div class="formulario" *ngIf="!loading">
+                <section>
+                    <form [formGroup]="form" class="form" (ngSubmit)="guardarOferta()">
+
+                        <!-- ========== INFORMACIÓN DE LA OFERTA ========== -->
+                        <div *ngIf="tab === 'informacion_basica'" class="inputs">
+                            <h2>Información de la Oferta</h2>
+
+                            <div class="nombre-oferta">
+                                <label for="nombre">
+                                    Nombre de la Oferta <span class="required">*</span>
+                                </label>
+                                <input id="nombre" type="text" class="input-style" formControlName="nombre_oferta"
+                                    placeholder="Ej: Oferta de Verano, Promoción Fin de Año"
+                                    [class.input-error]="esCampoInvalido('nombre_oferta')" />
+                                <div class="error" *ngIf="esCampoInvalido('nombre_oferta')">
+                                    <h4>{{ getMensajeError('nombre_oferta') }}</h4>
+                                </div>
+                            </div>
+
+                            <div class="descripcion">
+                                <label for="descripcion">
+                                    Descripción <span class="required">*</span>
+                                </label>
+                                <textarea id="descripcion" class="input-style textarea-style"
+                                    formControlName="descripcion" rows="4"
+                                    placeholder="Describe la oferta y sus beneficios..."
+                                    [class.input-error]="esCampoInvalido('descripcion')"></textarea>
+                                <div class="error" *ngIf="esCampoInvalido('descripcion')">
+                                    <h4>{{ getMensajeError('descripcion') }}</h4>
+                                </div>
+                            </div>
+
+                            <div class="descuento">
+                                <label for="porcentaje_descuento">
+                                    Porcentaje de Descuento <span class="required">*</span>
+                                </label>
+                                <div class="input-with-suffix">
+                                    <input id="porcentaje_descuento" type="number" class="input-style"
+                                        formControlName="porcentaje_descuento" step="1" min="0" max="100"
+                                        (change)="onDescuentoChange()"
+                                        [class.input-error]="esCampoInvalido('porcentaje_descuento')" />
+                                    <span class="suffix">%</span>
+                                </div>
+                                <div class="error" *ngIf="esCampoInvalido('porcentaje_descuento')">
+                                    <h4>{{ getMensajeError('porcentaje_descuento') }}</h4>
+                                </div>
+                                <p class="helper-text">
+                                    Ingresa un valor entre 0 y 100
+                                </p>
+                            </div>
+
+                            <div class="fechas-container">
+                                <div class="fecha-inicio">
+                                    <label for="fecha_inicio">
+                                        Fecha de Inicio <span class="required">*</span>
+                                    </label>
+                                    <input id="fecha_inicio" type="date" class="input-style"
+                                        formControlName="fecha_inicio" [min]="fechaMinima"
+                                        [class.input-error]="esCampoInvalido('fecha_inicio')" />
+                                    <div class="error" *ngIf="esCampoInvalido('fecha_inicio')">
+                                        <h4>{{ getMensajeError('fecha_inicio') }}</h4>
+                                    </div>
+                                </div>
+
+                                <div class="fecha-fin">
+                                    <label for="fecha_fin">
+                                        Fecha de Fin <span class="required">*</span>
+                                    </label>
+                                    <input id="fecha_fin" type="date" class="input-style" formControlName="fecha_fin"
+                                        [min]="fechaMinima" [class.input-error]="esCampoInvalido('fecha_fin')" />
+                                    <div class="error" *ngIf="esCampoInvalido('fecha_fin')">
+                                        <h4>{{ getMensajeError('fecha_fin') }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="error" *ngIf="form.errors?.['fechasInvalidas'] && form.touched">
+                                <h4>La fecha de inicio debe ser anterior a la fecha de fin</h4>
+                            </div>
+
+                            <div class="vigencia-preview"
+                                *ngIf="form.get('fecha_inicio')?.value && form.get('fecha_fin')?.value">
+                                <div class="vigencia-card">
+                                    <i class="fa-solid fa-calendar-days"></i>
+                                    <div class="vigencia-info">
+                                        <strong>Vigencia de la oferta:</strong>
+                                        <p>Desde {{ formatFecha(form.get('fecha_inicio')?.value) }} hasta {{
+                                            formatFecha(form.get('fecha_fin')?.value) }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="estatus">
+                                <label for="activo">
+                                    Estado de la Oferta <span class="required">*</span>
+                                </label>
+                                <select id="activo" class="input-style select-style" formControlName="activo">
+                                    <option [value]="1">Activa</option>
+                                    <option [value]="0">Inactiva</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- ========== PLATILLOS EN OFERTA ========== -->
+                        <div *ngIf="tab === 'platillos'" class="inputs">
+                            <h2>Platillos en Oferta</h2>
+
+                            <!-- Alerta de descuento -->
+                            <div class="descuento-alert" *ngIf="form.get('porcentaje_descuento')?.value > 0">
+                                <i class="fa-solid fa-tag"></i>
+                                <div>
+                                    <strong>Descuento aplicado: {{ form.get('porcentaje_descuento')?.value }}%</strong>
+                                    <p>Este descuento se aplicará a todos los platillos seleccionados</p>
+                                </div>
+                            </div>
+
+                            <!-- Resumen de platillos seleccionados -->
+                            <div class="platillos-seleccionados-resumen" *ngIf="platillosSeleccionados.length > 0">
+                                <h3>Platillos Agregados ({{ platillosSeleccionados.length }})</h3>
+
+                                <div class="lista-platillos-seleccionados">
+                                    <div class="platillo-seleccionado-item"
+                                        *ngFor="let platillo of platillosSeleccionados; let i = index">
+                                        <div class="platillo-imagen-mini">
+                                            <img [src]="getImagenPlatillo(platillo.Ruta_imagen)"
+                                                [alt]="platillo.Nombre_platillo" *ngIf="platillo.Ruta_imagen"
+                                                title="Platillo" />
+                                            <div class="platillo-placeholder-mini" *ngIf="!platillo.Ruta_imagen">
+                                                <span>{{ getInicialesPlatillo(platillo.Nombre_platillo) }}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="platillo-info-seleccionado">
+                                            <h4>{{ platillo.Nombre_platillo }}</h4>
+                                            <div class="precios-oferta">
+                                                <span class="precio-original">${{ platillo.precio_platillo.toFixed(2)
+                                                    }}</span>
+                                                <span class="precio-descuento">${{
+                                                    getPrecioConDescuento(platillo).toFixed(2) }}</span>
+                                                <span class="ahorro" *ngIf="getAhorro(platillo) > 0">
+                                                    Ahorras ${{ getAhorro(platillo).toFixed(2) }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" class="btn-quitar-platillo" (click)="quitarPlatillo(i)"
+                                            title="Quitar platillo">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="total-ahorro" *ngIf="getTotalAhorro() > 0">
+                                    <i class="fa-solid fa-piggy-bank"></i>
+                                    <strong>Ahorro total para el cliente:</strong>
+                                    <span>${{ getTotalAhorro().toFixed(2) }}</span>
+                                </div>
+                            </div>
+
+                            <div class="platillos-vacio" *ngIf="platillosSeleccionados.length === 0">
+                                <i class="fa-solid fa-inbox"></i>
+                                <p>No has agregado platillos a la oferta</p>
+                            </div>
+
+                            <hr style="margin: 30px 0; border: none; border-top: 2px solid #d4af37;" />
+
+                            <!-- Búsqueda de platillos -->
+                            <div class="busqueda-platillos">
+                                <h3>Agregar Platillos</h3>
+                                <div class="search-container">
+                                    <input type="text" [(ngModel)]="busquedaPlatillo"
+                                        [ngModelOptions]="{standalone: true}" (input)="buscarPlatillo()"
+                                        placeholder="Buscar platillos..." class="search-input" />
+                                    <i class="fa-solid fa-search search-icon"></i>
+                                </div>
+                            </div>
+
+                            <!-- Loading platillos -->
+                            <div *ngIf="cargandoPlatillos" class="loading-platillos">
+                                <div class="spinner-small"></div>
+                                <p>Cargando platillos...</p>
+                            </div>
+
+                            <!-- Grid de platillos disponibles -->
+                            <div class="platillos-grid" *ngIf="!cargandoPlatillos">
+                                <div class="platillo-card" *ngFor="let platillo of platillosFiltrados"
+                                    [class.platillo-seleccionado]="esPlatilloSeleccionado(platillo.id_platillo!)"
+                                    (click)="agregarPlatillo(platillo)">
+                                    <div class="platillo-imagen">
+                                        <img [src]="getImagenPlatillo(platillo.Ruta_imagen)"
+                                            [alt]="platillo.Nombre_platillo" *ngIf="platillo.Ruta_imagen"
+                                            title="Platillo" />
+                                        <div class="platillo-placeholder" *ngIf="!platillo.Ruta_imagen">
+                                            <span>{{ getInicialesPlatillo(platillo.Nombre_platillo) }}</span>
+                                        </div>
+                                        <div class="check-overlay"
+                                            *ngIf="esPlatilloSeleccionado(platillo.id_platillo!)">
+                                            <i class="fa-solid fa-check"></i>
+                                        </div>
+                                    </div>
+                                    <div class="platillo-info">
+                                        <h4>{{ platillo.Nombre_platillo }}</h4>
+                                        <p class="platillo-precio">${{ platillo.precio_venta?.toFixed(2) }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="platillos-vacio" *ngIf="platillosFiltrados.length === 0">
+                                    <p>No se encontraron platillos</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón de guardar -->
+                        <div class="botones">
+                            <button type="submit" class="buton-style"
+                                [disabled]="guardando || form.invalid || platillosSeleccionados.length === 0">
+                                <i class="fa-solid fa-save" *ngIf="!guardando"></i>
+                                <i class="fa-solid fa-spinner fa-spin" *ngIf="guardando"></i>
+                                {{ guardando ? 'Guardando...' : 'Crear Oferta' }}
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>

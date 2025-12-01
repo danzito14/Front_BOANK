@@ -50,7 +50,7 @@ export class EmpleadosGeneral implements OnInit, OnDestroy {
 
   // Paginación
   currentPage: number = 1;
-  itemsPerPage: number = 10;
+  itemsPerPage: number = 15;
   totalPages: number = 1;
 
   // Búsqueda

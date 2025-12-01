@@ -4,7 +4,7 @@
 
 
     <section>
-        <div class="section" *ngFor="let producto of resultados$ | async">
+        <div class="section" *ngFor="let producto of resultados$ | async; let i = index">
             <div class="platillo-tarjeta">
                 <div class="imagen">
                     <img [src]="getImageUrl(producto.Ruta_imagen)" alt="">
@@ -55,7 +55,7 @@
                     <!-- Mostrar solo si carrito es true -->
                     <div class="agregar-carrito" *ngIf="carrito">
                         <button class="button-style"
-                            (click)="agregar_carrito(producto.id_platillo, producto.precio_final ?? producto.precio_venta, producto.detalle_adicional || '')">Agregar
+                            (click)="agregar_carrito(producto.id_platillo, producto.precio_final ?? producto.precio_venta, producto.detalle_adicional || '', i)">Agregar
                             al carrito</button>
                     </div>
 

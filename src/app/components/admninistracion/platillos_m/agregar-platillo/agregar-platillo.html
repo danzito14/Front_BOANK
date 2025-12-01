@@ -43,7 +43,7 @@
                                         <input type="file" id="imagen-platillo" accept="image/*"
                                             (change)="onImagenSeleccionada($event)" style="display: none;" />
                                         <label for="imagen-platillo" class="btn-seleccionar-imagen">
-                                            📷 Seleccionar Imagen
+                                            <i class="fa-solid fa-camera"></i> Seleccionar Imagen
                                         </label>
 
                                         <div class="imagen-actions" *ngIf="imagenSeleccionada">
@@ -179,11 +179,11 @@
                                     <div class="opcion-acciones">
                                         <button type="button" class="btn-icon btn-editar" (click)="editarOpcion(i)"
                                             title="Editar">
-                                            ✏️
+                                            <i class="fa-solid fa-pen"></i>
                                         </button>
                                         <button type="button" class="btn-icon btn-eliminar" (click)="eliminarOpcion(i)"
                                             title="Eliminar">
-                                            🗑️
+                                            <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -231,7 +231,7 @@
                             <!-- Botón para mostrar formulario -->
                             <button type="button" class="btn-agregar-opcion" *ngIf="!mostrarFormOpcion"
                                 (click)="mostrarFormularioOpcion()">
-                                ➕ Agregar Opción
+                                <i class="fa-solid fa-plus"></i> Agregar Opción
                             </button>
                         </div>
 

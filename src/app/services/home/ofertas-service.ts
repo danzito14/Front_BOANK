@@ -13,6 +13,7 @@ export interface Oferta_home {
   porcentaje_descuento: number;
   precio_oferta: number;
   Descripcion: string;
+  oferta_activa: number;
 }
 
 

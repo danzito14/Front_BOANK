@@ -25,7 +25,7 @@ export interface Empleado {
   Fecha_de_contratacion: string;
   Fecha_de_despido?: string;
   Razon_despido?: string;
-  Fecha_de_recontratacion?: string;
+  Fecha_de_recontratacion?: string | null;
   id_usuario?: string;
   estatus: boolean;
   Ruta_imagen?: string;

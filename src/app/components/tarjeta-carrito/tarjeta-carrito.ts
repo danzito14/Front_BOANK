@@ -41,14 +41,18 @@ export class TarjetaCarrito {
 
   cargarPlatillos() {
     this.carritoService.getCarritoByUser().subscribe(platillos => {
+      console.log(platillos);
+      const activos = platillos.filter(
+        p => p.estatus_platillo === 1);
+
       this.zone.run(() => {
-
-        this.platillosCarrito = platillos;
-        this.cd.detectChanges();  // 🔹 Forzar actualización
+        this.platillosCarrito = activos;
+        this.cd.detectChanges(); // Forzar actualización si vienes de fuera de Angular
       });
-    });
 
+    });
   }
+
 
   eliminarPlatillo(id_detalle_carrito: string) {
     this.carritoService.eliminarPlatillo(id_detalle_carrito).subscribe({

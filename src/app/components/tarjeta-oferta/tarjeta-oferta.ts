@@ -30,25 +30,59 @@ export class TarjetaOferta implements OnInit {
       next: (productosData) => {
         this.favoritosService.get_favoritos_user().subscribe({
           next: (favoritosData) => {
+
+            // Ejecutar actualización de estado dentro de Angular
             this.zone.run(() => {
+
               this.favoritos = favoritosData;
 
-              this.productos = productosData.map(prod => {
+              // 📌 1. Filtrar solo productos con oferta activa
+              const productosActivos = productosData.filter(p => p.oferta_activa !== 0);
+
+              // 📌 2. Agrupar por id_platillo y elegir la oferta más alta
+              const productosPorId = new Map<string, any>();
+
+              for (const prod of productosActivos) {
+
+                const existente = productosPorId.get(prod.id_platillo);
+
+                if (!existente) {
+                  // No existe todavía → agregarlo
+                  productosPorId.set(prod.id_platillo, prod);
+                } else {
+                  // Ya existe → comparar qué producto tiene mayor porcentaje de oferta
+                  if (prod.porcentaje_descuento > existente.Porcentaje_oferta) {
+                    productosPorId.set(prod.id_platillo, prod);
+                  }
+                }
+              }
+
+              // 📌 3. Convertir el mapa a array final
+              const productosFiltrados = Array.from(productosPorId.values());
+
+              // 📌 4. Agregar favoritos
+              this.productos = productosFiltrados.map(prod => {
                 const fav = this.favoritos.find(f => f.id_platillo === prod.id_platillo);
+
                 return {
                   ...prod,
                   isFavorite: !!fav,
                   id_favorito: fav ? fav.id_favorito : null
                 } as ProductoConFavorito;
               });
+
             });
+
             this.cd.detectChanges();
           },
+
           error: (err) => console.error('Error al cargar favoritos', err)
         });
       },
+
       error: (err) => console.error('Error al cargar productos', err)
     });
+
   }
   // 🔹 Cambiar estado de favorito
   toggleFavorito(prod: ProductoConFavorito) {

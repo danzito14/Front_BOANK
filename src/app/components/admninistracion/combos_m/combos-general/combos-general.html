@@ -1,0 +1,128 @@
+<div class="container">
+    <div class="main-content">
+        <div class="tabs-fechas">
+            <div class="tab">
+                Gestión de Usuarios
+            </div>
+        </div>
+        <div class="reportes_ventas">
+
+            <!-- Barra de búsqueda -->
+            <div class="search-bar">
+                <div class="search-container">
+                    <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Buscar combos..."
+                        class="search-input">
+                    <button class="btn-search" (click)="onSearch()">
+                        Buscar
+                    </button>
+                </div>
+                <div class="search-results-info" *ngIf="searchTerm">
+                    Mostrando {{ filteredData.length }} resultado(s)
+                </div>
+            </div>
+
+            <!-- Tabla de combos -->
+            <div class="tabla-empleados">
+                <!-- Loading spinner -->
+                <div *ngIf="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Cargando combos...</p>
+                </div>
+
+                <!-- Tabla -->
+                <div *ngIf="!loading" class="tabla-container">
+                    <div class="cabeza_tabla">
+                        <h3 class="tabla-titulo">
+                            {{ getTituloTabla() }}
+                        </h3>
+                        <div class="tab_agregar" (click)="onAgregar()">
+                            {{ getTextoAgregar() }}
+                        </div>
+                    </div>
+                    <div class="tabla-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th *ngFor="let col of tableConfig.columns">
+                                        {{ col.label }}
+                                    </th>
+                                    <th *ngIf="tableConfig.showActions" class="text-center">
+                                        Acciones
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Filas de datos -->
+                                <tr *ngFor="let item of paginatedData; let i = index" [class.row-even]="i % 2 === 0">
+                                    <td *ngFor="let col of tableConfig.columns">
+                                        <!-- Columna de imagen -->
+                                        <div *ngIf="col.type === 'image'" class="imagen-cell">
+                                            <img [src]="getImageUrl(item)" [alt]="item.Nombre_combo"
+                                                class="combo-imagen" title="Combo"
+                                                (error)="$any($event.target).src='assets/images/combo-placeholder.png'">
+                                        </div>
+
+                                        <!-- Columna de badge (estatus) -->
+                                        <span *ngIf="col.type === 'badge'" [class]="'badge ' + getEstatusClass(item)">
+                                            {{ getEstatusTexto(item) }}
+                                        </span>
+
+                                        <!-- Columna normal -->
+                                        <span *ngIf="!col.type || (col.type !== 'image' && col.type !== 'badge')">
+                                            {{ formatCellValue(item, col) }}
+                                        </span>
+                                    </td>
+
+                                    <!-- Acciones -->
+                                    <td *ngIf="tableConfig.showActions" class="acciones-cell">
+                                        <div class="acciones-container">
+                                            <button *ngIf="tableConfig.actions?.edit" class="btn-accion btn-editar"
+                                                (click)="onEdit(getItemId(item))" title="Editar">
+                                                Editar
+                                            </button>
+
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Estado vacío -->
+                                <tr *ngIf="paginatedData.length === 0">
+                                    <td [attr.colspan]="tableConfig.columns.length + (tableConfig.showActions ? 1 : 0)"
+                                        class="empty-state">
+                                        {{ searchTerm ? 'No se encontraron resultados' : 'No hay combos disponibles' }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginación -->
+                    <div class="paginacion" *ngIf="filteredData.length > 0">
+                        <div class="info-paginacion">
+                            Mostrando {{ showingFrom }} a {{ showingTo }} de {{ filteredData.length }} registros
+                        </div>
+
+                        <div class="controles-paginacion">
+                            <button class="btn-pagina" (click)="goToPage(currentPage - 1)"
+                                [disabled]="currentPage === 1">
+                                ← Anterior
+                            </button>
+
+                            <div class="numeros-pagina">
+                                <button *ngFor="let page of pageNumbers" class="btn-numero"
+                                    [class.active]="page === currentPage" (click)="goToPage(page)">
+                                    {{ page }}
+                                </button>
+                            </div>
+
+                            <button class="btn-pagina" (click)="goToPage(currentPage + 1)"
+                                [disabled]="currentPage === totalPages">
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,167 @@
+<div class="container">
+    <div class="main-content">
+        <div class="reportes_ventas">
+            <div class="tabs-fechas">
+                <div class="tab">
+                    Gestión de Mesas
+                </div>
+            </div>
+
+            <!-- Estadísticas rápidas -->
+            <div class="estadisticas-container">
+                <div class="stat-card">
+                    <div class="stat-label">Total Mesas</div>
+                    <div class="stat-value">{{ totalMesas }}</div>
+                </div>
+                <div class="stat-card stat-libre">
+                    <div class="stat-label">Libres</div>
+                    <div class="stat-value">{{ mesasLibres }}</div>
+                </div>
+                <div class="stat-card stat-ocupada">
+                    <div class="stat-label">Ocupadas</div>
+                    <div class="stat-value">{{ mesasOcupadas }}</div>
+                </div>
+                <!-- <div class="stat-card stat-reservada">
+                    <div class="stat-label">Reservadas</div>
+                    <div class="stat-value">{{ mesasReservadas }}</div>
+                </div> -->
+            </div>
+
+            <!-- Barra de búsqueda y filtros -->
+            <div class="search-bar">
+                <div class="search-filters-row">
+                    <div class="search-container">
+                        <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Buscar mesa..."
+                            class="search-input">
+                        <button class="btn-search" (click)="onSearch()">
+                            🔍 Buscar
+                        </button>
+                    </div>
+                    <div class="filter-container">
+                        <label class="filter-label">Estado:</label>
+                        <select [(ngModel)]="filtroEstado" (change)="onFiltroEstadoChange()" class="filter-select">
+                            <option value="todas">Todas</option>
+                            <option value="Libre">Libre</option>
+                            <option value="Ocupada">Ocupada</option>
+                            <!-- <option value="Reservada">Reservada</option> -->
+                        </select>
+                    </div>
+                </div>
+                <div class="search-results-info" *ngIf="searchTerm || filtroEstado !== 'todas'">
+                    Mostrando {{ filteredData.length }} resultado(s)
+                </div>
+            </div>
+
+            <!-- Tabla de mesas -->
+            <div class="tabla-empleados">
+                <!-- Loading spinner -->
+                <div *ngIf="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Cargando mesas...</p>
+                </div>
+
+                <!-- Error message -->
+                <div *ngIf="error && !loading" class="error-message">
+                    <p>⚠️ {{ error }}</p>
+                    <button class="btn-retry" (click)="loadTableData()">Reintentar</button>
+                </div>
+
+                <!-- Tabla -->
+                <div *ngIf="!loading && !error" class="tabla-container">
+                    <div class="cabeza_tabla">
+                        <h3 class="tabla-titulo">Lista de Mesas</h3>
+                        <div class="tab_agregar" (click)="onAgregar()">
+                            Agregar Mesa
+                        </div>
+                    </div>
+                    <div class="tabla-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th *ngFor="let col of columns">
+                                        {{ col.label }}
+                                    </th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Filas de datos -->
+                                <tr *ngFor="let item of paginatedData; let i = index" [class.row-even]="i % 2 === 0">
+                                    <td *ngFor="let col of columns"
+                                        [class.text-center]="col.type === 'estado' || col.type === 'number' || col.type === 'pedido'">
+
+                                        <!-- Texto normal -->
+                                        <span *ngIf="col.type !== 'estado' && col.type !== 'pedido'">
+                                            {{ formatCellValue(item, col) }}
+                                        </span>
+
+                                        <!-- Badge de estado -->
+                                        <span *ngIf="col.key !== 'estatus_bool' && col.type === 'estado'" class="badge"
+                                            [ngClass]="getEstadoClass(item.Estado)">
+                                            {{ formatCellValue(item, col) }}
+                                        </span>
+
+                                        <!-- Badge de estatus activo/inactivo -->
+                                        <span *ngIf="col.key === 'estatus_bool' && col.type === 'estado'" class="badge"
+                                            [ngClass]="item.estatus_bool ? 'badge-activa' : 'badge-inactiva'">
+                                            {{ formatCellValue(item, col) }}
+                                        </span>
+
+                                        <!-- Badge de pedido -->
+                                        <span *ngIf="col.type === 'pedido'" class="badge"
+                                            [ngClass]="getPedidoClass(!!item.id_pedido)">
+                                            {{ formatCellValue(item, col) }}
+                                        </span>
+                                    </td>
+                                    <td class="acciones-cell">
+                                        <div class="acciones-container">
+
+                                            <button class="btn-accion btn-editar" (click)="onEdit(item.id_mesa!)"
+                                                title="Editar">
+                                                Editar
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Estado vacío -->
+                                <tr *ngIf="paginatedData.length === 0">
+                                    <td [attr.colspan]="columns.length + 1" class="empty-state">
+                                        {{ searchTerm || filtroEstado !== 'todas' ? 'No se encontraron resultados' : 'No
+                                        hay mesas disponibles' }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginación -->
+                    <div class="paginacion" *ngIf="filteredData.length > 0">
+                        <div class="info-paginacion">
+                            Mostrando {{ showingFrom }} a {{ showingTo }} de {{ filteredData.length }} registros
+                        </div>
+
+                        <div class="controles-paginacion">
+                            <button class="btn-pagina" (click)="goToPage(currentPage - 1)"
+                                [disabled]="currentPage === 1">
+                                ← Anterior
+                            </button>
+
+                            <div class="numeros-pagina">
+                                <button *ngFor="let page of pageNumbers" class="btn-numero"
+                                    [class.active]="page === currentPage" (click)="goToPage(page)">
+                                    {{ page }}
+                                </button>
+                            </div>
+
+                            <button class="btn-pagina" (click)="goToPage(currentPage + 1)"
+                                [disabled]="currentPage === totalPages">
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

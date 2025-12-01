@@ -259,13 +259,13 @@ td {
 }
 
 .badge-activo {
-    background: #f8d7da;
+    background: #d1ecf1;
     color: #0833a2;
     border: 1px solid #0833a2;
 }
 
 .badge-inactivo {
-    background: #d4f4dd;
+    background: #f8d7da;
     color: #721c24;
     border: 1px solid #773832;
 
@@ -303,14 +303,6 @@ td {
     transform: scale(1.1);
 }
 
-.btn-ver {
-    color: #17a2b8;
-}
-
-.btn-ver:hover {
-    background: #d1ecf1;
-}
-
 .btn-editar {
     color: #8B5E3C;
     border: #8B5E3C solid 1px;
@@ -319,15 +311,9 @@ td {
 .btn-editar:hover {
     background-color: #8B5E3C;
     color: #fff;
+    width: 100%;
 }
 
-.btn-eliminar {
-    color: #dc3545;
-}
-
-.btn-eliminar:hover {
-    background: #f8d7da;
-}
 
 /* Loading Spinner */
 .loading {
