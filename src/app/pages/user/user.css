@@ -266,6 +266,66 @@
     font-weight: 500;
 }
 
+/* CONTENEDOR GENERAL */
+.swal2-popup {
+    border-radius: 20px !important;
+    padding: 25px !important;
+    background: #fff7e6 !important;
+    border: 3px solid #D0AF43 !important;
+}
+
+/* TITULO */
+.swal2-title {
+    color: #773832 !important;
+    font-weight: bold !important;
+}
+
+/* TEXTO */
+.swal2-html-container {
+    color: #5a392f !important;
+    font-size: 16px !important;
+}
+
+/* BOTONES */
+.swal2-confirm {
+    background-color: #D0AF43 !important;
+    color: black !important;
+    border-radius: 10px !important;
+    padding: 10px 20px !important;
+}
+
+.swal2-cancel {
+    background-color: #773832 !important;
+    color: white !important;
+    border-radius: 10px !important;
+    padding: 10px 20px !important;
+}
+
+/* === INPUTS CODIGO 4 DIGITOS === */
+.codigo-boxes {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.codigo-input {
+    width: 50px;
+    height: 55px;
+    font-size: 28px;
+    text-align: center;
+    border: 2px solid #D0AF43;
+    border-radius: 12px;
+    outline: none;
+    font-weight: bold;
+    color: #773832;
+}
+
+.codigo-input:focus {
+    border-color: #773832;
+}
+
+
 /* Responsive */
 @media (max-width: 768px) {
     .container {

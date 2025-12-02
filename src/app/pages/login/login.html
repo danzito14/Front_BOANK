@@ -1,5 +1,6 @@
 <main>
-    <div class="login-cont">
+    <!-- ========== PANTALLA 1: LOGIN ========== -->
+    <div class="login-cont" *ngIf="login">
         <div class="formulario-cont">
             <div class="formulario-cabeza">
                 <div class="titulo_cabeza">
@@ -11,9 +12,10 @@
                         <input id="usuario-input" type="text" title="Usuario" [(ngModel)]="usuario" name="usuario" />
                     </div>
                     <div>
-                        <h3 id="contra-h3">Contraseña</h3>
+                        <h3 id="usuario-h3">Contraseña</h3>
                         <input type="password" title="Contraseña" id="contra" [(ngModel)]="contrasena"
                             name="contraseña" />
+                        <a id="no-cuenta" (click)="cambiar_a_recuperar()">¿No recuerdas tu contraseña?</a>
                     </div>
                 </div>
             </div>
@@ -30,17 +32,122 @@
             </div>
         </div>
     </div>
+
+    <!-- ========== PANTALLA 2: RECUPERAR CONTRASEÑA ========== -->
+    <div class="login-cont" *ngIf="recuperar_contra">
+        <div class="formulario-cont">
+            <div class="formulario-cabeza">
+                <div class="titulo_cabeza">
+                    <h2 id="titulo">Recuperar contraseña</h2>
+                </div>
+                <div class="loader-container" *ngIf="!correo_encontrado">
+                    <div class="loader"></div>
+                </div>
+
+                <div class="inputs-cont" *ngIf="correo_encontrado">
+                    <div>
+                        <h3 id="usuario-h3">Se ha encontrado un correo que termina en</h3>
+                        <br>
+                        <h3 id="correo_encontrado">{{correo_encontrado}}</h3>
+                        <br>
+                        <h3 id="usuario-h3-2">Si quieres cambiar la contraseña se te enviará un correo
+                            con 4 dígitos para que puedas cambiarla</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="formulario-pie">
+                <a id="no-cuenta" (click)="regresar_a_login()">Regresar al login</a>
+                <div class="btn-cont">
+                    <button class="iniciar-sesion" (click)="enviar_codigo_al_correo()">Enviar correo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== PANTALLA 3: INGRESAR CÓDIGO ========== -->
+    <div class="login-cont" *ngIf="enviar_correo">
+        <div class="formulario-cont">
+            <div class="formulario-cabeza">
+                <div class="titulo_cabeza">
+                    <h2 id="titulo">Verificar código</h2>
+                </div>
+                <div class="loader-container" *ngIf="cargando">
+                    <div class="loader"></div>
+                </div>
+
+                <div class="inputs-cont" *ngIf="!cargando">
+                    <div>
+                        <h3 id="usuario-h3">Ingresa los 4 dígitos enviados a tu correo</h3>
+                        <br>
+                        <div class="codigo-container">
+                            <input appUnsolonumero class="codigo" maxlength="1" [(ngModel)]="codigo[0]"
+                                (input)="mover($event, 0)" title="Número 1">
+                            <input appUnsolonumero class="codigo" maxlength="1" [(ngModel)]="codigo[1]"
+                                (input)="mover($event, 1)" title="Número 2">
+                            <input appUnsolonumero class="codigo" maxlength="1" [(ngModel)]="codigo[2]"
+                                (input)="mover($event, 2)" title="Número 3">
+                            <input appUnsolonumero class="codigo" maxlength="1" [(ngModel)]="codigo[3]"
+                                (input)="mover($event, 3)" title="Número 4">
+                        </div>
+                        <br>
+                        <a id="no-cuenta" (click)="enviar_codigo_al_correo()">Reenviar correo</a>
+                    </div>
+                </div>
+            </div>
+            <div class="formulario-pie">
+                <a id="no-cuenta" (click)="regresar_a_login()">Regresar al login</a>
+                <div class="btn-cont" *ngIf="!cargando">
+                    <button class="iniciar-sesion" (click)="verificar_codigo()">Verificar código</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== PANTALLA 4: CAMBIAR CONTRASEÑA ========== -->
+    <div class="login-cont" *ngIf="cambiar_password">
+        <div class="formulario-cont">
+            <div class="formulario-cabeza">
+                <div class="titulo_cabeza">
+                    <h2 id="titulo">Nueva contraseña</h2>
+                </div>
+                <div class="loader-container" *ngIf="cargando">
+                    <div class="loader"></div>
+                </div>
+
+                <div class="inputs-cont" *ngIf="!cargando">
+                    <div>
+                        <h3 id="usuario-h3">Nueva contraseña</h3>
+                        <input type="password" title="Nueva contraseña" [(ngModel)]="nueva_contrasena"
+                            name="nueva_contrasena" />
+                    </div>
+                    <div>
+                        <h3 id="usuario-h3">Confirmar contraseña</h3>
+                        <input type="password" title="Confirmar contraseña" [(ngModel)]="confirmar_contrasena"
+                            name="confirmar_contrasena" />
+                    </div>
+                </div>
+            </div>
+            <div class="formulario-pie">
+                <a id="no-cuenta" (click)="regresar_a_login()">Regresar al login</a>
+                <div class="btn-cont" *ngIf="!cargando">
+                    <button class="iniciar-sesion" (click)="cambiar_contrasena()">Cambiar contraseña</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== IMAGEN DE FONDO (SIEMPRE VISIBLE) ========== -->
     <div class="img_cont">
         <div id="filtro"></div>
         <div class="titulo">
             <h2 id="restaurant">RESTAURANT</h2>
             <h1 id="nombre-empresa">Breath <br>of a <br>New <br>Kingdom</h1>
-            <h3 id="eslogan">Saborea los paltillos dignos de un rey</h3>
+            <h3 id="eslogan">Saborea los platillos dignos de un rey</h3>
             <div class="info">
-                <h4>Encuéntranos en Andrés Pérez de Riva #410 también puedes pedir a domicilio llamando al 6871558515
+                <h4>Encuéntranos en Andrés Pérez de Riva #410 también puedes pedir a domicilio llamando al
+                    6871558515
                 </h4>
             </div>
         </div>
     </div>
-
 </main>

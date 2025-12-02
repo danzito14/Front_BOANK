@@ -95,7 +95,7 @@ export class Usuarioservices {
   enviar_correo_cambio_contra(correo: string): Observable<any> {
     const headers = this.getHeaders();
     if (!headers) return of(null);
-
+    console.log(correo);
     return this.http.put(
       `${this.apiUrl}/untils_empleados/generar_codigo`,
       { correo },                // <- CORREGIDO
@@ -120,6 +120,54 @@ export class Usuarioservices {
       catchError(err => {
         console.error('Error al validar código:', err);
         return of({ valid: false });
+      })
+    );
+  }
+
+
+
+  // Método PÚBLICO (sin headers) para recuperación de contraseña
+  enviar_correo_cambio_contra_publico(correo: string): Observable<any> {
+    console.log('Enviando código a:', correo);
+
+    return this.http.put(
+      `${this.apiUrl}/untils_empleados/generar_codigo_publico`, // ⬅️ Endpoint público
+      { correo }
+      // ⚠️ SIN HEADERS - No requiere autenticación
+    ).pipe(
+      catchError(err => {
+        console.error('Error al enviar correo:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  // Método PÚBLICO para validar el código
+  validar_codigo_cambio_contra_publico(codigo: string, correo: string): Observable<any> {
+    console.log('Validando código:', codigo);
+
+    return this.http.post(
+      `${this.apiUrl}/untils_empleados/validar_codigo_publico`,
+      { codigo, correo }
+      // ⚠️ SIN HEADERS - No requiere autenticación
+    ).pipe(
+      catchError(err => {
+        console.error('Error al validar código:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  // Método PÚBLICO para cambiar la contraseña con el código
+  cambiar_contrasena_con_codigo(correo: string, codigo: string, nuevaContrasena: string): Observable<any> {
+    return this.http.put(
+      `${this.apiUrl}/untils_empleados/cambiar_contrasena_publico`,
+      { correo, codigo, nueva_contrasena: nuevaContrasena }
+      // ⚠️ SIN HEADERS - No requiere autenticación
+    ).pipe(
+      catchError(err => {
+        console.error('Error al cambiar contraseña:', err);
+        return throwError(() => err);
       })
     );
   }
