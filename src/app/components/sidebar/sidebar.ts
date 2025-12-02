@@ -157,7 +157,7 @@ export class Sidebar implements OnInit {
   }
 
   logout() {
-
+    // Mostrar confirmación inicial
     Swal.fire({
       title: '¿Está seguro de que quiere cerrar sesión?',
       showCancelButton: true,
@@ -169,48 +169,58 @@ export class Sidebar implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then(result => {
 
+      // Si cancela, no hacer nada
       if (!result.isConfirmed) return;
 
-      this.logoutService.cerrar_sesion(this.token).subscribe((puedeSalir) => {
+      // Si es nivel 3 (cocinero), 4 (mesero) o 5 (repartidor) → verificar tareas pendientes
+      if (this.token === '3' || this.token === '4' || this.token === '5') {
 
-        if (puedeSalir) {
-          Swal.fire({
-            title: 'Puedes salir sin problemas',
-            text: 'No queda nada por hacer pude cerrar sesión sin problemas',
-            confirmButtonColor: '#D0AF43',
-            icon: 'warning',
-            iconColor: '#D0AF43',
-            confirmButtonText: 'Entendido',
-          }).then(() => {
+        this.logoutService.cerrar_sesion(this.token).subscribe((puedeSalir) => {
 
-            localStorage.removeItem('token');
-            localStorage.removeItem('nvl_usuario');
-            localStorage.removeItem('datos_pedido');
-            sessionStorage.clear();
+          if (puedeSalir) {
+            // Puede cerrar sesión sin problemas
+            Swal.fire({
+              title: 'Puedes salir sin problemas',
+              text: 'No quedan tareas pendientes',
+              confirmButtonColor: '#D0AF43',
+              icon: 'success',
+              iconColor: '#D0AF43',
+              confirmButtonText: 'Entendido',
+            }).then(() => {
+              this.cerrarSesionCompleto();
+            });
 
-            this.router.navigate(['/login']);
-            this.closeSidebar();
-          })
+          } else {
+            // NO puede cerrar sesión (hay tareas pendientes)
+            Swal.fire({
+              title: 'No se puede cerrar sesión aún',
+              text: 'Aún tienes tareas pendientes por completar',
+              confirmButtonColor: '#D0AF43',
+              icon: 'warning',
+              iconColor: '#D0AF43',
+              confirmButtonText: 'Entendido',
+            }).then(() => {
+              this.closeSidebar();
+            });
+          }
+        });
 
-        } else {
-
-          Swal.fire({
-            title: 'No se puede cerrar sesión aún',
-            text: 'Hay cosas por hacer aún',
-            confirmButtonColor: '#D0AF43',
-            icon: 'success',
-            iconColor: '#D0AF43',
-            confirmButtonText: 'Entendido',
-          }).then(() => {
-
-            this.closeSidebar();
-          })
-
-        }
-
-      });
-
+      } else {
+        // Si es nivel 1 (admin), 2 (cliente) o 6 (otro) → cerrar sesión directamente
+        this.cerrarSesionCompleto();
+      }
     });
+  }
+
+  // Método auxiliar para limpiar y cerrar sesión
+  private cerrarSesionCompleto() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('nvl_usuario');
+    localStorage.removeItem('datos_pedido');
+    sessionStorage.clear();
+
+    this.router.navigate(['/login']);
+    this.closeSidebar();
   }
 
 }
