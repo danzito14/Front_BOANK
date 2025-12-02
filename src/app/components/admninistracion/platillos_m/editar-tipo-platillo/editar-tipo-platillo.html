@@ -159,8 +159,8 @@
                                 </label>
                                 <select id="estatus" class="select-style" formControlName="estatus"
                                     [class.input-error]="esCampoInvalido('estatus')">
-                                    <option [value]="true">Activo</option>
-                                    <option [value]="false">Inactivo</option>
+                                    <option [ngValue]="true">Activo</option>
+                                    <option [ngValue]="false">Inactivo</option>
                                 </select>
                                 <div class="error" *ngIf="esCampoInvalido('estatus')">
                                     <h4>{{ getMensajeError('estatus') }}</h4>

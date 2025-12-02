@@ -182,8 +182,8 @@
                             <div class="estatus">
                                 <label for="estatus">Estado del Usuario</label>
                                 <select id="estatus" class="input-style select-style" formControlName="estatus">
-                                    <option [value]="true">Activo</option>
-                                    <option [value]="false">Inactivo</option>
+                                    <option [ngValue]="true">Activo</option>
+                                    <option [ngValue]="false">Inactivo</option>
                                 </select>
                                 <p class="helper-text">
                                     Los usuarios inactivos no podrán iniciar sesión en el sistema
