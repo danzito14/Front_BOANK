@@ -76,7 +76,7 @@ export class Sidebar implements OnInit {
       this.categoriaservice.get_all_categorias().subscribe({
         next: (data) => {
           this.zone.run(() => {
-            this.categoria = data;
+            this.categoria = data.filter(d => d.estatus === true);
             this.cd.detectChanges();
           });
         },
