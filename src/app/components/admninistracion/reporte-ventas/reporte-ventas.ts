@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone, ViewChild, Ele
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Chart, registerables } from 'chart.js';
+import { Subscription } from 'rxjs';
 import {
   ReporteExtendidoInterface,
   Reportes,
@@ -10,10 +11,10 @@ import {
   ChartDataInterface,
   PlatilloRentableInterface
 } from '../../../services/administrador/reportes';
+import { WebSocketService, WebSocketMessage } from '../../../services/untils/web-socket-service';
 
 // Registrar todos los componentes de Chart.js
 Chart.register(...registerables);
-
 
 @Component({
   selector: 'app-reporte-ventas',
@@ -36,7 +37,7 @@ export class ReporteVentasl implements OnInit, OnDestroy, AfterViewInit {
   animIng = 0;
   animEgr = 0;
   animGan = 0;
-  animPerd = 0; // Pérdidas por cancelación
+  animPerd = 0;
 
   // NUEVAS MÉTRICAS ANIMADAS
   animTicket = 0;
@@ -80,10 +81,15 @@ export class ReporteVentasl implements OnInit, OnDestroy, AfterViewInit {
   isLoadingPedidos = false;
   isLoadingCharts = false;
 
+  // 🔥 WebSocket
+  private wsSubscription: Subscription | null = null;
+  private actualizacionPendiente = false;
+
   constructor(
     private cd: ChangeDetectorRef,
     private ngZone: NgZone,
-    private ReportesService: Reportes
+    private ReportesService: Reportes,
+    private wsService: WebSocketService
   ) { }
 
   ngOnInit() {
@@ -91,16 +97,112 @@ export class ReporteVentasl implements OnInit, OnDestroy, AfterViewInit {
     const hoy = new Date();
     this.fechaMaxima = hoy.toISOString().split('T')[0];
 
+    // 🔥 Conectar al WebSocket
+    this.conectarWebSocket();
   }
 
   ngAfterViewInit() {
     this.cargar_datos(this.tab);
-    // Los charts se crearán cuando tengamos datos
   }
 
   ngOnDestroy() {
     this.intervalos.forEach(intervalo => clearInterval(intervalo));
     this.destruirCharts();
+
+    // 🔥 Desconectar WebSocket
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
+  }
+
+  /**
+   * 🔥 Conecta al WebSocket y escucha notificaciones
+   */
+  private conectarWebSocket(): void {
+    console.log('🔌 Conectando WebSocket en Reporte de Ventas...');
+
+    this.wsSubscription = this.wsService.connect('admin').subscribe({
+      next: (mensaje: WebSocketMessage) => {
+        this.handleWebSocketMessage(mensaje);
+      },
+      error: (error) => {
+        console.error('❌ Error en WebSocket (Reporte):', error);
+      }
+    });
+  }
+
+  /**
+   * 🔥 Maneja los mensajes recibidos por WebSocket
+   */
+  private handleWebSocketMessage(message: WebSocketMessage): void {
+    console.log('📨 Mensaje WebSocket en Reporte:', message);
+
+    switch (message.tipo) {
+      case 'pago_completado':
+      case 'nuevo_pedido':
+      case 'pedido_cancelado':
+        this.actualizarDatosConDebounce();
+        break;
+
+      case 'pong':
+        // Mantener conexión activa
+        break;
+
+      default:
+        console.log('Tipo de mensaje no manejado:', message.tipo);
+    }
+  }
+
+  /**
+   * 🔥 Actualiza los datos con debounce para evitar múltiples llamadas
+   */
+  private actualizarDatosConDebounce(): void {
+    if (this.actualizacionPendiente) {
+      return;
+    }
+
+    this.actualizacionPendiente = true;
+
+    // Esperar 500ms antes de actualizar (por si llegan múltiples eventos)
+    setTimeout(() => {
+      console.log('🔄 Actualizando datos del reporte (sin resetear valores)...');
+      this.recargarDatosSinResetear();
+      this.actualizacionPendiente = false;
+    }, 500);
+  }
+
+  /**
+   * 🔥 Recarga datos SIN resetear los valores a 0 (para actualizaciones por WebSocket)
+   */
+  private recargarDatosSinResetear(): void {
+    if (this.tab === 'fecha') {
+      if (this.fechaInicio && this.fechaFin) {
+        this.cargar_reporte_intervalo(this.fechaInicio, this.fechaFin, false);
+        this.cargar_pedidos_intervalo(this.fechaInicio, this.fechaFin, this.currentPage);
+        this.cargar_graficas_intervalo(this.fechaInicio, this.fechaFin);
+        this.cargar_platillo_rentable_intervalo(this.fechaInicio, this.fechaFin);
+      }
+    } else {
+      this.cargar_reporte(this.tab, false);
+      this.cargar_pedidos(this.tab, this.currentPage);
+      this.cargar_graficas(this.tab);
+      this.cargar_platillo_rentable(this.tab);
+    }
+  }
+
+  /**
+   * 🔥 Recarga todos los datos según el tab actual
+   */
+  public recargarDatos(): void {
+    if (this.tab === 'fecha') {
+      // Si está en modo fecha personalizada
+      if (this.fechaInicio && this.fechaFin) {
+        this.cargar_datos_por_fecha();
+      }
+    } else {
+      // Si está en modo hoy/semana/mes
+      this.cargar_datos(this.tab);
+    }
   }
 
   destruirCharts() {
@@ -115,16 +217,26 @@ export class ReporteVentasl implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  animarNumero(valorFinal: number, callback: (v: number) => void) {
-    let inicio = 0;
+  animarNumero(valorFinal: number, callback: (v: number) => void, valorInicial?: number) {
+    // Si no se proporciona valor inicial, usar 0 (comportamiento original)
+    let inicio = valorInicial !== undefined ? valorInicial : 0;
     const duracion = 800;
     const fps = 30;
     const pasos = duracion / (1000 / fps);
-    const incremento = valorFinal / pasos;
+    const diferencia = valorFinal - inicio;
+    const incremento = diferencia / pasos;
+
+    // Si no hay diferencia, asignar directamente
+    if (Math.abs(diferencia) < 0.01) {
+      callback(Math.round(valorFinal));
+      return;
+    }
 
     const intervalo = setInterval(() => {
       inicio += incremento;
-      if (inicio >= valorFinal) {
+
+      // Verificar si llegamos al valor final
+      if ((incremento > 0 && inicio >= valorFinal) || (incremento < 0 && inicio <= valorFinal)) {
         callback(Math.round(valorFinal));
         clearInterval(intervalo);
         const index = this.intervalos.indexOf(intervalo);
@@ -148,7 +260,7 @@ export class ReporteVentasl implements OnInit, OnDestroy, AfterViewInit {
     // Resetear valores
     this.resetearValores();
 
-    // Solo cargar si NO es el tab de fecha (que usa cargar_datos_por_fecha)
+    // Solo cargar si NO es el tab de fecha
     if (intervalo === 'fecha') {
       return;
     }
@@ -233,7 +345,7 @@ export class ReporteVentasl implements OnInit, OnDestroy, AfterViewInit {
     this.animPedidosCanc = 0;
   }
 
-  cargar_reporte(intervalo: string) {
+  cargar_reporte(intervalo: string, resetearValores: boolean = true) {
     this.isLoadingReport = true;
 
     const procesarDatos = (data: ReporteExtendidoInterface) => {
@@ -241,59 +353,20 @@ export class ReporteVentasl implements OnInit, OnDestroy, AfterViewInit {
       this.isLoadingReport = false;
 
       setTimeout(() => {
-        this.animarNumero(data.platillos_preparados, (v) => {
-          this.animPrep = v;
-        });
-
-        this.animarNumero(data.platillos_cancelados, (v) => {
-          this.animCanc = v;
-        });
-
-        this.animarNumero(data.total_platillos, (v) => {
-          this.animTot = v;
-        });
-
-        this.animarNumero(data.ingresos_estimados, (v) => {
-          this.animIng = v;
-        });
-
-        this.animarNumero(data.egresos_estimados, (v) => {
-          this.animEgr = v;
-        });
-
-        this.animarNumero(data.ganancia_estimada, (v) => {
-          this.animGan = v;
-        });
-
-        this.animarNumero(data.egresos_cancelados!, (v) => {
-          this.animPerd = v;
-        });
-
-        // NUEVAS ANIMACIONES
-        this.animarNumero(data.ticket_promedio, (v) => {
-          this.animTicket = v;
-        });
-
-        this.animarNumero(data.tasa_cancelacion, (v) => {
-          this.animTasaCanc = v;
-        });
-
-        this.animarNumero(data.platillos_por_pedido, (v) => {
-          this.animPlatPedido = v;
-        });
-
-        this.animarNumero(data.total_pedidos, (v) => {
-          this.animPedidosTotal = v;
-        });
-
-        this.animarNumero(data.pedidos_completados, (v) => {
-          this.animPedidosComp = v;
-        });
-
-        this.animarNumero(data.pedidos_cancelados, (v) => {
-          this.animPedidosCanc = v;
-        });
-
+        // Usar valores actuales como punto de partida si NO se resetea
+        this.animarNumero(data.platillos_preparados, (v) => { this.animPrep = v; }, resetearValores ? 0 : this.animPrep);
+        this.animarNumero(data.platillos_cancelados, (v) => { this.animCanc = v; }, resetearValores ? 0 : this.animCanc);
+        this.animarNumero(data.total_platillos, (v) => { this.animTot = v; }, resetearValores ? 0 : this.animTot);
+        this.animarNumero(data.ingresos_estimados, (v) => { this.animIng = v; }, resetearValores ? 0 : this.animIng);
+        this.animarNumero(data.egresos_estimados, (v) => { this.animEgr = v; }, resetearValores ? 0 : this.animEgr);
+        this.animarNumero(data.ganancia_estimada, (v) => { this.animGan = v; }, resetearValores ? 0 : this.animGan);
+        this.animarNumero(data.egresos_cancelados!, (v) => { this.animPerd = v; }, resetearValores ? 0 : this.animPerd);
+        this.animarNumero(data.ticket_promedio, (v) => { this.animTicket = v; }, resetearValores ? 0 : this.animTicket);
+        this.animarNumero(data.tasa_cancelacion, (v) => { this.animTasaCanc = v; }, resetearValores ? 0 : this.animTasaCanc);
+        this.animarNumero(data.platillos_por_pedido, (v) => { this.animPlatPedido = v; }, resetearValores ? 0 : this.animPlatPedido);
+        this.animarNumero(data.total_pedidos, (v) => { this.animPedidosTotal = v; }, resetearValores ? 0 : this.animPedidosTotal);
+        this.animarNumero(data.pedidos_completados, (v) => { this.animPedidosComp = v; }, resetearValores ? 0 : this.animPedidosComp);
+        this.animarNumero(data.pedidos_cancelados, (v) => { this.animPedidosCanc = v; }, resetearValores ? 0 : this.animPedidosCanc);
         this.cd.detectChanges();
       }, 10);
     };
@@ -335,7 +408,7 @@ export class ReporteVentasl implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  cargar_reporte_intervalo(inicio: string, fin: string) {
+  cargar_reporte_intervalo(inicio: string, fin: string, resetearValores: boolean = true) {
     this.isLoadingReport = true;
 
     this.ReportesService.get_reporte_ventas_intervalo(inicio, fin).subscribe({
@@ -344,19 +417,19 @@ export class ReporteVentasl implements OnInit, OnDestroy, AfterViewInit {
         this.isLoadingReport = false;
 
         setTimeout(() => {
-          this.animarNumero(data.platillos_preparados, (v) => { this.animPrep = v; });
-          this.animarNumero(data.platillos_cancelados, (v) => { this.animCanc = v; });
-          this.animarNumero(data.total_platillos, (v) => { this.animTot = v; });
-          this.animarNumero(data.ingresos_estimados, (v) => { this.animIng = v; });
-          this.animarNumero(data.egresos_estimados, (v) => { this.animEgr = v; });
-          this.animarNumero(data.ganancia_estimada, (v) => { this.animGan = v; });
-          this.animarNumero(data.egresos_cancelados!, (v) => { this.animPerd = v; });
-          this.animarNumero(data.ticket_promedio, (v) => { this.animTicket = v; });
-          this.animarNumero(data.tasa_cancelacion, (v) => { this.animTasaCanc = v; });
-          this.animarNumero(data.platillos_por_pedido, (v) => { this.animPlatPedido = v; });
-          this.animarNumero(data.total_pedidos, (v) => { this.animPedidosTotal = v; });
-          this.animarNumero(data.pedidos_completados, (v) => { this.animPedidosComp = v; });
-          this.animarNumero(data.pedidos_cancelados, (v) => { this.animPedidosCanc = v; });
+          this.animarNumero(data.platillos_preparados, (v) => { this.animPrep = v; }, resetearValores ? 0 : this.animPrep);
+          this.animarNumero(data.platillos_cancelados, (v) => { this.animCanc = v; }, resetearValores ? 0 : this.animCanc);
+          this.animarNumero(data.total_platillos, (v) => { this.animTot = v; }, resetearValores ? 0 : this.animTot);
+          this.animarNumero(data.ingresos_estimados, (v) => { this.animIng = v; }, resetearValores ? 0 : this.animIng);
+          this.animarNumero(data.egresos_estimados, (v) => { this.animEgr = v; }, resetearValores ? 0 : this.animEgr);
+          this.animarNumero(data.ganancia_estimada, (v) => { this.animGan = v; }, resetearValores ? 0 : this.animGan);
+          this.animarNumero(data.egresos_cancelados!, (v) => { this.animPerd = v; }, resetearValores ? 0 : this.animPerd);
+          this.animarNumero(data.ticket_promedio, (v) => { this.animTicket = v; }, resetearValores ? 0 : this.animTicket);
+          this.animarNumero(data.tasa_cancelacion, (v) => { this.animTasaCanc = v; }, resetearValores ? 0 : this.animTasaCanc);
+          this.animarNumero(data.platillos_por_pedido, (v) => { this.animPlatPedido = v; }, resetearValores ? 0 : this.animPlatPedido);
+          this.animarNumero(data.total_pedidos, (v) => { this.animPedidosTotal = v; }, resetearValores ? 0 : this.animPedidosTotal);
+          this.animarNumero(data.pedidos_completados, (v) => { this.animPedidosComp = v; }, resetearValores ? 0 : this.animPedidosComp);
+          this.animarNumero(data.pedidos_cancelados, (v) => { this.animPedidosCanc = v; }, resetearValores ? 0 : this.animPedidosCanc);
           this.cd.detectChanges();
         }, 10);
       },
@@ -419,7 +492,6 @@ export class ReporteVentasl implements OnInit, OnDestroy, AfterViewInit {
         this.chartData = data;
         this.isLoadingCharts = false;
 
-        // Esperar a que Angular renderice los canvas
         setTimeout(() => {
           this.crearGraficas();
         }, 100);
@@ -483,7 +555,6 @@ export class ReporteVentasl implements OnInit, OnDestroy, AfterViewInit {
   crearGraficas() {
     if (!this.chartData) return;
 
-    // Destruir gráficas anteriores si existen
     this.destruirCharts();
 
     // Gráfica de Ventas (Línea)

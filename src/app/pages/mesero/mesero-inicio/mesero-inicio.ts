@@ -47,7 +47,6 @@ export class MeseroInicio implements OnInit, OnDestroy {
     private listasservice: ObtenerListas,
     public wsService: WebSocketService,
     private productoService: ProductosService
-
   ) { }
 
   ngOnInit(): void {
@@ -77,7 +76,6 @@ export class MeseroInicio implements OnInit, OnDestroy {
   /**
    * 🔥 Conecta al WebSocket y escucha notificaciones
    */
-
   conectarWebSocket(): void {
     console.log('🔌 Conectando al WebSocket como mesero...');
 
@@ -90,7 +88,6 @@ export class MeseroInicio implements OnInit, OnDestroy {
         console.error('❌ Error en WebSocket:', error);
       }
     });
-
   }
 
   /**
@@ -103,11 +100,13 @@ export class MeseroInicio implements OnInit, OnDestroy {
       case 'platillo_listo':
         this.manejarPlatilloListo(message);
         break;
-
+      case 'platillo_servido':
+        this.cargarListaListos();
+        break;
       case 'platillo_cancelado':
         this.mostrarNotificacion(
           'Platillo cancelado',
-          `Mesa n`,
+          `Se ha cancelado un platillo`,
           'warning'
         );
         this.cargarListaListos();
@@ -117,7 +116,7 @@ export class MeseroInicio implements OnInit, OnDestroy {
       case 'pedido_cancelado':
         this.mostrarNotificacion(
           'Pedido cancelado',
-          `Mesa n`,
+          `Se ha cancelado un pedido completo`,
           'warning'
         );
         this.cargarListaListos();
@@ -125,13 +124,13 @@ export class MeseroInicio implements OnInit, OnDestroy {
         break;
 
       case 'nuevo_pedido':
-        this.mostrarNotificacion(
-          'Pedido creado',
-          `Mesa n`,
-          'warning'
-        );
-        // Si quieres notificar cuando hay un nuevo pedido
+
         this.obtener_mesas();
+        break;
+
+      case 'pago_completado':
+        this.obtener_mesas();
+
         break;
 
       case 'pong':
@@ -162,23 +161,25 @@ export class MeseroInicio implements OnInit, OnDestroy {
   }
 
   /**
-   * 🔥 Maneja la notificación de platillo cancelado
+   * 🔥 Maneja la notificación de pago completado
    */
-  private manejarPlatilloCancelado(message: WebSocketMessage): void {
-    // Remover de la lista de listos si está ahí
-    this.listasListos = this.listasListos.filter(
-      platillo => platillo.id_detalle !== message.id_detalle
-    );
+  private manejarPagoCompletado(message: WebSocketMessage): void {
+    // Actualizar lista de mesas
 
-    // Actualizar mesas por si se canceló el pedido completo
-    this.obtener_mesas();
+    // Limpiar selección si era la mesa que se pagó
+    if (this.id_mesa === message.id_mesa) {
+      this.mesaSeleccionada = "";
+      this.id_mesa = "";
+      this.Estado_mesa = "";
+      this.id_pedido = "";
+    }
 
     // Mostrar notificación
-    this.mostrarNotificacion(
-      '❌ Platillo Cancelado',
-      `${message.nombre_platillo} ha sido cancelado`,
-      'warning'
-    );
+    const mesaTexto = message.nombre_mesa || 'una mesa';
+
+
+    // Reproducir sonido
+    this.reproducirSonidoNotificacion();
   }
 
   /**
@@ -189,7 +190,7 @@ export class MeseroInicio implements OnInit, OnDestroy {
       toast: true,
       position: 'top-end',
       showConfirmButton: false,
-      timer: 3000,
+      timer: 4000,
       timerProgressBar: true,
       didOpen: (toast) => {
         toast.addEventListener('mouseenter', Swal.stopTimer);
@@ -234,7 +235,6 @@ export class MeseroInicio implements OnInit, OnDestroy {
         this.cd.detectChanges();
       });
     });
-
   }
 
   obtener_nombre_puesto() {
@@ -346,27 +346,19 @@ export class MeseroInicio implements OnInit, OnDestroy {
     });
   }
 
-
-
   getImageUrl(rutaImagen: string): string {
-
     const defaultImg = 'profiles/maquin_de_apoyo.jpeg';
-    // Si no viene nada
+
     if (!rutaImagen) return defaultImg;
 
-    // Si ya es una URL completa
     const url = rutaImagen.startsWith('http')
       ? rutaImagen
       : `${this.productoService['apiUrlserve']}/${rutaImagen}`;
 
-    // Verificar si la imagen existe cargándola en memoria
     const img = new Image();
     img.src = url;
-
-    // Si falla, devuelve default
     img.onerror = () => img.src = defaultImg;
 
     return img.src;
   }
-
 }

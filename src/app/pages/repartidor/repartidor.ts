@@ -136,7 +136,7 @@ export class Repartidor implements OnInit, OnDestroy {
       title: '🎉 Nuevo Pedido Asignado',
       html: `
         <div style="text-align: left; padding: 10px;">
-          <p><strong>Cliente:</strong> ${mensaje || 'N/A'}</p>
+          <p>Precione el boton para ver los detalles </p>
             </div>
       `,
       icon: 'success',
