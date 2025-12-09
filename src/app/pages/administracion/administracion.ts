@@ -29,10 +29,11 @@ import { EditarAutomovil } from "../../components/admninistracion/autos_m/editar
 import { MesasGeneral } from "../../components/admninistracion/mesas_m/mesas-general/mesas-general";
 import { AgregarMesa } from "../../components/admninistracion/mesas_m/agregar-mesa/agregar-mesa";
 import { EditarMesa } from "../../components/admninistracion/mesas_m/editar-mesa/editar-mesa";
+import { MineriaDatosComponent } from "../../components/admninistracion/mineriadatos/mineriadatos";
 
 @Component({
   selector: 'app-administracion',
-  imports: [CommonModule, ReporteVentasl, EmpleadosGeneral, EditarEmpleado, AgregarEmpleado, AgregarPuesto, EditarPuesto, AgregarUniforme, EditarUniforme, PlatillosGeneral, AgregarPlatillo, EditarPlatillo, AgregarTipoPlatillo, EditarTipoPlatillo, UsuariosGeneral, AgregarUsuario, EditarUsuario, CombosGeneral, AgregarCombo, EditarCombo, OfertasGeneral, AgregarOferta, EditarOferta, AutomovilesGeneral, AgregarAutomovil, EditarAutomovil, MesasGeneral, AgregarMesa, EditarMesa],
+  imports: [CommonModule, ReporteVentasl, EmpleadosGeneral, EditarEmpleado, AgregarEmpleado, AgregarPuesto, EditarPuesto, AgregarUniforme, EditarUniforme, PlatillosGeneral, AgregarPlatillo, EditarPlatillo, AgregarTipoPlatillo, EditarTipoPlatillo, UsuariosGeneral, AgregarUsuario, EditarUsuario, CombosGeneral, AgregarCombo, EditarCombo, OfertasGeneral, AgregarOferta, EditarOferta, AutomovilesGeneral, AgregarAutomovil, EditarAutomovil, MesasGeneral, AgregarMesa, EditarMesa, MineriaDatosComponent],
   templateUrl: './administracion.html',
   styleUrl: './administracion.css',
 })

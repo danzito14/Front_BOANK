@@ -39,6 +39,18 @@
                 </div>
             </div>
 
+            <div *ngSwitchCase="'recomendar'">
+                <div class="titulo">
+                    <h1>{{ titulo }}</h1>
+                </div>
+
+                <div class="result">
+
+                    <app-tarjeta-product [favoritospage]="true" tipo="productos" *ngIf="resultadoProducto"
+                        [productosExternos]="resultadoProducto"></app-tarjeta-product>
+                </div>
+            </div>
+
 
 
             <div *ngSwitchCase="'precio'">

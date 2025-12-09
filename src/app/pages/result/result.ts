@@ -73,6 +73,8 @@ export class Result implements OnInit {
     }
     else if (this.filtro_especial === 'favoritos' || this.filtro_usuario === 'favoritos') {
       this.cargarFavoritos();
+    } else if (this.filtro_especial === 'recomendar') {
+      this.recomendar();
     }
     else {
       this.titulo = 'Sin resultados';
@@ -158,6 +160,24 @@ export class Result implements OnInit {
       },
       error: (err) => console.error('Error cargando productos:', err)
     });
+  }
+
+
+  recomendar() {
+    this.filtro_especial = 'recomendar';
+    this.titulo = 'Nuestras recomendaciones';
+    this.filtroproductoService.get_recomendacion().subscribe({
+      next: (productos) => {
+        setTimeout(() => {
+
+          this.zone.run(() => {
+            this.resultadoProducto = productos;
+          })
+          this.cd.detectChanges();
+        });
+      },
+      error: (err) => console.error("Error al obenter los productos", err)
+    })
   }
 
 }

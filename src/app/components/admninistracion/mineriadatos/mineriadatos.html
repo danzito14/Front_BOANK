@@ -1,0 +1,407 @@
+<!-- mineria-datos.component.html -->
+<div class="container-mineria">
+    <div class="header-mineria">
+        <h1>🔬 Análisis Inteligente de Datos</h1>
+        <p class="subtitle">Predicciones y patrones basados en Machine Learning</p>
+    </div>
+
+    <!-- Tabs de Navegación -->
+    <div class="tabs-mineria">
+        <div class="tab" [class.active]="tabActivo === 'predicciones'" (click)="cambiarTab('predicciones')">
+            <span class="tab-icon"><i class="fa-solid fa-ban"></i></span>
+            Riesgo de Cancelación
+        </div>
+        <div class="tab" [class.active]="tabActivo === 'patrones'" (click)="cambiarTab('patrones')">
+            <span class="tab-icon"> <i class="fa-solid fa-chart-simple"></i></span>
+            Patrones Temporales
+        </div>
+        <div class="tab" [class.active]="tabActivo === 'demanda'" (click)="cambiarTab('demanda')">
+            <span class="tab-icon"><i class="fa-solid fa-chart-area"></i></span>
+            Predicción de Demanda
+        </div>
+        <div class="tab" [class.active]="tabActivo === 'rentabilidad'" (click)="cambiarTab('rentabilidad')">
+            <span class="tab-icon"><i class="fa-solid fa-sack-dollar"></i></span>
+            Análisis de Rentabilidad
+        </div>
+        <div class="tab" [class.active]="tabActivo === 'segmentacion'" (click)="cambiarTab('segmentacion')">
+            <span class="tab-icon"><i class="fa-solid fa-people-group"></i></span>
+            Segmentación
+        </div>
+    </div>
+
+    <!-- Contenido: Predicción de Cancelaciones -->
+    <div class="content-section" *ngIf="tabActivo === 'predicciones'">
+        <div class="loading" *ngIf="isLoadingPredicciones">
+            <div class="spinner"></div>
+            <p>Analizando patrones de cancelación...</p>
+        </div>
+
+        <div *ngIf="!isLoadingPredicciones && prediccionCancelaciones">
+            <!-- Métricas del Modelo -->
+            <div class="metricas-modelo">
+                <div class="metrica-card">
+                    <h3>Precisión del Modelo</h3>
+                    <div class="valor-grande">{{ prediccionCancelaciones.accuracy_modelo }}%</div>
+                    <p class="descripcion">Exactitud de predicción</p>
+                </div>
+                <div class="metrica-card">
+                    <h3>Datos Analizados</h3>
+                    <div class="valor-grande">{{ prediccionCancelaciones.total_datos_analizados | number }}</div>
+                    <p class="descripcion">Registros históricos</p>
+                </div>
+                <div class="metrica-card factores">
+                    <h3>Factores Más Importantes</h3>
+                    <div class="factores-list">
+                        <div *ngFor="let factor of prediccionCancelaciones.factores_importantes | keyvalue"
+                            class="factor-item">
+                            <span class="factor-nombre">{{ factor.key }}</span>
+                            <div class="factor-barra">
+                                <div class="factor-fill" [style.width.%]="factor.value"></div>
+                            </div>
+                            <span class="factor-valor">{{ factor.value }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfica de Riesgo -->
+            <div class="grafica-card">
+                <h3>Platillos con Mayor Riesgo de Cancelación</h3>
+                <div class="chart-wrapper">
+                    <canvas #chartRiesgo></canvas>
+                </div>
+            </div>
+
+            <!-- Tabla de Predicciones -->
+            <div class="tabla-predicciones">
+                <h3>Predicciones Detalladas</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Platillo</th>
+                            <th>Categoría</th>
+                            <th class="text-center">Tasa Cancelación</th>
+                            <th class="text-right">Precio</th>
+                            <th class="text-center">Nivel de Riesgo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let pred of prediccionCancelaciones.predicciones">
+                            <td class="font-medium">{{ pred.platillo }}</td>
+                            <td>{{ pred.categoria }}</td>
+                            <td class="text-center">{{ pred.tasa_cancelacion }}%</td>
+                            <td class="text-right">${{ pred.precio_venta | number:'1.2-2' }}</td>
+                            <td class="text-center">
+                                <span class="badge-riesgo"
+                                    [style.background-color]="getNivelRiesgoColor(pred.nivel_riesgo) + '20'"
+                                    [style.color]="getNivelRiesgoColor(pred.nivel_riesgo)">
+                                    {{ pred.nivel_riesgo }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Recomendaciones -->
+            <div class="recomendaciones-card" *ngIf="prediccionCancelaciones.recomendaciones.length > 0">
+                <h3><i class="fa-solid fa-lightbulb"></i> Recomendaciones</h3>
+                <ul>
+                    <li *ngFor="let rec of prediccionCancelaciones.recomendaciones">{{ rec }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido: Patrones Temporales -->
+    <div class="content-section" *ngIf="tabActivo === 'patrones'">
+        <div class="loading" *ngIf="isLoadingPatrones">
+            <div class="spinner"></div>
+            <p>Analizando patrones temporales...</p>
+        </div>
+
+        <div *ngIf="!isLoadingPatrones && patronesTemporales">
+            <!-- Gráfica por Hora -->
+            <div class="grafica-card">
+                <h3>Ventas por Hora del Día</h3>
+                <div class="chart-wrapper">
+                    <canvas #chartHoras></canvas>
+                </div>
+            </div>
+
+            <!-- Horas Pico y Bajas -->
+            <div class="horas-especiales">
+                <div class="horas-card pico">
+                    <h3><i class="fa-solid fa-arrow-trend-up"></i> Horas Pico</h3>
+                    <div class="horas-list">
+                        <div *ngFor="let hora of patronesTemporales.horas_pico" class="hora-item">
+                            <span class="hora">{{ hora.hora }}</span>
+                            <span class="pedidos">{{ hora.pedidos }} pedidos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="horas-card bajas">
+                    <h3><i class="fa-solid fa-arrow-trend-down"></i> Horas Bajas</h3>
+                    <div class="horas-list">
+                        <div *ngFor="let hora of patronesTemporales.horas_bajas" class="hora-item">
+                            <span class="hora">{{ hora.hora }}</span>
+                            <span class="pedidos">{{ hora.pedidos }} pedidos</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ventas por Día de Semana -->
+            <div class="tabla-dias">
+                <h3>Distribución por Día de la Semana</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Día</th>
+                            <th class="text-center">Pedidos</th>
+                            <th class="text-right">Ingresos</th>
+                            <th class="text-center">Tasa Cancelación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let dia of patronesTemporales.ventas_por_dia_semana">
+                            <td class="font-medium">{{ dia.dia }}</td>
+                            <td class="text-center">{{ dia.pedidos }}</td>
+                            <td class="text-right">${{ dia.ingresos | number:'1.2-2' }}</td>
+                            <td class="text-center">{{ dia.tasa_cancelacion }}%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Insights -->
+            <div class="insights-card" *ngIf="patronesTemporales.insights.length > 0">
+                <h3><i class="fa-solid fa-magnifying-glass"></i> Insights Detectados</h3>
+                <ul>
+                    <li *ngFor="let insight of patronesTemporales.insights">{{ insight }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido: Predicción de Demanda -->
+    <div class="content-section" *ngIf="tabActivo === 'demanda'">
+        <div class="loading" *ngIf="isLoadingDemanda">
+            <div class="spinner"></div>
+            <p>Calculando predicciones de demanda...</p>
+        </div>
+
+        <div *ngIf="!isLoadingDemanda && prediccionDemanda">
+            <!-- Info del Análisis -->
+            <div class="info-analisis">
+                <p><strong>Fecha de Análisis:</strong> {{ prediccionDemanda.fecha_analisis }}</p>
+                <p><strong>Período:</strong> {{ prediccionDemanda.periodo_datos }}</p>
+            </div>
+
+            <!-- Gráfica de Demanda -->
+            <div class="grafica-card">
+                <h3>Predicción de Demanda - Próxima Semana</h3>
+                <div class="chart-wrapper">
+                    <canvas #chartDemanda></canvas>
+                </div>
+            </div>
+
+            <!-- Tabla de Predicciones -->
+            <div class="tabla-demanda">
+                <h3>Predicciones por Platillo</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Platillo</th>
+                            <th class="text-center">Promedio Diario</th>
+                            <th class="text-center">Última Semana</th>
+                            <th class="text-center">Predicción</th>
+                            <th class="text-center">Tendencia</th>
+                            <th class="text-center">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let pred of prediccionDemanda.predicciones">
+                            <td class="font-medium">{{ pred.platillo }}</td>
+                            <td class="text-center">{{ pred.demanda_promedio_diaria | number:'1.1-1' }}</td>
+                            <td class="text-center">{{ pred.demanda_ultima_semana | number:'1.1-1' }}</td>
+                            <td class="text-center font-bold">{{ pred.prediccion_proxima_semana | number:'1.1-1' }}</td>
+                            <td class="text-center">
+                                <span [style.color]="getTendenciaColor(pred.estado_tendencia)">
+                                    {{ pred.tendencia > 0 ? '+' : '' }}{{ pred.tendencia | number:'1.1-1' }}%
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-tendencia"
+                                    [style.background-color]="getTendenciaColor(pred.estado_tendencia) + '20'"
+                                    [style.color]="getTendenciaColor(pred.estado_tendencia)">
+                                    {{ getTendenciaIcono(pred.estado_tendencia) }} {{ pred.estado_tendencia }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Recomendaciones de Inventario -->
+            <div class="recomendaciones-card" *ngIf="prediccionDemanda.recomendaciones_inventario.length > 0">
+                <h3>📦 Recomendaciones de Inventario</h3>
+                <ul>
+                    <li *ngFor="let rec of prediccionDemanda.recomendaciones_inventario">{{ rec }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido: Análisis de Rentabilidad -->
+    <div class="content-section" *ngIf="tabActivo === 'rentabilidad'">
+        <div class="loading" *ngIf="isLoadingRentabilidad">
+            <div class="spinner"></div>
+            <p>Analizando rentabilidad...</p>
+        </div>
+
+        <div *ngIf="!isLoadingRentabilidad && rentabilidad">
+            <!-- Gráfica de Top Rentables -->
+            <div class="grafica-card">
+                <h3>Top 10 Platillos Más Rentables</h3>
+                <div class="chart-wrapper">
+                    <canvas #chartRentabilidad></canvas>
+                </div>
+            </div>
+
+            <!-- Tablas de Rentabilidad -->
+            <div class="tablas-rentabilidad">
+                <div class="tabla-rentable">
+                    <h3><i class="fa-solid fa-sack-dollar"></i> Platillos Más Rentables</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Platillo</th>
+                                <th class="text-center">Ventas</th>
+                                <th class="text-right">Ganancia</th>
+                                <th class="text-center">Margen</th>
+                                <th class="text-center">ROI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of rentabilidad.top_rentables">
+                                <td class="font-medium">{{ item.platillo }}</td>
+                                <td class="text-center">{{ item.ventas_totales }}</td>
+                                <td class="text-right">${{ item.ganancia_total | number:'1.2-2' }}</td>
+                                <td class="text-center">{{ item.margen | number:'1.1-1' }}%</td>
+                                <td class="text-center">{{ item.roi | number:'1.1-1' }}%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tabla-bajo-rendimiento">
+                    <h3><i class="fa-solid fa-ban"></i> Platillos de Bajo Rendimiento</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Platillo</th>
+                                <th class="text-center">Ventas</th>
+                                <th class="text-center">Margen</th>
+                                <th class="text-center">Cancelación</th>
+                                <th>Problema</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of rentabilidad.bajo_rendimiento">
+                                <td class="font-medium">{{ item.platillo }}</td>
+                                <td class="text-center">{{ item.ventas_totales }}</td>
+                                <td class="text-center">{{ item.margen | number:'1.1-1' }}%</td>
+                                <td class="text-center">{{ item.tasa_cancelacion | number:'1.1-1' }}%</td>
+                                <td><span class="badge-problema">{{ item.problema }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Análisis por Categoría -->
+            <div class="tabla-categoria">
+                <h3>Análisis por Categoría</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Categoría</th>
+                            <th class="text-center">Ventas Totales</th>
+                            <th class="text-center">Margen Promedio</th>
+                            <th class="text-center">Tasa Cancelación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let cat of rentabilidad.por_categoria">
+                            <td class="font-medium">{{ cat.categoria }}</td>
+                            <td class="text-center">{{ cat.ventas }}</td>
+                            <td class="text-center">{{ cat.margen_promedio | number:'1.1-1' }}%</td>
+                            <td class="text-center">{{ cat.tasa_cancelacion | number:'1.1-1' }}%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Recomendaciones -->
+            <div class="recomendaciones-card" *ngIf="rentabilidad.recomendaciones.length > 0">
+                <h3><i class="fa-solid fa-lightbulb"></i> Recomendaciones Estratégicas</h3>
+                <ul>
+                    <li *ngFor="let rec of rentabilidad.recomendaciones">{{ rec }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido: Segmentación -->
+    <div class="content-section" *ngIf="tabActivo === 'segmentacion'">
+        <div class="loading" *ngIf="isLoadingSegmentacion">
+            <div class="spinner"></div>
+            <p>Analizando segmentos...</p>
+        </div>
+
+        <div *ngIf="!isLoadingSegmentacion && segmentacion">
+            <!-- Gráfica de Segmentos -->
+            <div class="grafica-card">
+                <h3>Distribución de Ingresos por Tipo de Pedido</h3>
+                <div class="chart-wrapper">
+                    <canvas #chartSegmentos></canvas>
+                </div>
+            </div>
+
+            <!-- Tabla de Segmentos -->
+            <div class="tabla-segmentos">
+                <h3>Análisis por Tipo de Pedido</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th class="text-center">Total Pedidos</th>
+                            <th class="text-right">Ingresos Totales</th>
+                            <th class="text-right">Ticket Promedio</th>
+                            <th class="text-center">Tasa Cancelación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let seg of segmentacion.resumen_por_tipo">
+                            <td class="font-medium">{{ seg.tipo }}</td>
+                            <td class="text-center">{{ seg.total_pedidos }}</td>
+                            <td class="text-right">${{ seg.ingresos_totales | number:'1.2-2' }}</td>
+                            <td class="text-right">${{ seg.ticket_promedio | number:'1.2-2' }}</td>
+                            <td class="text-center">{{ seg.tasa_cancelacion | number:'1.1-1' }}%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Insights -->
+            <div class="insights-card" *ngIf="segmentacion.insights.length > 0">
+                <h3><i class="fa-solid fa-magnifying-glass"></i> Insights de Segmentación</h3>
+                <ul>
+                    <li *ngFor="let insight of segmentacion.insights">{{ insight }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

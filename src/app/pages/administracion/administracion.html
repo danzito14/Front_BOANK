@@ -13,6 +13,12 @@
                     Ventas
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" (click)="cambiar_div('mineria_datos'); reiniciar_tab()">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i>
+                    Analisis de Datos
+                </a>
+            </li>
             <li class="nav-item" (click)="cambiar_div('empleados_general'); reiniciar_tab()">
                 <a class="nav-link">
                     <i class="fa-solid fa-address-card"></i>
@@ -69,7 +75,10 @@
         <div *ngSwitchCase="'ventas'">
             <app-reporte-ventas></app-reporte-ventas>
         </div>
-
+        <div *ngSwitchCase="'mineria_datos'">
+            <h3>Mineria de datos</h3>
+            <app-mineria-datos></app-mineria-datos>
+        </div>
         <!-- 
         #######################################################################################
         Empleados

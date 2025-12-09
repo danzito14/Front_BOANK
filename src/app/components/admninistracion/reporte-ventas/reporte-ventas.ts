@@ -12,13 +12,14 @@ import {
   PlatilloRentableInterface
 } from '../../../services/administrador/reportes';
 import { WebSocketService, WebSocketMessage } from '../../../services/untils/web-socket-service';
+import { MineriaDatosComponent } from "../mineriadatos/mineriadatos";
 
 // Registrar todos los componentes de Chart.js
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-reporte-ventas',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, MineriaDatosComponent],
   templateUrl: './reporte-ventas.html',
   styleUrl: './reporte-ventas.css',
 })

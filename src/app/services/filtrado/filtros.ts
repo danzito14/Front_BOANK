@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Producto } from '../home/productos-service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
@@ -30,5 +30,12 @@ export class Filtros {
   get_combos_by_price(min_price: number, max_price: number): Observable<Producto[]> {
     return this.http.get<Producto[]>(`${this.apiUrlCombo}/get_combo_by_price?min_price=${min_price}&max_price=${max_price}`)
   }
+
+  get_recomendacion(): Observable<Producto[]> {
+    return this.http.get<any>(`${this.apiUrl}/recomendar/global`).pipe(
+      map(resp => resp.data) // Extrae el arreglo data[]
+    );
+  }
+
 
 }
